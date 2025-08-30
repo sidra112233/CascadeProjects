@@ -10,15 +10,24 @@ router.get('/', requireAuth, async (req, res) => {
     const { type } = req.query;
     
     try {
-        let query = 'SELECT * FROM customers';
+        let query = `
+            SELECT c.*, 
+                   p.name as province_name,
+                   ci.name as city_name,
+                   t.name as town_name
+            FROM customers c
+            LEFT JOIN provinces p ON c.province_id = p.id
+            LEFT JOIN cities ci ON c.city_id = ci.id
+            LEFT JOIN towns t ON c.town_id = t.id
+        `;
         let params = [];
         
         if (type && ['B2B', 'B2C'].includes(type)) {
-            query += ' WHERE type = ?';
+            query += ' WHERE c.customer_type = ?';
             params.push(type);
         }
         
-        query += ' ORDER BY created_at DESC';
+        query += ' ORDER BY c.created_at DESC';
         
         const [customers] = await db.execute(query, params);
         res.json({ customers, filterType: type || 'all' });
@@ -56,11 +65,15 @@ router.post('/', requireAuth, requireRole(['admin']), [
     const { type, name, business_name, contact, whatsapp, email, address, city, region, area } = req.body;
 
     try {
-        await db.execute(`
-            INSERT INTO customers (type, name, business_name, contact, whatsapp, email, address, city, region, area)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [type, name, business_name || null, contact, whatsapp || null, email || null, address || null, city, region, area || null]);
-
+        const connection = await db.getConnection();
+        const [result] = await connection.execute(
+            `INSERT INTO customers (
+                type, name, business_name, contact, whatsapp, 
+                email, address, city, region, area
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [type, name, business_name, contact, whatsapp, email, address, city, region, area]
+        );
+        connection.release();
         res.redirect('/customers?success=Customer added successfully');
     } catch (error) {
         console.error('Create customer error:', error);
@@ -112,12 +125,20 @@ router.post('/:id', requireAuth, requireRole(['admin']), [
     const { type, name, business_name, contact, whatsapp, email, address, city, region, area } = req.body;
 
     try {
-        await db.execute(`
-            UPDATE customers 
-            SET type = ?, name = ?, business_name = ?, contact = ?, whatsapp = ?, email = ?, address = ?, city = ?, region = ?, area = ?
-            WHERE id = ?
-        `, [type, name, business_name || null, contact, whatsapp || null, email || null, address || null, city, region, area || null, id]);
-
+        const connection = await db.getConnection();
+        const [result] = await connection.execute(
+            `UPDATE customers SET 
+                type = ?, name = ?, business_name = ?, contact = ?, 
+                whatsapp = ?, email = ?, address = ?, city = ?, region = ?, area = ?
+            WHERE id = ?`,
+            [type, name, business_name, contact, whatsapp, email, address, city, region, area, id]
+        );
+        connection.release();
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Customer not found' });
+        }
+        
         res.redirect('/customers?success=Customer updated successfully');
     } catch (error) {
         console.error('Update customer error:', error);
@@ -137,7 +158,14 @@ router.post('/:id/delete', requireAuth, requireRole(['admin']), async (req, res)
             return res.redirect('/customers?error=Cannot delete customer with existing sales records');
         }
 
-        await db.execute('DELETE FROM customers WHERE id = ?', [id]);
+        const connection = await db.getConnection();
+        const [result] = await connection.execute('DELETE FROM customers WHERE id = ?', [id]);
+        connection.release();
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: 'Customer not found' });
+        }
+        
         res.redirect('/customers?success=Customer deleted successfully');
     } catch (error) {
         console.error('Delete customer error:', error);

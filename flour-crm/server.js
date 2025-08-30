@@ -79,6 +79,10 @@ app.get('/reports', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'reports.html'));
 });
 
+app.get('/sales-agents', requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'sales-agents.html'));
+});
+
 
 // API routes for data operations (keep existing route handlers for AJAX calls)
 const authRoutes = require('./routes/auth');
@@ -87,13 +91,17 @@ const salesRoutes = require('./routes/sales');
 const customerRoutes = require('./routes/customers');
 const productRoutes = require('./routes/products');
 const reportRoutes = require('./routes/reports');
+const locationRoutes = require('./routes/locations');
+const salesAgentRoutes = require('./routes/sales-agents');
 
 app.use('/api/auth', authRoutes);
-app.use('/api/dashboard', dashboardRoutes);
+app.use('/dashboard', dashboardRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/locations', locationRoutes);
+app.use('/api/sales-agents', salesAgentRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -146,121 +146,8 @@
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr data-type="B2B">
-                                            <td>
-                                                <div>
-                                                    <strong>Ahmed Khan</strong>
-                                                    <br><small class="text-muted">Khan Flour Mills</small>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-success">B2B</span>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    <i class="bi bi-telephone me-1"></i>+92-300-1234567
-                                                    <br><i class="bi bi-whatsapp me-1 text-success"></i>+92-300-1234567
-                                                    <br><i class="bi bi-envelope me-1"></i><small>ahmed@khanflour.com</small>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    <strong>Lahore</strong>
-                                                    <br><span class="badge bg-secondary">Punjab</span>
-                                                    <br><small class="text-muted">Walton Road</small>
-                                                </div>
-                                            </td>
-                                            <td>1/15/2024</td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="customers-profile.html" class="btn btn-outline-primary">
-                                                        <i class="bi bi-eye"></i>
-                                                    </a>
-                                                    <a href="customers-edit.html" class="btn btn-outline-secondary">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                    <button type="button" class="btn btn-outline-danger" onclick="confirmDelete()">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr data-type="B2C">
-                                            <td>
-                                                <div>
-                                                    <strong>Fatima Ali</strong>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-info">B2C</span>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    <i class="bi bi-telephone me-1"></i>+92-301-9876543
-                                                    <br><i class="bi bi-envelope me-1"></i><small>fatima.ali@email.com</small>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    <strong>Karachi</strong>
-                                                    <br><span class="badge bg-secondary">Punjab</span>
-                                                    <br><small class="text-muted">Gulshan-e-Iqbal</small>
-                                                </div>
-                                            </td>
-                                            <td>2/20/2024</td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="customers-profile.html" class="btn btn-outline-primary">
-                                                        <i class="bi bi-eye"></i>
-                                                    </a>
-                                                    <a href="customers-edit.html" class="btn btn-outline-secondary">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                    <button type="button" class="btn btn-outline-danger" onclick="confirmDelete()">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr data-type="B2B">
-                                            <td>
-                                                <div>
-                                                    <strong>Muhammad Hassan</strong>
-                                                    <br><small class="text-muted">Hassan Trading Co.</small>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-success">B2B</span>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    <i class="bi bi-telephone me-1"></i>+92-321-5555555
-                                                    <br><i class="bi bi-whatsapp me-1 text-success"></i>+92-321-5555555
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <div>
-                                                    <strong>Peshawar</strong>
-                                                    <br><span class="badge bg-secondary">KPK</span>
-                                                    <br><small class="text-muted">University Road</small>
-                                                </div>
-                                            </td>
-                                            <td>3/5/2024</td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <a href="customers-profile.html" class="btn btn-outline-primary">
-                                                        <i class="bi bi-eye"></i>
-                                                    </a>
-                                                    <a href="customers-edit.html" class="btn btn-outline-secondary">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                    <button type="button" class="btn btn-outline-danger" onclick="confirmDelete()">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                    <tbody id="customersTableBody">
+                                        <!-- Customers will be loaded dynamically -->
                                     </tbody>
                                 </table>
                             </div>
@@ -274,6 +161,87 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/auth-check.js"></script>
     <script>
+        let allCustomers = [];
+        let currentFilter = 'all';
+
+        // Load customers from backend
+        async function loadCustomers(filterType = 'all') {
+            try {
+                const url = filterType === 'all' ? '/api/customers' : `/api/customers?type=${filterType}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.customers) {
+                    // Debug: Log first customer to see data structure
+                    console.log('Sample customer data:', data.customers[0]);
+                    renderCustomers(data.customers);
+                    updateStats(data.customers);
+                } else {
+                    console.error('No customers data received');
+                }
+            } catch (error) {
+                console.error('Error loading customers:', error);
+                showAlert('Error loading customers data', 'danger');
+            }
+        }
+
+        // Render customers in table
+        function renderCustomers(customers) {
+            const tbody = document.getElementById('customersTableBody');
+            
+            if (customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No customers found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = customers.map(customer => {
+                const badgeClass = customer.customer_type === 'B2B' ? 'bg-success' : 'bg-info';
+                const createdDate = new Date(customer.created_at).toLocaleDateString();
+                
+                return `
+                    <tr data-type="${customer.customer_type}">
+                        <td>
+                            <div>
+                                <strong>${customer.full_name}</strong>
+                                ${customer.business_name ? `<br><small class="text-muted">${customer.business_name}</small>` : ''}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge ${badgeClass}">${customer.customer_type}</span>
+                        </td>
+                        <td>
+                            <div>
+                                <i class="bi bi-telephone me-1"></i>${customer.contact}
+                                ${customer.whatsapp ? `<br><i class="bi bi-whatsapp me-1 text-success"></i>${customer.whatsapp}` : ''}
+                                ${customer.email ? `<br><i class="bi bi-envelope me-1"></i><small>${customer.email}</small>` : ''}
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <strong>${customer.city_name || 'N/A'}</strong>
+                                <br><span class="badge bg-secondary">${customer.province_name || 'N/A'}</span>
+                                ${customer.town_name ? `<br><small class="text-muted">${customer.town_name}</small>` : ''}
+                            </div>
+                        </td>
+                        <td>${createdDate}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="customers-profile.html?id=${customer.id}" class="btn btn-outline-primary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="customers-edit.html?id=${customer.id}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-outline-danger" onclick="confirmDelete(${customer.id})">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
         // Filter functionality
         document.querySelectorAll('[data-filter]').forEach(tab => {
             tab.addEventListener('click', function(e) {
@@ -283,25 +251,44 @@
                 document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
                 this.classList.add('active');
                 
-                // Filter table rows
+                // Filter customers
                 const filter = this.dataset.filter;
-                const rows = document.querySelectorAll('tbody tr');
+                currentFilter = filter;
                 
-                rows.forEach(row => {
-                    if (filter === 'all' || row.dataset.type === filter) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+                if (filter === 'all') {
+                    renderCustomers(allCustomers);
+                } else {
+                    const filtered = allCustomers.filter(customer => customer.customer_type === filter);
+                    renderCustomers(filtered);
+                }
             });
         });
 
-        function confirmDelete() {
+        async function confirmDelete(customerId) {
             if (confirm('Are you sure you want to delete this customer?')) {
-                alert('Customer deleted successfully!');
+                try {
+                    const response = await fetch(`/api/customers/${customerId}/delete`, {
+                        method: 'POST'
+                    });
+                    
+                    if (response.ok) {
+                        alert('Customer deleted successfully!');
+                        loadCustomers(); // Reload the list
+                    } else {
+                        const error = await response.json();
+                        alert(error.error || 'Failed to delete customer');
+                    }
+                } catch (error) {
+                    console.error('Error deleting customer:', error);
+                    alert('Error deleting customer');
+                }
             }
         }
+
+        // Load customers on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCustomers();
+        });
     </script>
 </body>
 </html>

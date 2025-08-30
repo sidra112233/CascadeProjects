@@ -6,6 +6,107 @@ const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
+// Reports API data
+router.get('/api', requireAuth, async (req, res) => {
+    try {
+        // Get date filters from query
+        const { start_date, end_date, region } = req.query;
+        
+        let whereClause = 'WHERE 1=1';
+        let params = [];
+        
+        if (start_date) {
+            whereClause += ' AND DATE(s.created_at) >= ?';
+            params.push(start_date);
+        }
+        
+        if (end_date) {
+            whereClause += ' AND DATE(s.created_at) <= ?';
+            params.push(end_date);
+        }
+        
+        if (region) {
+            whereClause += ' AND c.region = ?';
+            params.push(region);
+        }
+
+        // Get total revenue
+        const [revenueResult] = await db.execute(`
+            SELECT COALESCE(SUM(s.total_price), 0) as total_revenue 
+            FROM sales s
+            JOIN customers c ON s.customer_id = c.id
+            ${whereClause}
+        `, params);
+
+        // Get total orders
+        const [ordersResult] = await db.execute(`
+            SELECT COUNT(*) as total_orders 
+            FROM sales s
+            JOIN customers c ON s.customer_id = c.id
+            ${whereClause}
+        `, params);
+
+        // Get average order value
+        const [avgResult] = await db.execute(`
+            SELECT COALESCE(AVG(s.total_price), 0) as avg_order_value 
+            FROM sales s
+            JOIN customers c ON s.customer_id = c.id
+            ${whereClause}
+        `, params);
+
+        // Get active customers
+        const [customersResult] = await db.execute(`
+            SELECT COUNT(DISTINCT s.customer_id) as active_customers 
+            FROM sales s
+            JOIN customers c ON s.customer_id = c.id
+            ${whereClause}
+        `, params);
+
+        // Monthly sales trend (last 12 months)
+        const [salesTrend] = await db.execute(`
+            SELECT 
+                DATE_FORMAT(s.created_at, '%Y-%m') as month,
+                COALESCE(SUM(s.total_price), 0) as revenue
+            FROM sales s
+            JOIN customers c ON s.customer_id = c.id
+            WHERE s.created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+            GROUP BY DATE_FORMAT(s.created_at, '%Y-%m')
+            ORDER BY month
+        `);
+
+        // Payment methods breakdown
+        const [paymentMethods] = await db.execute(`
+            SELECT s.payment_type as type, COALESCE(SUM(s.total_price), 0) as amount
+            FROM sales s
+            JOIN customers c ON s.customer_id = c.id
+            ${whereClause}
+            GROUP BY s.payment_type
+        `, params);
+
+        // Customer types breakdown
+        const [customerTypes] = await db.execute(`
+            SELECT c.customer_type as type, COALESCE(SUM(s.total_price), 0) as revenue
+            FROM sales s
+            JOIN customers c ON s.customer_id = c.id
+            ${whereClause}
+            GROUP BY c.customer_type
+        `, params);
+
+        res.json({
+            totalRevenue: revenueResult[0].total_revenue,
+            totalOrders: ordersResult[0].total_orders,
+            avgOrderValue: Math.round(avgResult[0].avg_order_value),
+            activeCustomers: customersResult[0].active_customers,
+            salesTrend: salesTrend,
+            paymentMethods: paymentMethods,
+            customerTypes: customerTypes
+        });
+    } catch (error) {
+        console.error('Reports API error:', error);
+        res.status(500).json({ error: 'Error loading reports data' });
+    }
+});
+
 // Reports dashboard
 router.get('/', requireAuth, requireRole(['admin', 'accountant']), async (req, res) => {
     try {

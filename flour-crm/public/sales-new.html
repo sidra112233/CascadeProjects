@@ -122,22 +122,14 @@
                                             <div class="col-md-6 mb-3">
                                                 <label for="customer" class="form-label">Customer *</label>
                                                 <select class="form-select" id="customer" name="customer_id" required>
-                                                    <option value="">Select Customer</option>
-                                                    <option value="1">Ahmed Khan - B2B (Lahore)</option>
-                                                    <option value="2">Fatima Ali - B2C (Karachi)</option>
-                                                    <option value="3">Hassan Trading - B2B (Peshawar)</option>
-                                                    <option value="4">Malik Enterprises - B2B (Faisalabad)</option>
-                                                    <option value="5">Sara Bakery - B2C (Islamabad)</option>
+                                                    <option value="">Loading customers...</option>
                                                 </select>
                                             </div>
                                             
                                             <div class="col-md-6 mb-3">
                                                 <label for="product" class="form-label">Product *</label>
                                                 <select class="form-select" id="product" name="product_id" required>
-                                                    <option value="">Select Product</option>
-                                                    <option value="1" data-price="5000">Premium Wheat Flour - 50kg (Rs. 5,000)</option>
-                                                    <option value="2" data-price="2500">Standard Flour - 25kg (Rs. 2,500)</option>
-                                                    <option value="3" data-price="10000">Bulk Flour - 100kg (Rs. 10,000)</option>
+                                                    <option value="">Select customer first</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -160,13 +152,41 @@
                                         </div>
 
                                         <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="taxRate" class="form-label">Tax Rate (%)</label>
+                                                <input type="number" class="form-control" id="taxRate" name="tax_rate" min="0" max="100" step="0.01" value="0">
+                                            </div>
+                                            
+                                            <div class="col-md-4 mb-3">
+                                                <label for="salesChannel" class="form-label">Sales Channel *</label>
+                                                <select class="form-select" id="salesChannel" name="sales_channel" required>
+                                                    <option value="">Select Channel</option>
+                                                    <option value="referral">Referral</option>
+                                                    <option value="phone">Phone</option>
+                                                    <option value="website">Website</option>
+                                                    <option value="whatsapp">WhatsApp</option>
+                                                    <option value="in_person">In-Person</option>
+                                                    <option value="existing_customer">Existing Customer</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="col-md-4 mb-3">
+                                                <label for="salesAgent" class="form-label">Sales Agent *</label>
+                                                <select class="form-select" id="salesAgent" name="sales_agent_id" required>
+                                                    <option value="">Select customer first</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label for="paymentType" class="form-label">Payment Type *</label>
                                                 <select class="form-select" id="paymentType" name="payment_type" required>
                                                     <option value="">Select Payment Type</option>
                                                     <option value="cash">Cash</option>
-                                                    <option value="credit">Credit</option>
                                                     <option value="bank_transfer">Bank Transfer</option>
+                                                    <option value="credit">Credit</option>
+                                                    <option value="cheque">Cheque</option>
                                                 </select>
                                             </div>
                                             
@@ -177,26 +197,6 @@
                                                     <option value="paid">Paid</option>
                                                     <option value="pending">Pending</option>
                                                     <option value="partial">Partial</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label for="salesChannel" class="form-label">Sales Channel</label>
-                                                <select class="form-select" id="salesChannel" name="sales_channel">
-                                                    <option value="direct">Direct</option>
-                                                    <option value="phone">Phone</option>
-                                                    <option value="whatsapp">WhatsApp</option>
-                                                    <option value="referral">Referral</option>
-                                                </select>
-                                            </div>
-                                            
-                                            <div class="col-md-6 mb-3">
-                                                <label for="salesAgent" class="form-label">Sales Agent *</label>
-                                                <select class="form-select" id="salesAgent" name="sales_agent_id" required>
-                                                    <option value="">Select Agent</option>
-                                                    <option value="1">Admin User</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -277,15 +277,90 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/auth-check.js"></script>
     <script>
-        // Auto-calculate total price
+        // Load customers and related data
+        async function loadCustomers() {
+            try {
+                const response = await fetch('/api/customers');
+                if (response.ok) {
+                    const customers = await response.json();
+                    const customerSelect = document.getElementById('customer');
+                    customerSelect.innerHTML = '<option value="">Select Customer</option>';
+                    
+                    customers.forEach(customer => {
+                        const option = document.createElement('option');
+                        option.value = customer.id;
+                        option.setAttribute('data-type', customer.customer_type);
+                        option.textContent = `${customer.full_name} - ${customer.customer_type} (${customer.city_name || 'N/A'})`;
+                        customerSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading customers:', error);
+            }
+        }
+
+        // Load products based on customer type
+        async function loadProducts(customerType) {
+            try {
+                const response = await fetch(`/api/products?customer_type=${customerType}`);
+                if (response.ok) {
+                    const products = await response.json();
+                    const productSelect = document.getElementById('product');
+                    productSelect.innerHTML = '<option value="">Select Product</option>';
+                    
+                    products.products.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product.id;
+                        option.setAttribute('data-price', product.price_per_unit);
+                        option.textContent = `${product.name} - ${product.weight_per_unit}${product.unit} (₨${product.price_per_unit.toLocaleString()})`;
+                        productSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
+
+        // Load sales agents based on customer type
+        async function loadSalesAgents(customerType) {
+            try {
+                const response = await fetch(`/api/sales-agents?type=${customerType}`);
+                if (response.ok) {
+                    const agents = await response.json();
+                    const agentSelect = document.getElementById('salesAgent');
+                    agentSelect.innerHTML = '<option value="">Select Sales Agent</option>';
+                    
+                    agents.forEach(agent => {
+                        const option = document.createElement('option');
+                        option.value = agent.id;
+                        option.textContent = `${agent.name} (${agent.agent_type})`;
+                        agentSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading sales agents:', error);
+            }
+        }
+
+        // Auto-calculate total price with tax
         function calculateTotal() {
             const quantity = parseFloat(document.getElementById('quantity').value) || 0;
             const pricePerUnit = parseFloat(document.getElementById('pricePerUnit').value) || 0;
-            const total = quantity * pricePerUnit;
+            const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+            
+            const subtotal = quantity * pricePerUnit;
+            const taxAmount = subtotal * (taxRate / 100);
+            const total = subtotal + taxAmount;
             
             document.getElementById('totalPrice').value = total.toFixed(2);
-            document.getElementById('summarySubtotal').textContent = `Rs. ${total.toLocaleString()}`;
-            document.getElementById('summaryTotal').textContent = `Rs. ${total.toLocaleString()}`;
+            document.getElementById('summarySubtotal').textContent = `₨${subtotal.toLocaleString()}`;
+            document.getElementById('summaryTotal').textContent = `₨${total.toLocaleString()}`;
+            
+            // Update tax display if exists
+            const taxDisplay = document.getElementById('summaryTax');
+            if (taxDisplay) {
+                taxDisplay.textContent = `₨${taxAmount.toLocaleString()}`;
+            }
         }
 
         // Auto-fill price when product is selected

@@ -11,9 +11,25 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     
     <style>
+        :root {
+            --sidebar-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --main-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #212529;
+            --border-color: rgba(0, 0, 0, 0.125);
+        }
+        
+        [data-theme="dark"] {
+            --sidebar-bg: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            --main-bg: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.125);
+        }
+        
         .sidebar {
             min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--sidebar-bg);
         }
         .sidebar .nav-link {
             color: rgba(255, 255, 255, 0.8);
@@ -27,16 +43,26 @@
             background-color: rgba(255, 255, 255, 0.2);
         }
         .main-content {
-            background-color: #f8f9fa;
+            background-color: var(--main-bg);
+            color: var(--text-color);
             min-height: 100vh;
+            transition: all 0.3s ease;
         }
         .card {
-            border: none;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
             box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            transition: box-shadow 0.15s ease-in-out;
+            transition: all 0.3s ease;
         }
         .card:hover {
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
         }
         .stats-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -62,6 +88,13 @@
                     <div class="text-center mb-4">
                         <h4 class="text-white"><i class="bi bi-shop"></i> Flour CRM</h4>
                         <small class="text-white-50">Welcome, Admin User</small>
+                    </div>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <div class="text-center mb-3">
+                        <button class="btn btn-outline-light btn-sm" id="darkModeToggle">
+                            <i class="bi bi-moon"></i> Dark Mode
+                        </button>
                     </div>
                     
                     <ul class="nav flex-column">
@@ -134,11 +167,11 @@
                                     <div class="d-flex justify-content-between">
                                         <div>
                                             <h6 class="card-title">Today's Sales</h6>
-                                            <h3 class="mb-0">Rs. 25,000</h3>
+                                            <h3 class="text-white mb-0" id="totalRevenue">₨2,45,000</h3>
                                             <small>5 orders</small>
                                         </div>
                                         <div class="align-self-center">
-                                            <i class="bi bi-currency-dollar h2"></i>
+                                            <i class="bi bi-currency-Pkr h2"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -185,7 +218,7 @@
                                     <div class="d-flex justify-content-between">
                                         <div>
                                             <h6 class="card-title">Total Customers</h6>
-                                            <h3 class="mb-0">245</h3>
+                                            <h3 class="text-white mb-0" id="totalSales">156</h3>
                                             <small>Active customers</small>
                                         </div>
                                         <div class="align-self-center">
@@ -273,8 +306,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script src="js/auth-check.js"></script>
     <script>
+        // Register the datalabels plugin
+        Chart.register(ChartDataLabels);
+
         // Payment Type Chart
         const paymentCtx = document.getElementById('paymentChart').getContext('2d');
         const paymentChart = new Chart(paymentCtx, {
@@ -297,12 +334,24 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.label + ': Rs. ' + context.parsed.toLocaleString();
+                                return context.label + ': ₨' + context.parsed.toLocaleString();
                             }
+                        }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: 'white',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        formatter: function(value, context) {
+                            return '₨' + value.toLocaleString();
                         }
                     }
                 }
-            }
+            },
+            plugins: [ChartDataLabels]
         });
 
         // Customer Type Chart
@@ -312,7 +361,7 @@
             data: {
                 labels: ['B2B', 'B2C'],
                 datasets: [{
-                    label: 'Revenue (Rs.)',
+                    label: 'Revenue (₨)',
                     data: [100000, 75000],
                     backgroundColor: ['#007bff', '#28a745'],
                     borderWidth: 1
@@ -325,8 +374,8 @@
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
-                                return 'Rs. ' + value.toLocaleString();
+                            formatter: function(value) {
+                                return '₨' + value.toLocaleString();
                             }
                         }
                     }
@@ -341,10 +390,81 @@
                                 return context.dataset.label + ': Rs. ' + context.parsed.y.toLocaleString();
                             }
                         }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: 'white',
+                        font: {
+                            weight: 'bold',
+                            size: 14
+                        },
+                        anchor: 'center',
+                        align: 'center',
+                        formatter: function(value, context) {
+                            return '₨' + value.toLocaleString();
+                        }
                     }
                 }
+            },
+            plugins: [ChartDataLabels]
+        });
+        
+        // Dark mode functionality
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+        
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+            darkModeToggle.innerHTML = '<i class="bi bi-sun"></i> Light Mode';
+        }
+        
+        darkModeToggle.addEventListener('click', function() {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            if (newTheme === 'dark') {
+                this.innerHTML = '<i class="bi bi-sun"></i> Light Mode';
+            } else {
+                this.innerHTML = '<i class="bi bi-moon"></i> Dark Mode';
             }
         });
+        
+        // Load dashboard data from backend
+        async function loadDashboardData() {
+            try {
+                const response = await fetch('/dashboard/api');
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Update stats cards
+                    document.getElementById('totalRevenue').textContent = `₨${data.totalRevenue?.toLocaleString() || '0'}`;
+                    document.getElementById('totalSales').textContent = data.totalSales || '0';
+                    document.getElementById('totalCustomers').textContent = data.totalCustomers || '0';
+                    
+                    // Update charts with real data
+                    if (data.paymentTypes) {
+                        paymentChart.data.labels = data.paymentTypes.map(p => p.type);
+                        paymentChart.data.datasets[0].data = data.paymentTypes.map(p => p.amount);
+                        paymentChart.update();
+                    }
+                    
+                    if (data.customerTypes) {
+                        customerTypeChart.data.datasets[0].data = data.customerTypes.map(c => c.revenue);
+                        customerTypeChart.update();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadDashboardData);
     </script>
 </body>
 </html>

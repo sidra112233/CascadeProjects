@@ -4,101 +4,78 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Dashboard home
-router.get('/', requireAuth, async (req, res) => {
+// Dashboard API data
+router.get('/api', requireAuth, async (req, res) => {
     try {
-        // Get today's sales
-        const [todaySales] = await db.execute(`
-            SELECT COUNT(*) as count, COALESCE(SUM(total_price), 0) as total 
+        // Get total revenue
+        const [revenueResult] = await db.execute(`
+            SELECT COALESCE(SUM(total_price), 0) as total_revenue 
             FROM sales 
             WHERE DATE(created_at) = CURDATE()
         `);
 
-        // Get this week's sales
-        const [weekSales] = await db.execute(`
-            SELECT COUNT(*) as count, COALESCE(SUM(total_price), 0) as total 
+        // Get total sales count
+        const [salesResult] = await db.execute(`
+            SELECT COUNT(*) as total_sales 
             FROM sales 
-            WHERE YEARWEEK(created_at) = YEARWEEK(NOW())
+            WHERE DATE(created_at) = CURDATE()
         `);
 
-        // Get this month's sales
-        const [monthSales] = await db.execute(`
-            SELECT COUNT(*) as count, COALESCE(SUM(total_price), 0) as total 
+        // Get total customers
+        const [customersResult] = await db.execute(`
+            SELECT COUNT(*) as total_customers 
+            FROM customers
+        `);
+
+        // Get pending payments
+        const [pendingResult] = await db.execute(`
+            SELECT COALESCE(SUM(total_price), 0) as pending_amount 
             FROM sales 
-            WHERE YEAR(created_at) = YEAR(NOW()) AND MONTH(created_at) = MONTH(NOW())
+            WHERE payment_status = 'pending'
         `);
 
-        // Sales by region
-        const [regionSales] = await db.execute(`
-            SELECT c.region, COUNT(s.id) as sales_count, COALESCE(SUM(s.total_price), 0) as total_revenue
-            FROM sales s
-            JOIN customers c ON s.customer_id = c.id
-            WHERE c.region IS NOT NULL
-            GROUP BY c.region
-        `);
-
-        // Payment type breakdown
-        const [paymentBreakdown] = await db.execute(`
-            SELECT payment_type, COUNT(*) as count, COALESCE(SUM(total_price), 0) as total
-            FROM sales
+        // Get payment type breakdown
+        const [paymentTypes] = await db.execute(`
+            SELECT payment_type as type, SUM(total_price) as amount
+            FROM sales 
+            WHERE DATE(created_at) = CURDATE()
             GROUP BY payment_type
         `);
 
-        // B2B vs B2C breakdown
-        const [customerTypeBreakdown] = await db.execute(`
-            SELECT c.type, COUNT(s.id) as sales_count, COALESCE(SUM(s.total_price), 0) as total_revenue
-            FROM sales s
-            JOIN customers c ON s.customer_id = c.id
-            GROUP BY c.type
-        `);
-
-        // Top 5 customers
-        const [topCustomers] = await db.execute(`
-            SELECT c.name, c.business_name, c.type, COUNT(s.id) as sales_count, COALESCE(SUM(s.total_price), 0) as total_spent
+        // Get customer type revenue breakdown
+        const [customerTypes] = await db.execute(`
+            SELECT c.customer_type as type, COALESCE(SUM(s.total_price), 0) as revenue
             FROM customers c
-            JOIN sales s ON c.id = s.customer_id
-            GROUP BY c.id
-            ORDER BY total_spent DESC
-            LIMIT 5
+            LEFT JOIN sales s ON c.id = s.customer_id AND DATE(s.created_at) = CURDATE()
+            GROUP BY c.customer_type
         `);
 
-        // Recent sales
-        const [recentSales] = await db.execute(`
-            SELECT s.*, c.name as customer_name, c.type as customer_type, p.name as product_name, u.name as agent_name
-            FROM sales s
-            JOIN customers c ON s.customer_id = c.id
-            JOIN products p ON s.product_id = p.id
-            JOIN users u ON s.sales_agent_id = u.id
-            ORDER BY s.created_at DESC
-            LIMIT 10
+        // Get sales channel breakdown
+        const [salesChannels] = await db.execute(`
+            SELECT sales_channel as channel, COUNT(*) as count, SUM(total_price) as revenue
+            FROM sales 
+            WHERE DATE(created_at) = CURDATE()
+            GROUP BY sales_channel
         `);
 
         res.json({
-            todaySales: todaySales[0] || { count: 0, total: 0 },
-            weekSales: weekSales[0] || { count: 0, total: 0 },
-            monthSales: monthSales[0] || { count: 0, total: 0 },
-            regionSales: regionSales || [],
-            paymentBreakdown: paymentBreakdown || [],
-            customerTypeBreakdown: customerTypeBreakdown || [],
-            topCustomers: topCustomers || [],
-            recentSales: recentSales || []
+            totalRevenue: revenueResult[0].total_revenue,
+            totalSales: salesResult[0].total_sales,
+            totalCustomers: customersResult[0].total_customers,
+            pendingPayments: pendingResult[0].pending_amount,
+            paymentTypes: paymentTypes,
+            customerTypes: customerTypes,
+            salesChannels: salesChannels
         });
-
     } catch (error) {
-        console.error('Dashboard error:', error);
-        // Render dashboard with empty data instead of error page
-        res.json({
-            todaySales: todaySales[0] || { count: 0, total: 0 },
-            weekSales: weekSales[0] || { count: 0, total: 0 },
-            monthSales: monthSales[0] || { count: 0, total: 0 },
-            regionSales,
-            paymentBreakdown,
-            customerTypeBreakdown,
-            topCustomers,
-            recentSales,
-            error: 'Database connection issue - showing demo data'
-        });
+        console.error('Dashboard data error:', error);
+        res.status(500).json({ error: 'Error loading dashboard data' });
     }
+});
+
+// Dashboard home page
+router.get('/', requireAuth, (req, res) => {
+    res.sendFile('dashboard.html', { root: './public' });
 });
 
 module.exports = router;

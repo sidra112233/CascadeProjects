@@ -342,8 +342,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script src="js/auth-check.js"></script>
     <script>
+        // Register the datalabels plugin
+        Chart.register(ChartDataLabels);
+
         // Sales Trend Chart
         const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
         const salesTrendChart = new Chart(salesTrendCtx, {
@@ -382,8 +386,22 @@
                                 return 'Sales: Rs. ' + context.parsed.y.toLocaleString();
                             }
                         }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#667eea',
+                        font: {
+                            weight: 'bold',
+                            size: 10
+                        },
+                        formatter: function(value, context) {
+                            return 'Rs. ' + (value / 1000) + 'K';
+                        },
+                        anchor: 'end',
+                        align: 'top'
                     }
-                }
+                },
+                plugins: [ChartDataLabels]
             }
         });
 
@@ -412,9 +430,21 @@
                                 return context.label + ': Rs. ' + context.parsed.toLocaleString();
                             }
                         }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: 'white',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        formatter: function(value, context) {
+                            return 'Rs. ' + (value / 1000) + 'K';
+                        }
                     }
                 }
-            }
+            },
+            plugins: [ChartDataLabels]
         });
 
         // Customer Type Chart
@@ -453,15 +483,89 @@
                                 return context.dataset.label + ': Rs. ' + context.parsed.y.toLocaleString();
                             }
                         }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: 'white',
+                        font: {
+                            weight: 'bold',
+                            size: 12
+                        },
+                        anchor: 'center',
+                        align: 'center',
+                        formatter: function(value, context) {
+                            return 'Rs. ' + (value / 1000) + 'K';
+                        }
                     }
                 }
-            }
+            },
+            plugins: [ChartDataLabels]
         });
 
-        function generateReport() {
-            // Simulate report generation
-            alert('Report generated successfully! In a real application, this would filter data based on the selected criteria.');
+        // Load reports data from backend
+        async function loadReportsData() {
+            try {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const region = document.getElementById('region').value;
+                
+                let url = '/api/reports/api?';
+                const params = new URLSearchParams();
+                
+                if (startDate) params.append('start_date', startDate);
+                if (endDate) params.append('end_date', endDate);
+                if (region) params.append('region', region);
+                
+                url += params.toString();
+                
+                const response = await fetch(url);
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    // Update summary cards
+                    document.querySelector('.card:nth-child(1) h3').textContent = `Rs. ${data.totalRevenue?.toLocaleString() || '0'}`;
+                    document.querySelector('.card:nth-child(2) h3').textContent = data.totalOrders?.toLocaleString() || '0';
+                    document.querySelector('.card:nth-child(3) h3').textContent = `Rs. ${data.avgOrderValue?.toLocaleString() || '0'}`;
+                    document.querySelector('.card:nth-child(4) h3').textContent = data.activeCustomers?.toLocaleString() || '0';
+                    
+                    // Update sales trend chart
+                    if (data.salesTrend && data.salesTrend.length > 0) {
+                        const months = data.salesTrend.map(item => {
+                            const date = new Date(item.month + '-01');
+                            return date.toLocaleDateString('en-US', { month: 'short' });
+                        });
+                        const revenues = data.salesTrend.map(item => item.revenue);
+                        
+                        salesTrendChart.data.labels = months;
+                        salesTrendChart.data.datasets[0].data = revenues;
+                        salesTrendChart.update();
+                    }
+                    
+                    // Update payment methods chart
+                    if (data.paymentMethods && data.paymentMethods.length > 0) {
+                        paymentChart.data.labels = data.paymentMethods.map(p => p.type);
+                        paymentChart.data.datasets[0].data = data.paymentMethods.map(p => p.amount);
+                        paymentChart.update();
+                    }
+                    
+                    // Update customer types chart
+                    if (data.customerTypes && data.customerTypes.length > 0) {
+                        customerTypeChart.data.labels = data.customerTypes.map(c => c.type);
+                        customerTypeChart.data.datasets[0].data = data.customerTypes.map(c => c.revenue);
+                        customerTypeChart.update();
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading reports data:', error);
+            }
         }
+
+        function generateReport() {
+            loadReportsData();
+        }
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadReportsData);
     </script>
 </body>
 </html>
