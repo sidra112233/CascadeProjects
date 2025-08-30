@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Sale - Flour CRM</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white"><i class="bi bi-shop"></i> Flour CRM</h4>
+                        <small class="text-white-50">Welcome, Admin User</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="dashboard.html">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="sales.html">
+                                <i class="bi bi-cart-plus"></i> Sales
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="customers.html">
+                                <i class="bi bi-people"></i> Customers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="products.html">
+                                <i class="bi bi-box-seam"></i> Products
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="reports.html">
+                                <i class="bi bi-graph-up"></i> Reports
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <hr class="text-white-50 mt-4">
+                    
+                    <div class="dropdown">
+                        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle me-2"></i>
+                            <strong>Admin User</strong>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                            <li><span class="dropdown-item-text">Role: admin</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="logout()">
+                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="py-4">
+                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2"><i class="bi bi-plus-circle me-2"></i>New Sale</h1>
+                        <div class="btn-toolbar mb-2 mb-md-0">
+                            <div class="btn-group me-2">
+                                <a href="sales.html" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-1"></i>Back to Sales
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sale Form -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0"><i class="bi bi-form-check me-2"></i>Sale Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <form id="saleForm">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="customer" class="form-label">Customer *</label>
+                                                <select class="form-select" id="customer" name="customer_id" required>
+                                                    <option value="">Select Customer</option>
+                                                    <option value="1">Ahmed Khan - B2B (Lahore)</option>
+                                                    <option value="2">Fatima Ali - B2C (Karachi)</option>
+                                                    <option value="3">Hassan Trading - B2B (Peshawar)</option>
+                                                    <option value="4">Malik Enterprises - B2B (Faisalabad)</option>
+                                                    <option value="5">Sara Bakery - B2C (Islamabad)</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="product" class="form-label">Product *</label>
+                                                <select class="form-select" id="product" name="product_id" required>
+                                                    <option value="">Select Product</option>
+                                                    <option value="1" data-price="5000">Premium Wheat Flour - 50kg (Rs. 5,000)</option>
+                                                    <option value="2" data-price="2500">Standard Flour - 25kg (Rs. 2,500)</option>
+                                                    <option value="3" data-price="10000">Bulk Flour - 100kg (Rs. 10,000)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-4 mb-3">
+                                                <label for="quantity" class="form-label">Quantity *</label>
+                                                <input type="number" class="form-control" id="quantity" name="quantity" min="1" step="0.01" required>
+                                            </div>
+                                            
+                                            <div class="col-md-4 mb-3">
+                                                <label for="pricePerUnit" class="form-label">Price per Unit *</label>
+                                                <input type="number" class="form-control" id="pricePerUnit" name="price_per_unit" min="0" step="0.01" required>
+                                            </div>
+                                            
+                                            <div class="col-md-4 mb-3">
+                                                <label for="totalPrice" class="form-label">Total Price</label>
+                                                <input type="number" class="form-control" id="totalPrice" name="total_price" readonly>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="paymentType" class="form-label">Payment Type *</label>
+                                                <select class="form-select" id="paymentType" name="payment_type" required>
+                                                    <option value="">Select Payment Type</option>
+                                                    <option value="cash">Cash</option>
+                                                    <option value="credit">Credit</option>
+                                                    <option value="bank_transfer">Bank Transfer</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="paymentStatus" class="form-label">Payment Status *</label>
+                                                <select class="form-select" id="paymentStatus" name="payment_status" required>
+                                                    <option value="">Select Status</option>
+                                                    <option value="paid">Paid</option>
+                                                    <option value="pending">Pending</option>
+                                                    <option value="partial">Partial</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="salesChannel" class="form-label">Sales Channel</label>
+                                                <select class="form-select" id="salesChannel" name="sales_channel">
+                                                    <option value="direct">Direct</option>
+                                                    <option value="phone">Phone</option>
+                                                    <option value="whatsapp">WhatsApp</option>
+                                                    <option value="referral">Referral</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div class="col-md-6 mb-3">
+                                                <label for="salesAgent" class="form-label">Sales Agent *</label>
+                                                <select class="form-select" id="salesAgent" name="sales_agent_id" required>
+                                                    <option value="">Select Agent</option>
+                                                    <option value="1">Admin User</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="notes" class="form-label">Notes</label>
+                                            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Additional notes about this sale..."></textarea>
+                                        </div>
+
+                                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                            <a href="sales.html" class="btn btn-secondary me-md-2">Cancel</a>
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-check-circle me-1"></i>Record Sale
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Summary Card -->
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0"><i class="bi bi-calculator me-2"></i>Sale Summary</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Subtotal:</span>
+                                            <span id="summarySubtotal">Rs. 0</span>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Tax (0%):</span>
+                                            <span id="summaryTax">Rs. 0</span>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>Total:</strong>
+                                            <strong id="summaryTotal">Rs. 0</strong>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="alert alert-info">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        <small>All prices are in Pakistani Rupees (PKR)</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Actions -->
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <a href="customers.html" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-person-plus me-1"></i>Add New Customer
+                                        </a>
+                                        <a href="products.html" class="btn btn-outline-success btn-sm">
+                                            <i class="bi bi-box-seam me-1"></i>Manage Products
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/auth-check.js"></script>
+    <script>
+        // Auto-calculate total price
+        function calculateTotal() {
+            const quantity = parseFloat(document.getElementById('quantity').value) || 0;
+            const pricePerUnit = parseFloat(document.getElementById('pricePerUnit').value) || 0;
+            const total = quantity * pricePerUnit;
+            
+            document.getElementById('totalPrice').value = total.toFixed(2);
+            document.getElementById('summarySubtotal').textContent = `Rs. ${total.toLocaleString()}`;
+            document.getElementById('summaryTotal').textContent = `Rs. ${total.toLocaleString()}`;
+        }
+
+        // Auto-fill price when product is selected
+        document.getElementById('product').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const price = selectedOption.getAttribute('data-price');
+            if (price) {
+                document.getElementById('pricePerUnit').value = price;
+                calculateTotal();
+            }
+        });
+
+        // Calculate total when quantity or price changes
+        document.getElementById('quantity').addEventListener('input', calculateTotal);
+        document.getElementById('pricePerUnit').addEventListener('input', calculateTotal);
+
+        // Auto-set payment status based on payment type
+        document.getElementById('paymentType').addEventListener('change', function() {
+            const paymentStatus = document.getElementById('paymentStatus');
+            if (this.value === 'cash' || this.value === 'bank_transfer') {
+                paymentStatus.value = 'paid';
+            } else if (this.value === 'credit') {
+                paymentStatus.value = 'pending';
+            }
+        });
+
+        // Form submission
+        document.getElementById('saleForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!this.checkValidity()) {
+                e.stopPropagation();
+                this.classList.add('was-validated');
+                return;
+            }
+
+            // Show success message and redirect
+            alert('Sale recorded successfully!');
+            window.location.href = 'sales.html';
+        });
+    </script>
+</body>
+</html>
