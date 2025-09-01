@@ -170,6 +170,32 @@ INSERT IGNORE INTO customers (full_name, customer_type, business_name, contact, 
 INSERT IGNORE INTO sales_agents (user_id, agent_type, commission_rate) VALUES
 (1, 'Both', 2.50);
 
+-- Insert sample sales data
+INSERT IGNORE INTO sales (customer_id, product_id, quantity, price_per_unit, subtotal, tax_rate, tax_amount, total_price, payment_type, payment_status, sales_channel, sales_agent_id, notes) VALUES
+-- Sale 1: Ahmed Ali Khan (Golden Bakery) - Premium Wheat Flour
+(1, 1, 10.00, 5000.00, 50000.00, 17.00, 8500.00, 58500.00, 'bank_transfer', 'paid', 'existing_customer', 1, 'Regular monthly order for bakery'),
+
+-- Sale 2: Fatima Khan (Khan Flour Mills) - Bulk Flour
+(2, 3, 5.00, 10000.00, 50000.00, 17.00, 8500.00, 58500.00, 'bank_transfer', 'paid', 'phone', 1, 'Wholesale order for distribution'),
+
+-- Sale 3: Muhammad Hassan - Standard Flour
+(3, 2, 2.00, 2500.00, 5000.00, 17.00, 850.00, 5850.00, 'cash', 'paid', 'whatsapp', 1, 'Home use purchase'),
+
+-- Sale 4: Sadia Malik (Malik Trading Co) - Flour Per KG
+(4, 5, 500.00, 85.00, 42500.00, 17.00, 7225.00, 49725.00, 'credit', 'pending', 'referral', 1, 'Large bulk order for retail distribution'),
+
+-- Sale 5: Ahmed Ali Khan - Organic Flour
+(1, 4, 3.00, 3500.00, 10500.00, 17.00, 1785.00, 12285.00, 'cash', 'paid', 'in_person', 1, 'Special order for premium bakery items'),
+
+-- Sale 6: Muhammad Hassan - Flour Per KG
+(3, 5, 50.00, 85.00, 4250.00, 17.00, 722.50, 4972.50, 'cash', 'paid', 'website', 1, 'Online order for home use'),
+
+-- Sale 7: Fatima Khan - Premium Wheat Flour
+(2, 1, 20.00, 5000.00, 100000.00, 17.00, 17000.00, 117000.00, 'cheque', 'partial', 'phone', 1, 'Large order, partial payment received'),
+
+-- Sale 8: Sadia Malik - Standard Flour
+(4, 2, 8.00, 2500.00, 20000.00, 17.00, 3400.00, 23400.00, 'bank_transfer', 'paid', 'existing_customer', 1, 'Regular monthly supply');
+
 -- Show success message
 SELECT 'Database setup completed successfully!' as Status;
 SELECT 'Default admin login: admin@flourcrm.com / admin123' as Credentials;

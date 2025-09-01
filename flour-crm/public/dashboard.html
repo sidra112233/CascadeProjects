@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Flour CRM</title>
     
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     
     <style>
@@ -17,6 +15,11 @@
             --card-bg: #ffffff;
             --text-color: #212529;
             --border-color: rgba(0, 0, 0, 0.125);
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #11998e;
+            --warning-color: #f5576c;
+            --info-color: #4facfe;
         }
         
         [data-theme="dark"] {
@@ -25,6 +28,10 @@
             --card-bg: #2d2d2d;
             --text-color: #ffffff;
             --border-color: rgba(255, 255, 255, 0.125);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .sidebar {
@@ -65,17 +72,45 @@
             z-index: 1050;
         }
         .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
         }
         .stats-card-success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background: linear-gradient(135deg, var(--success-color) 0%, #38ef7d 100%);
         }
         .stats-card-warning {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: linear-gradient(135deg, #f093fb 0%, var(--warning-color) 100%);
         }
         .stats-card-info {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(135deg, var(--info-color) 0%, #00f2fe 100%);
+        }
+        
+        /* Chart container styling */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        
+        /* Custom chart styles */
+        .chart-label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        /* Table styling */
+        .table-hover tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+        
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Badge styling */
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 0.75em;
         }
     </style>
 </head>
@@ -90,12 +125,6 @@
                         <small class="text-white-50">Welcome, Admin User</small>
                     </div>
                     
-                    <!-- Dark Mode Toggle -->
-                    <div class="text-center mb-3">
-                        <button class="btn btn-outline-light btn-sm" id="darkModeToggle">
-                            <i class="bi bi-moon"></i> Dark Mode
-                        </button>
-                    </div>
                     
                     <ul class="nav flex-column">
                         <li class="nav-item">
@@ -158,103 +187,104 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Stats Cards -->
-                    <div class="row mb-4">
-                        <div class="col-md-3 mb-3">
-                            <div class="card stats-card">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="card-title">Today's Sales</h6>
-                                            <h3 class="text-white mb-0" id="totalRevenue">₨2,45,000</h3>
-                                            <small>5 orders</small>
-                                        </div>
-                                        <div class="align-self-center">
-                                            <i class="bi bi-currency-Pkr h2"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 mb-3">
-                            <div class="card stats-card-success">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="card-title">This Week</h6>
-                                            <h3 class="mb-0">Rs. 175,000</h3>
-                                            <small>35 orders</small>
-                                        </div>
-                                        <div class="align-self-center">
-                                            <i class="bi bi-calendar-week h2"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 mb-3">
-                            <div class="card stats-card-warning">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="card-title">This Month</h6>
-                                            <h3 class="mb-0">Rs. 750,000</h3>
-                                            <small>150 orders</small>
-                                        </div>
-                                        <div class="align-self-center">
-                                            <i class="bi bi-calendar-month h2"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 mb-3">
-                            <div class="card stats-card-info">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="card-title">Total Customers</h6>
-                                            <h3 class="text-white mb-0" id="totalSales">156</h3>
-                                            <small>Active customers</small>
-                                        </div>
-                                        <div class="align-self-center">
-                                            <i class="bi bi-people h2"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Charts Row -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0"><i class="bi bi-pie-chart me-2"></i>Payment Types</h6>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="paymentChart" width="400" height="200"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Customer Types</h6>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="customerTypeChart" width="400" height="200"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Today's Sales</h6>
+              <h3 class="text-white mb-0" id="totalRevenue">₨0</h3>
+              <small><span id="totalSales">0</span> orders</small>
+            </div>
+            <div class="align-self-center">
+              <i class="bi bi-currency-Pkr h2"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card-success">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Pending Payments</h6>
+              <h3 class="mb-0" id="pendingPayments">₨0</h3>
+            </div>
+            <div class="align-self-center">
+              <i class="bi bi-cash-coin h2"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card-warning">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Total Customers</h6>
+              <h3 class="mb-0" id="totalCustomers">0</h3>
+            </div>
+            <div class="align-self-center">
+              <i class="bi bi-people h2"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-md-3 mb-3">
+      <div class="card stats-card-info">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6 class="card-title">Sales Channels</h6>
+              <h3 class="text-white mb-0" id="salesChannelsCount">0</h3>
+              <small>Channels used today</small>
+            </div>
+            <div class="align-self-center">
+              <i class="bi bi-bar-chart h2"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Charts Row -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="card-title mb-0"><i class="bi bi-pie-chart me-2"></i>Payment Types</h6>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="paymentChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Customer Types</h6>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <canvas id="customerTypeChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
                     <!-- Recent Sales -->
                     <div class="card">
                         <div class="card-header">
@@ -303,7 +333,6 @@
             </main>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
@@ -311,7 +340,43 @@
     <script>
         // Register the datalabels plugin
         Chart.register(ChartDataLabels);
-
+        
+        // Custom plugin for chart center text
+        const centerTextPlugin = {
+            id: 'centerText',
+            beforeDraw: function(chart) {
+                if (chart.config.type === 'doughnut') {
+                    // Get ctx from chart
+                    const ctx = chart.ctx;
+                    
+                    // Get options from the center object in options
+                    const centerConfig = chart.config.options.elements.center;
+                    
+                    // Set inner and outer radius
+                    const innerRadius = chart.innerRadius;
+                    const outerRadius = chart.outerRadius;
+                    
+                    // Set center position
+                    const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+                    const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+                    
+                    // Set text options
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const fontStyle = centerConfig.fontStyle || 'normal';
+                    const fontWeight = centerConfig.fontWeight || 'normal';
+                    const fontSize = centerConfig.fontSize || 16;
+                    ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px ${chart.options.font.family}`;
+                    
+                    // Set text color
+                    ctx.fillStyle = centerConfig.color || '#000';
+                    
+                    // Draw text in center
+                    ctx.fillText(centerConfig.text, centerX, centerY);
+                }
+            }
+        };
+        
         // Payment Type Chart
         const paymentCtx = document.getElementById('paymentChart').getContext('2d');
         const paymentChart = new Chart(paymentCtx, {
@@ -320,40 +385,80 @@
                 labels: ['Cash', 'Credit'],
                 datasets: [{
                     data: [50000, 25000],
-                    backgroundColor: ['#28a745', '#ffc107'],
-                    borderWidth: 2
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(255, 193, 7, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(255, 193, 7, 1)'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 10
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '60%',
                 plugins: {
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            }
+                        }
                     },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.label + ': ₨' + context.parsed.toLocaleString();
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ₨${value.toLocaleString()} (${percentage}%)`;
                             }
-                        }
-                    },
-                    datalabels: {
-                        display: true,
-                        color: 'white',
-                        font: {
-                            weight: 'bold',
+                        },
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        titleFont: {
                             size: 14
                         },
-                        formatter: function(value, context) {
-                            return '₨' + value.toLocaleString();
-                        }
+                        bodyFont: {
+                            size: 14
+                        },
+                        padding: 12
+                    },
+                    datalabels: {
+    display: true,
+    color: '#fff',
+    font: {
+        weight: 'bold',
+        size: 14
+    },
+    formatter: function(value, context) {
+        const dataArr = context.dataset.data.map(v => Number(v)); 
+        const total = dataArr.reduce((a, b) => a + b, 0);
+        const percentage = Math.round((Number(value) / total) * 100);
+        return `${percentage}%`;
+    }
+}
+
+                },
+                elements: {
+                    center: {
+                        text: '₨75,000',
+                        color: '#333',
+                        fontStyle: 'normal',
+                        fontWeight: 'bold',
+                        fontSize: 18
                     }
                 }
             },
-            plugins: [ChartDataLabels]
+            plugins: [centerTextPlugin, ChartDataLabels]
         });
-
+        
         // Customer Type Chart
         const customerTypeCtx = document.getElementById('customerTypeChart').getContext('2d');
         const customerTypeChart = new Chart(customerTypeCtx, {
@@ -363,8 +468,17 @@
                 datasets: [{
                     label: 'Revenue (₨)',
                     data: [100000, 75000],
-                    backgroundColor: ['#007bff', '#28a745'],
-                    borderWidth: 1
+                    backgroundColor: [
+                        'rgba(0, 123, 255, 0.8)',
+                        'rgba(40, 167, 69, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(0, 123, 255, 1)',
+                        'rgba(40, 167, 69, 1)'
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 6,
+                    barThickness: 60
                 }]
             },
             options: {
@@ -373,9 +487,26 @@
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
                         ticks: {
-                            formatter: function(value) {
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
                                 return '₨' + value.toLocaleString();
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 14,
+                                weight: 'bold'
                             }
                         }
                     }
@@ -387,20 +518,28 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return context.dataset.label + ': Rs. ' + context.parsed.y.toLocaleString();
+                                return 'Revenue: Rs. ' + context.parsed.y.toLocaleString();
                             }
-                        }
+                        },
+                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 14
+                        },
+                        padding: 12
                     },
                     datalabels: {
                         display: true,
-                        color: 'white',
+                        color: '#fff',
                         font: {
                             weight: 'bold',
                             size: 14
                         },
-                        anchor: 'center',
-                        align: 'center',
-                        formatter: function(value, context) {
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: function(value) {
                             return '₨' + value.toLocaleString();
                         }
                     }
@@ -418,6 +557,12 @@
         if (savedTheme === 'dark') {
             body.setAttribute('data-theme', 'dark');
             darkModeToggle.innerHTML = '<i class="bi bi-sun"></i> Light Mode';
+            
+            // Update chart text colors for dark mode
+            Chart.defaults.color = '#ffffff';
+            paymentChart.options.elements.center.color = '#ffffff';
+            paymentChart.update();
+            customerTypeChart.update();
         }
         
         darkModeToggle.addEventListener('click', function() {
@@ -429,9 +574,17 @@
             
             if (newTheme === 'dark') {
                 this.innerHTML = '<i class="bi bi-sun"></i> Light Mode';
+                Chart.defaults.color = '#ffffff';
+                paymentChart.options.elements.center.color = '#ffffff';
             } else {
                 this.innerHTML = '<i class="bi bi-moon"></i> Dark Mode';
+                Chart.defaults.color = '#666';
+                paymentChart.options.elements.center.color = '#333';
             }
+            
+            // Update charts with new theme
+            paymentChart.update();
+            customerTypeChart.update();
         });
         
         // Load dashboard data from backend
@@ -448,8 +601,10 @@
                     
                     // Update charts with real data
                     if (data.paymentTypes) {
+                        const total = data.paymentTypes.reduce((sum, item) => sum + item.amount, 0);
                         paymentChart.data.labels = data.paymentTypes.map(p => p.type);
                         paymentChart.data.datasets[0].data = data.paymentTypes.map(p => p.amount);
+                        paymentChart.options.elements.center.text = `₨${total.toLocaleString()}`;
                         paymentChart.update();
                     }
                     

@@ -7,54 +7,50 @@ const router = express.Router();
 // Dashboard API data
 router.get('/api', requireAuth, async (req, res) => {
     try {
-        // Get total revenue
+        // Get total revenue (all-time)
         const [revenueResult] = await db.execute(`
             SELECT COALESCE(SUM(total_price), 0) as total_revenue 
-            FROM sales 
-            WHERE DATE(created_at) = CURDATE()
+            FROM sales
         `);
 
-        // Get total sales count
+        // Get total sales count (all-time)
         const [salesResult] = await db.execute(`
             SELECT COUNT(*) as total_sales 
-            FROM sales 
-            WHERE DATE(created_at) = CURDATE()
+            FROM sales
         `);
 
-        // Get total customers
+        // Get total customers (all-time)
         const [customersResult] = await db.execute(`
             SELECT COUNT(*) as total_customers 
             FROM customers
         `);
 
-        // Get pending payments
+        // Get pending payments (all-time)
         const [pendingResult] = await db.execute(`
             SELECT COALESCE(SUM(total_price), 0) as pending_amount 
             FROM sales 
             WHERE payment_status = 'pending'
         `);
 
-        // Get payment type breakdown
+        // Get payment type breakdown (all-time)
         const [paymentTypes] = await db.execute(`
             SELECT payment_type as type, SUM(total_price) as amount
             FROM sales 
-            WHERE DATE(created_at) = CURDATE()
             GROUP BY payment_type
         `);
 
-        // Get customer type revenue breakdown
+        // Get customer type revenue breakdown (all-time)
         const [customerTypes] = await db.execute(`
             SELECT c.customer_type as type, COALESCE(SUM(s.total_price), 0) as revenue
             FROM customers c
-            LEFT JOIN sales s ON c.id = s.customer_id AND DATE(s.created_at) = CURDATE()
+            LEFT JOIN sales s ON c.id = s.customer_id
             GROUP BY c.customer_type
         `);
 
-        // Get sales channel breakdown
+        // Get sales channel breakdown (all-time)
         const [salesChannels] = await db.execute(`
             SELECT sales_channel as channel, COUNT(*) as count, SUM(total_price) as revenue
             FROM sales 
-            WHERE DATE(created_at) = CURDATE()
             GROUP BY sales_channel
         `);
 
