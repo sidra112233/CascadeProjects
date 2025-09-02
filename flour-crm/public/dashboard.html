@@ -189,73 +189,93 @@
                     </div>
 <!-- Stats Cards -->
 <div class="row mb-4">
-    <div class="col-md-3 mb-3">
-      <div class="card stats-card">
-        <div class="card-body">
-          <div class="d-flex justify-content-between">
-            <div>
-              <h6 class="card-title">Today's Sales</h6>
-              <h3 class="text-white mb-0" id="totalRevenue">₨0</h3>
-              <small><span id="totalSales">0</span> orders</small>
-            </div>
-            <div class="align-self-center">
-              <i class="bi bi-currency-Pkr h2"></i>
-            </div>
+  <div class="col-md-3 mb-3">
+    <div class="card stats-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h6 class="card-title">Today's Sales</h6>
+            <h3 class="text-white mb-0" id="totalRevenue">₨0</h3>
+            <small id="totalSales">0 orders</small>
           </div>
-        </div>
-      </div>
-    </div>
-  
-    <div class="col-md-3 mb-3">
-      <div class="card stats-card-success">
-        <div class="card-body">
-          <div class="d-flex justify-content-between">
-            <div>
-              <h6 class="card-title">Pending Payments</h6>
-              <h3 class="mb-0" id="pendingPayments">₨0</h3>
-            </div>
-            <div class="align-self-center">
-              <i class="bi bi-cash-coin h2"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  
-    <div class="col-md-3 mb-3">
-      <div class="card stats-card-warning">
-        <div class="card-body">
-          <div class="d-flex justify-content-between">
-            <div>
-              <h6 class="card-title">Total Customers</h6>
-              <h3 class="mb-0" id="totalCustomers">0</h3>
-            </div>
-            <div class="align-self-center">
-              <i class="bi bi-people h2"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  
-    <div class="col-md-3 mb-3">
-      <div class="card stats-card-info">
-        <div class="card-body">
-          <div class="d-flex justify-content-between">
-            <div>
-              <h6 class="card-title">Sales Channels</h6>
-              <h3 class="text-white mb-0" id="salesChannelsCount">0</h3>
-              <small>Channels used today</small>
-            </div>
-            <div class="align-self-center">
-              <i class="bi bi-bar-chart h2"></i>
-            </div>
+          <div class="align-self-center">
+            <i class="bi bi-currency-pkr h2"></i>
           </div>
         </div>
       </div>
     </div>
   </div>
-  
+
+  <div class="col-md-3 mb-3">
+    <div class="card stats-card-success">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h6 class="card-title">Pending Payments</h6>
+            <h3 class="mb-0" id="pendingPayments">₨0</h3>
+          </div>
+          <div class="align-self-center">
+            <i class="bi bi-cash-coin h2"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card stats-card-warning">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h6 class="card-title">Total Customers</h6>
+            <h3 class="mb-0" id="totalCustomers">0</h3>
+          </div>
+          <div class="align-self-center">
+            <i class="bi bi-people h2"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3 mb-3">
+    <div class="card stats-card-info">
+      <div class="card-body">
+        <div class="d-flex justify-content-between">
+          <div>
+            <h6 class="card-title">Sales Channels</h6>
+            <h3 class="text-white mb-0" id="salesChannelsCount">0</h3>
+            <small>Channels used today</small>
+          </div>
+          <div class="align-self-center">
+            <i class="bi bi-bar-chart h2"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  async function loadStats() {
+    try {
+      const res = await fetch('/dashboard/api');
+      const data = await res.json();
+
+      document.getElementById('totalRevenue').textContent = `₨${data.totalRevenue}`;
+      document.getElementById('totalSales').textContent = `${data.totalSales} orders`;
+      document.getElementById('pendingPayments').textContent = `₨${data.pendingPayments}`;
+      document.getElementById('totalCustomers').textContent = data.totalCustomers;
+      document.getElementById('salesChannelsCount').textContent = data.salesChannelsCount;
+    } catch (err) {
+      console.error('Failed to load stats:', err);
+    }
+  }
+
+  loadStats();
+</script>
+
+
   <!-- Charts Row -->
   <div class="row mb-4">
     <div class="col-md-6">
