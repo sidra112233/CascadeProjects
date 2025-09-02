@@ -9,18 +9,26 @@ const router = express.Router();
 router.get('/', requireAuth, async (req, res) => {
     try {
         const [sales] = await db.execute(`
-            SELECT s.*, c.name as customer_name, c.type as customer_type, c.city, c.region,
-                   p.name as product_name, u.name as agent_name
-            FROM sales s
-            JOIN customers c ON s.customer_id = c.id
-            JOIN products p ON s.product_id = p.id
-            JOIN users u ON s.sales_agent_id = u.id
-            ORDER BY s.created_at DESC
+     SELECT 
+    s.*, 
+    c.full_name AS customer_name, 
+    c.customer_type, 
+    c.province_id, 
+    c.city_id, 
+    c.town_id, 
+    p.name AS product_name, 
+    u.name AS agent_name
+FROM sales s
+JOIN customers c ON s.customer_id = c.id
+JOIN products p ON s.product_id = p.id
+JOIN users u ON s.sales_agent_id = u.id
+ORDER BY s.created_at DESC;
+
         `);
 
-        res.json({ sales });
-    } catch (error) {
-        console.error('Sales list error:', error);
+      res.json({ sales });
+    } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'Error loading sales data' });
     }
 });
