@@ -9,7 +9,6 @@ router.get('/', async (req, res) => {
         const [sales] = await connection.execute(`
             SELECT s.*, 
                    c.full_name as customer_name, 
-                   c.customer_type,
                    p.name as product_name, 
                    u.name as agent_name,
                    sa.agent_type,
@@ -20,8 +19,6 @@ router.get('/', async (req, res) => {
             JOIN products p ON s.product_id = p.id
             JOIN sales_agents sa ON s.sales_agent_id = sa.id
             JOIN users u ON sa.user_id = u.id
-            LEFT JOIN provinces pr ON c.province_id = pr.id
-            LEFT JOIN cities ci ON c.city_id = ci.id
             ORDER BY s.created_at DESC
         `);
         connection.release();

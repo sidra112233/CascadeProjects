@@ -1,540 +1,286 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Management - Flour CRM</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <style>
-        .sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .sidebar .nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            padding: 0.75rem 1rem;
-            margin: 0.25rem 0;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
-        }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        .main-content {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-        }
-        .card {
-            border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            transition: box-shadow 0.15s ease-in-out;
-        }
-        .card:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Customer - Flour CRM</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    .sidebar {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .sidebar .nav-link {
+      color: rgba(255, 255, 255, 0.8);
+      padding: 0.75rem 1rem;
+      margin: 0.25rem 0;
+      border-radius: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      color: white;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    .main-content {
+      background-color: #f8f9fa;
+      min-height: 100vh;
+    }
+    .card {
+      border: none;
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+  </style>
 </head>
 <body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <h4 class="text-white"><i class="bi bi-shop"></i> Flour CRM</h4>
-                        <small class="text-white-50">Welcome, Admin User</small>
-                    </div>
-                    
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="dashboard.html">
-                                <i class="bi bi-speedometer2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="sales.html">
-                                <i class="bi bi-cart-plus"></i> Sales
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="customers.html">
-                                <i class="bi bi-people"></i> Customers
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="products.html">
-                                <i class="bi bi-box-seam"></i> Products
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="sales-agents.html">
-                                <i class="bi bi-person-badge"></i> Sales Agents
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="reports.html">
-                                <i class="bi bi-graph-up"></i> Reports
-                            </a>
-                        </li>
-                    </ul>
-                    
-                    <hr class="text-white-50 mt-4">
-                    
-                    <div class="dropdown">
-                        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle me-2"></i>
-                            <strong>Admin User</strong>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-                            <li><span class="dropdown-item-text">Role: admin</span></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="#" onclick="logout()">
-                                    <i class="bi bi-box-arrow-right"></i> Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-            
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <div class="py-4">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2"><i class="bi bi-people me-2"></i>Customer Management</h1>
-                        <div class="btn-toolbar mb-2 mb-md-0">
-                            <div class="btn-group me-2">
-                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
-                                    <i class="bi bi-plus-circle me-1"></i>Add Customer
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Filter Tabs -->
-                    <ul class="nav nav-tabs mb-3">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#all" data-filter="all">
-                                <i class="bi bi-people-fill me-1"></i>All Customers
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#b2b" data-filter="B2B">
-                                <i class="bi bi-building me-1"></i>B2B (Business)
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#b2c" data-filter="B2C">
-                                <i class="bi bi-person me-1"></i>B2C (Individual)
-                            </a>
-                        </li>
-                    </ul>
-
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover" id="customersTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Type</th>
-                                            <th>Contact</th>
-                                            <th>Location</th>
-                                            <th>Created</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td colspan="6" class="text-center">
-                                                <div class="spinner-border text-primary" role="status">
-                                                    <span class="visually-hidden">Loading...</span>
-                                                </div>
-                                                <div class="mt-2">Loading customers...</div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+<div class="container-fluid">
+  <div class="row">
+    <!-- Sidebar -->
+    <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+      <div class="position-sticky pt-3">
+        <div class="text-center mb-4">
+          <h4 class="text-white"><i class="bi bi-shop"></i> Flour CRM</h4>
+          <small class="text-white-50">Welcome, Admin User</small>
         </div>
-    </div>
 
-    <!-- Add Customer Modal -->
-    <div class="modal fade" id="addCustomerModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Add New Customer</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addCustomerForm">
-                        <div class="mb-3">
-                            <label for="fullName" class="form-label">Full Name *</label>
-                            <input type="text" class="form-control" id="fullName" name="full_name" required>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="customerType" class="form-label">Customer Type *</label>
-                                <select class="form-select" id="customerType" name="customer_type" required>
-                                    <option value="">Select Type</option>
-                                    <option value="B2B">B2B (Business)</option>
-                                    <option value="B2C">B2C (Consumer)</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="businessName" class="form-label">Business Name</label>
-                                <input type="text" class="form-control" id="businessName" name="business_name">
-                                <small class="form-text text-muted">Required for B2B customers</small>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="contact" class="form-label">Contact Number *</label>
-                                <input type="tel" class="form-control" id="contact" name="contact" required>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="whatsapp" class="form-label">WhatsApp Number</label>
-                                <input type="tel" class="form-control" id="whatsapp" name="whatsapp">
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email">
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label for="province" class="form-label">Province *</label>
-                                <select class="form-select" id="province" name="province_id" required>
-                                    <option value="">Loading provinces...</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-4 mb-3">
-                                <label for="city" class="form-label">City *</label>
-                                <select class="form-select" id="city" name="city_id" required disabled>
-                                    <option value="">Select Province First</option>
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-4 mb-3">
-                                <label for="town" class="form-label">Town</label>
-                                <select class="form-select" id="town" name="town_id" disabled>
-                                    <option value="">Select City First</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Address</label>
-                            <textarea class="form-control" id="address" name="address" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" form="addCustomerForm" class="btn btn-primary">Add Customer</button>
-                </div>
-            </div>
+        <ul class="nav flex-column">
+          <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="sales.html"><i class="bi bi-cart-plus"></i> Sales</a></li>
+          <li class="nav-item"><a class="nav-link active" href="customers.html"><i class="bi bi-people"></i> Customers</a></li>
+          <li class="nav-item"><a class="nav-link" href="products.html"><i class="bi bi-box-seam"></i> Products</a></li>
+          <li class="nav-item"><a class="nav-link" href="sales-agents.html"><i class="bi bi-person-badge"></i> Sales Agents</a></li>
+          <li class="nav-item"><a class="nav-link" href="reports.html"><i class="bi bi-graph-up"></i> Reports</a></li>
+        </ul>
+
+        <hr class="text-white-50 mt-4">
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle me-2"></i>
+            <strong>Admin User</strong>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+            <li><span class="dropdown-item-text">Role: admin</span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+          </ul>
         </div>
-    </div>
+      </div>
+    </nav>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/auth-check.js"></script>
-    <script>
-        let customers = [];
-        let provinces = [];
-        let cities = [];
-        let towns = [];
+    <!-- Main Content -->
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+      <div class="py-4">
+        <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+          <h1 class="h2"><i class="bi bi-person-plus me-2"></i>Add New Customer</h1>
+        </div>
 
-        // Load all data on page load
-        document.addEventListener('DOMContentLoaded', async function() {
-            await loadProvinces();
-            await loadCustomers();
+        <!-- Add Customer Form -->
+        <div class="card">
+          <div class="card-body">
+            <form id="addCustomerForm">
+              <div class="mb-3">
+                <label for="fullName" class="form-label">Full Name *</label>
+                <input type="text" class="form-control" id="fullName" name="full_name" required>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="customerType" class="form-label">Customer Type *</label>
+                  <select class="form-select" id="customerType" name="customer_type" required>
+                    <option value="">Select Type</option>
+                    <option value="B2B">B2B (Business)</option>
+                    <option value="B2C">B2C (Consumer)</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="businessName" class="form-label">Business Name</label>
+                  <input type="text" class="form-control" id="businessName" name="business_name">
+                  <small class="form-text text-muted">Required for B2B customers</small>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="contact" class="form-label">Contact Number *</label>
+                  <input type="tel" class="form-control" id="contact" name="contact" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="whatsapp" class="form-label">WhatsApp Number</label>
+                  <input type="tel" class="form-control" id="whatsapp" name="whatsapp">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email">
+              </div>
+
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="province" class="form-label">Province *</label>
+                  <select class="form-select" id="province" name="province_id" required>
+                    <option value="">Loading provinces...</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="city" class="form-label">City *</label>
+                  <select class="form-select" id="city" name="city_id" required disabled>
+                    <option value="">Select Province First</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="town" class="form-label">Town *</label>
+                  <select class="form-select" id="town" name="town_id" required disabled>
+                    <option value="">Select City First</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="address" class="form-label">Street (Optional)</label>
+                <textarea class="form-control" id="address" name="address" rows="1"></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Save Customer</button>
+              <a href="customers.html" class="btn btn-secondary">Cancel</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/auth-check.js"></script>
+<script>
+  // Load provinces
+  document.addEventListener('DOMContentLoaded', () => {
+    loadProvinces();
+
+    // Hide business name initially
+    const businessNameGroup = document.getElementById('businessName').closest('.mb-3');
+    businessNameGroup.style.display = 'none';
+  });
+
+  async function loadProvinces() {
+    try {
+      const response = await fetch('/api/locations/provinces');
+      if (response.ok) {
+        const provinces = await response.json();
+        const provinceSelect = document.getElementById('province');
+        provinceSelect.innerHTML = '<option value="">Select Province</option>';
+        provinces.forEach(province => {
+          const option = document.createElement('option');
+          option.value = province.id;
+          option.textContent = province.name;
+          provinceSelect.appendChild(option);
         });
+      }
+    } catch (err) {
+      console.error('Error loading provinces:', err);
+    }
+  }
 
-        // Load provinces
-        async function loadProvinces() {
-            try {
-                const response = await fetch('/api/locations/provinces');
-                if (response.ok) {
-                    provinces = await response.json();
-                    const provinceSelect = document.getElementById('province');
-                    provinceSelect.innerHTML = '<option value="">Select Province</option>';
-                    
-                    provinces.forEach(province => {
-                        const option = document.createElement('option');
-                        option.value = province.id;
-                        option.textContent = province.name;
-                        provinceSelect.appendChild(option);
-                    });
-                }
-            } catch (error) {
-                console.error('Error loading provinces:', error);
-            }
-        }
-
-        // Load cities by province
-        async function loadCities(provinceId) {
-            try {
-                const response = await fetch(`/api/locations/cities/${provinceId}`);
-                if (response.ok) {
-                    cities = await response.json();
-                    const citySelect = document.getElementById('city');
-                    citySelect.innerHTML = '<option value="">Select City</option>';
-                    citySelect.disabled = false;
-                    
-                    cities.forEach(city => {
-                        const option = document.createElement('option');
-                        option.value = city.id;
-                        option.textContent = city.name;
-                        citySelect.appendChild(option);
-                    });
-                    
-                    // Reset town dropdown
-                    const townSelect = document.getElementById('town');
-                    townSelect.innerHTML = '<option value="">Select City First</option>';
-                    townSelect.disabled = true;
-                }
-            } catch (error) {
-                console.error('Error loading cities:', error);
-            }
-        }
-
-        // Load towns by city
-        async function loadTowns(cityId) {
-            try {
-                const response = await fetch(`/api/locations/towns/${cityId}`);
-                if (response.ok) {
-                    towns = await response.json();
-                    const townSelect = document.getElementById('town');
-                    townSelect.innerHTML = '<option value="">Select Town (Optional)</option>';
-                    townSelect.disabled = false;
-                    
-                    towns.forEach(town => {
-                        const option = document.createElement('option');
-                        option.value = town.id;
-                        option.textContent = town.name;
-                        townSelect.appendChild(option);
-                    });
-                }
-            } catch (error) {
-                console.error('Error loading towns:', error);
-            }
-        }
-
-        // Load customers
-        async function loadCustomers() {
-            try {
-                const response = await fetch('/api/customers');
-                if (response.ok) {
-                    customers = await response.json();
-                    renderCustomers(customers);
-                } else {
-                    document.querySelector('#customersTable tbody').innerHTML = 
-                        '<tr><td colspan="6" class="text-center text-danger">Failed to load customers</td></tr>';
-                }
-            } catch (error) {
-                console.error('Error loading customers:', error);
-                document.querySelector('#customersTable tbody').innerHTML = 
-                    '<tr><td colspan="6" class="text-center text-danger">Error loading customers</td></tr>';
-            }
-        }
-
-        // Render customers table
-        function renderCustomers(customerList) {
-            const tbody = document.querySelector('#customersTable tbody');
-            
-            if (customerList.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">No customers found</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = customerList.map(customer => `
-                <tr data-type="${customer.customer_type}">
-                    <td>
-                        <div>
-                            <strong>${customer.full_name}</strong>
-                            ${customer.business_name ? `<br><small class="text-muted">${customer.business_name}</small>` : ''}
-                        </div>
-                    </td>
-                    <td>
-                        <span class="badge ${customer.customer_type === 'B2B' ? 'bg-success' : 'bg-info'}">${customer.customer_type}</span>
-                    </td>
-                    <td>
-                        <div>
-                            <i class="bi bi-telephone me-1"></i>${customer.contact}
-                            ${customer.whatsapp ? `<br><i class="bi bi-whatsapp me-1 text-success"></i>${customer.whatsapp}` : ''}
-                            ${customer.email ? `<br><i class="bi bi-envelope me-1"></i><small>${customer.email}</small>` : ''}
-                        </div>
-                    </td>
-                    <td>
-                        <div>
-                            ${customer.city_name ? `<strong>${customer.city_name}</strong>` : 'N/A'}
-                            ${customer.province_name ? `<br><span class="badge bg-secondary">${customer.province_name}</span>` : ''}
-                            ${customer.town_name ? `<br><small class="text-muted">${customer.town_name}</small>` : ''}
-                        </div>
-                    </td>
-                    <td>${new Date(customer.created_at).toLocaleDateString()}</td>
-                    <td>
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-outline-primary" onclick="viewCustomer(${customer.id})">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="editCustomer(${customer.id})">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-danger" onclick="deleteCustomer(${customer.id})">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // Province change handler
-        document.getElementById('province').addEventListener('change', function() {
-            const provinceId = this.value;
-            if (provinceId) {
-                loadCities(provinceId);
-            } else {
-                document.getElementById('city').innerHTML = '<option value="">Select Province First</option>';
-                document.getElementById('city').disabled = true;
-                document.getElementById('town').innerHTML = '<option value="">Select City First</option>';
-                document.getElementById('town').disabled = true;
-            }
+  async function loadCities(provinceId) {
+    try {
+      const response = await fetch(`/api/locations/cities/${provinceId}`);
+      if (response.ok) {
+        const cities = await response.json();
+        const citySelect = document.getElementById('city');
+        citySelect.innerHTML = '<option value="">Select City</option>';
+        citySelect.disabled = false;
+        cities.forEach(city => {
+          const option = document.createElement('option');
+          option.value = city.id;
+          option.textContent = city.name;
+          citySelect.appendChild(option);
         });
+        // reset town
+        const townSelect = document.getElementById('town');
+        townSelect.innerHTML = '<option value="">Select City First</option>';
+        townSelect.disabled = true;
+      }
+    } catch (err) {
+      console.error('Error loading cities:', err);
+    }
+  }
 
-        // City change handler
-        document.getElementById('city').addEventListener('change', function() {
-            const cityId = this.value;
-            if (cityId) {
-                loadTowns(cityId);
-            } else {
-                document.getElementById('town').innerHTML = '<option value="">Select City First</option>';
-                document.getElementById('town').disabled = true;
-            }
+  async function loadTowns(cityId) {
+    try {
+      const response = await fetch(`/api/locations/towns/${cityId}`);
+      if (response.ok) {
+        const towns = await response.json();
+        const townSelect = document.getElementById('town');
+        townSelect.innerHTML = '<option value="">Select Town</option>';
+        townSelect.disabled = false;
+        towns.forEach(town => {
+          const option = document.createElement('option');
+          option.value = town.id;
+          option.textContent = town.name;
+          townSelect.appendChild(option);
         });
+      }
+    } catch (err) {
+      console.error('Error loading towns:', err);
+    }
+  }
 
-        // Customer type change handler
-        document.getElementById('customerType').addEventListener('change', function() {
-            const businessNameField = document.getElementById('businessName');
-            if (this.value === 'B2B') {
-                businessNameField.required = true;
-                businessNameField.parentElement.querySelector('.form-text').textContent = 'Required for B2B customers';
-            } else {
-                businessNameField.required = false;
-                businessNameField.parentElement.querySelector('.form-text').textContent = 'Optional for B2C customers';
-            }
-        });
+  // Province change
+  document.getElementById('province').addEventListener('change', e => {
+    if (e.target.value) {
+      loadCities(e.target.value);
+    }
+  });
 
-        // Filter functionality
-        document.querySelectorAll('[data-filter]').forEach(tab => {
-            tab.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                // Update active tab
-                document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Filter customers
-                const filter = this.dataset.filter;
-                const filteredCustomers = filter === 'all' ? customers : customers.filter(c => c.customer_type === filter);
-                renderCustomers(filteredCustomers);
-            });
-        });
+  // City change
+  document.getElementById('city').addEventListener('change', e => {
+    if (e.target.value) {
+      loadTowns(e.target.value);
+    }
+  });
 
-        // Form submission
-        document.getElementById('addCustomerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            if (!this.checkValidity()) {
-                e.stopPropagation();
-                this.classList.add('was-validated');
-                return;
-            }
+  // Customer type toggle
+  document.getElementById('customerType').addEventListener('change', function () {
+    const businessNameField = document.getElementById('businessName');
+    const businessNameGroup = businessNameField.closest('.mb-3');
+    if (this.value === 'B2B') {
+      businessNameField.required = true;
+      businessNameGroup.style.display = '';
+    } else {
+      businessNameField.required = false;
+      businessNameGroup.style.display = 'none';
+    }
+  });
 
-            const formData = new FormData(this);
-            const customerData = Object.fromEntries(formData.entries());
-
-            try {
-                const response = await fetch('/api/customers', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(customerData)
-                });
-
-                if (response.ok) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addCustomerModal'));
-                    modal.hide();
-                    
-                    alert('Customer added successfully!');
-                    
-                    // Reload customers
-                    await loadCustomers();
-                    
-                    // Reset form
-                    this.reset();
-                    this.classList.remove('was-validated');
-                } else {
-                    const error = await response.json();
-                    alert('Error: ' + error.error);
-                }
-            } catch (error) {
-                console.error('Error creating customer:', error);
-                alert('Error creating customer. Please try again.');
-            }
-        });
-
-        // Customer actions
-        function viewCustomer(id) {
-            window.location.href = `customers-profile.html?id=${id}`;
-        }
-
-        function editCustomer(id) {
-            window.location.href = `customers-edit.html?id=${id}`;
-        }
-
-        async function deleteCustomer(id) {
-            if (confirm('Are you sure you want to delete this customer?')) {
-                try {
-                    const response = await fetch(`/api/customers/${id}`, {
-                        method: 'DELETE'
-                    });
-
-                    if (response.ok) {
-                        alert('Customer deleted successfully!');
-                        await loadCustomers();
-                    } else {
-                        const error = await response.json();
-                        alert('Error: ' + error.error);
-                    }
-                } catch (error) {
-                    console.error('Error deleting customer:', error);
-                    alert('Error deleting customer. Please try again.');
-                }
-            }
-        }
-    </script>
+  // Submit form
+  document.getElementById('addCustomerForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const customerData = Object.fromEntries(formData.entries());
+    try {
+      const response = await fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customerData)
+      });
+      if (response.ok) {
+        alert('Customer added successfully!');
+        window.location.href = 'customers.html';
+      } else {
+        const error = await response.json();
+        alert('Error: ' + error.error);
+      }
+    } catch (err) {
+      console.error('Error creating customer:', err);
+      alert('Error creating customer. Please try again.');
+    }
+  });
+</script>
 </body>
 </html>

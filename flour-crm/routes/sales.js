@@ -5,13 +5,12 @@ const { requireAuth, requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Sales list
 router.get('/', requireAuth, async (req, res) => {
     try {
         const [sales] = await db.execute(`
      SELECT 
     s.*, 
-    c.full_name AS customer_name, 
+    c.full_name AS customer_name,
     c.customer_type, 
     c.province_id, 
     c.city_id, 

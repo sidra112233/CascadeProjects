@@ -186,7 +186,6 @@
                                                     <option value="cash">Cash</option>
                                                     <option value="bank_transfer">Bank Transfer</option>
                                                     <option value="credit">Credit</option>
-                                                    <option value="cheque">Cheque</option>
                                                 </select>
                                             </div>
                                             
@@ -282,7 +281,8 @@
             try {
                 const response = await fetch('/api/customers');
                 if (response.ok) {
-                    const customers = await response.json();
+                    const result = await response.json();
+                    const customers = result.customers; // <-- FIXED LINE
                     const customerSelect = document.getElementById('customer');
                     customerSelect.innerHTML = '<option value="">Select Customer</option>';
                     
@@ -290,7 +290,7 @@
                         const option = document.createElement('option');
                         option.value = customer.id;
                         option.setAttribute('data-type', customer.customer_type);
-                        option.textContent = `${customer.full_name} - ${customer.customer_type} (${customer.city_name || 'N/A'})`;
+                        option.textContent = `${customer.full_name}`;
                         customerSelect.appendChild(option);
                     });
                 }
@@ -401,6 +401,19 @@
             // Show success message and redirect
             alert('Sale recorded successfully!');
             window.location.href = 'sales.html';
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCustomers();
+        });
+
+        document.getElementById('customer').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const customerType = selectedOption.getAttribute('data-type');
+            if (customerType) {
+                loadProducts(customerType);
+                loadSalesAgents(customerType);
+            }
         });
     </script>
 </body>

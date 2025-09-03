@@ -137,57 +137,101 @@
                     </div>
 
                     <!-- Sales Table -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0"><i class="bi bi-table me-2"></i>Sales Records</h6>
-                        </div>
-                        <div class="card-body">
+                    <div class="tab-content" id="salesTabsContent">
+                      <div class="tab-pane fade show active" id="all" role="tabpanel">
+                        <div class="card">
+                          <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th>Customer</th>
-                                            <th>Product</th>
-                                            <th>Quantity</th>
-                                            <th>Amount</th>
-                                            <th>Payment</th>
-                                            <th>Status</th>
-                                            <th>Agent</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                       <tbody id="salesTableBody">
-    <tr>
-        <td colspan="9" class="text-center text-muted">Loading sales...</td>
-    </tr>
-</tbody>
-
-                                </table>
+                              <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Amount</th>
+                                        <th>Payment</th>
+                                        <th>Status</th>
+                                        <th>Agent</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="salesTableBody"></tbody>
+                              </table>
                             </div>
-                            
-                            <!-- Pagination -->
-                            <nav aria-label="Sales pagination">
-                                <ul class="pagination justify-content-center">
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#" tabindex="-1">Previous</a>
-                                    </li>
-                                    <li class="page-item active">
-                                        <a class="page-link" href="#">1</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">2</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">3</a>
-                                    </li>
-                                    <li class="page-item">
-                                        <a class="page-link" href="#">Next</a>
-                                    </li>
-                                </ul>
-                            </nav>
+                          </div>
                         </div>
+                      </div>
+                      <div class="tab-pane fade" id="pending" role="tabpanel">
+                        <div class="card">
+                          <div class="card-body">
+                            <div class="table-responsive">
+                              <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Amount</th>
+                                        <th>Payment</th>
+                                        <th>Status</th>
+                                        <th>Agent</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pendingSalesTableBody"></tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="tab-pane fade" id="paid" role="tabpanel">
+                        <div class="card">
+                          <div class="card-body">
+                            <div class="table-responsive">
+                              <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Amount</th>
+                                        <th>Payment</th>
+                                        <th>Status</th>
+                                        <th>Agent</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="paidSalesTableBody"></tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
+
+                    <!-- Pagination -->
+                    <nav aria-label="Sales pagination">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                            <li class="page-item active">
+                                <a class="page-link" href="#">1</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">2</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">3</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
                 </div>
             </main>
         </div>
@@ -198,22 +242,29 @@
 <script>
 async function loadSales() {
   try {
-        const res = await fetch('/api/sales');
+    const res = await fetch('/api/sales');
     const data = await res.json();
 
-    const tbody = document.querySelector('#salesTableBody');
-    tbody.innerHTML = '';
+    // All sales
+    const allTbody = document.querySelector('#salesTableBody');
+    // Pending sales
+    const pendingTbody = document.querySelector('#pendingSalesTableBody');
+    // Paid sales
+    const paidTbody = document.querySelector('#paidSalesTableBody');
+
+    allTbody.innerHTML = '';
+    pendingTbody.innerHTML = '';
+    paidTbody.innerHTML = '';
 
     if (!data.sales || data.sales.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="9" class="text-center text-muted">No sales found</td>
-        </tr>`;
+      allTbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">No sales found</td></tr>`;
+      pendingTbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">No pending sales</td></tr>`;
+      paidTbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted">No paid sales</td></tr>`;
       return;
     }
 
     data.sales.forEach(sale => {
-      tbody.innerHTML += `
+      const row = `
         <tr>
           <td>${new Date(sale.created_at).toLocaleString()}</td>
           <td>${sale.customer_name}</td>
@@ -229,18 +280,28 @@ async function loadSales() {
           </td>
         </tr>
       `;
+      // All sales
+      allTbody.innerHTML += row;
+      // Pending Payment
+      if (sale.payment_status === 'pending') {
+        pendingTbody.innerHTML += row;
+      }
+      // Paid
+      if (sale.payment_status === 'paid') {
+        paidTbody.innerHTML += row;
+      }
     });
   } catch (err) {
     console.error("Error loading sales:", err);
-    const tbody = document.querySelector('#salesTableBody');
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="9" class="text-center text-danger">Error loading sales</td>
-      </tr>`;
+    document.querySelector('#salesTableBody').innerHTML =
+      `<tr><td colspan="9" class="text-center text-danger">Error loading sales</td></tr>`;
+    document.querySelector('#pendingSalesTableBody').innerHTML =
+      `<tr><td colspan="9" class="text-center text-danger">Error loading sales</td></tr>`;
+    document.querySelector('#paidSalesTableBody').innerHTML =
+      `<tr><td colspan="9" class="text-center text-danger">Error loading sales</td></tr>`;
   }
 }
 
-// ✅ actually call it when page loads
 window.addEventListener('DOMContentLoaded', loadSales);
 </script>
 
