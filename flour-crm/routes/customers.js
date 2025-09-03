@@ -145,9 +145,8 @@ router.post('/:id', requireAuth, requireRole(['admin']), [
         res.status(500).json({ error: 'Error updating customer' });
     }
 });
-
-// Delete customer
-router.post('/:id/delete', requireAuth, requireRole(['admin']), async (req, res) => {
+// Delete customer (RESTful)
+router.delete('/:id', requireAuth, requireRole(['admin']), async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -155,7 +154,7 @@ router.post('/:id/delete', requireAuth, requireRole(['admin']), async (req, res)
         const [sales] = await db.execute('SELECT COUNT(*) as count FROM sales WHERE customer_id = ?', [id]);
         
         if (sales[0].count > 0) {
-            return res.redirect('/customers?error=Cannot delete customer with existing sales records');
+            return res.status(400).json({ error: 'Cannot delete customer with existing sales records' });
         }
 
         const connection = await db.getConnection();
@@ -166,7 +165,7 @@ router.post('/:id/delete', requireAuth, requireRole(['admin']), async (req, res)
             return res.status(404).json({ error: 'Customer not found' });
         }
         
-        res.redirect('/customers?success=Customer deleted successfully');
+        res.json({ message: 'Customer deleted successfully' });
     } catch (error) {
         console.error('Delete customer error:', error);
         res.status(500).json({ error: 'Error deleting customer' });

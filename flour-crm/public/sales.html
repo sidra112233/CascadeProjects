@@ -280,8 +280,8 @@ async function loadSales() {
           <td>${sale.payment_status}</td>
           <td>${sale.agent_name}</td>
           <td>
-            <button class="btn btn-sm btn-outline-primary">Edit</button>
-            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                <button class="btn btn-sm btn-outline-primary" onclick="editSale(${sale.id})">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" onclick="deleteSale(${sale.id})">Delete</button>
           </td>
         </tr>
       `;
@@ -308,6 +308,34 @@ async function loadSales() {
 }
 
 window.addEventListener('DOMContentLoaded', loadSales);
+
+// Edit sale: redirect to sales-new.html with sale id
+function editSale(saleId) {
+    window.location.href = `sales-new.html?id=${saleId}`;
+}
+
+// Delete sale: send DELETE request and reload sales
+async function deleteSale(saleId) {
+    if (!confirm('Are you sure you want to delete this sale?')) return;
+    try {
+const response = await fetch(`/api/sales/${saleId}/delete`, { method: 'POST' });
+        if (response.ok) {
+            alert('Sale deleted successfully!');
+            loadSales();
+        } else {
+            let errorMsg = 'Failed to delete sale';
+            try {
+                const error = await response.json();
+                errorMsg = error.error || errorMsg;
+            } catch (e) {
+                errorMsg = response.statusText || errorMsg;
+            }
+            alert('Error: ' + errorMsg);
+        }
+    } catch (err) {
+        alert('Error deleting sale. Please try again.');
+    }
+}
 </script>
 
 </body>

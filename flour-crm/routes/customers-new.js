@@ -69,6 +69,10 @@ router.post('/', async (req, res) => {
             city_id, 
             town_id 
         } = req.body;
+
+        if (!full_name || !customer_type || !contact || !province_id || !city_id || !town_id) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
         
         const connection = await db.getConnection();
         
