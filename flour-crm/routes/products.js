@@ -108,26 +108,17 @@ router.post('/', async (req, res) => {
 });
 
 // Update product
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireAuth, async (req, res) => {
+    const { name, category, unit, weight_per_unit, price_per_unit, is_active } = req.body;
+    const { id } = req.params;
     try {
-        const { id } = req.params;
-        const { name, category, target_customer, unit, weight_per_unit, price_per_unit, is_active } = req.body;
-        const connection = await db.getConnection();
-        
-        const [result] = await connection.execute(
-            'UPDATE products SET name = ?, category = ?, target_customer = ?, unit = ?, weight_per_unit = ?, price_per_unit = ?, is_active = ? WHERE id = ?',
-            [name, category, target_customer, unit, weight_per_unit, price_per_unit, is_active, id]
+        // Update product in DB (example for MySQL)
+        await db.query(
+            'UPDATE products SET name=?, category=?, unit=?, weight_per_unit=?, price_per_unit=?, is_active=? WHERE id=?',
+            [name, category, unit, weight_per_unit, price_per_unit, is_active ? 1 : 0, id]
         );
-        
-        connection.release();
-        
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ error: 'Product not found' });
-        }
-        
-        res.json({ message: 'Product updated successfully' });
-    } catch (error) {
-        console.error('Error updating product:', error);
+        res.json({ success: true });
+    } catch (err) {
         res.status(500).json({ error: 'Failed to update product' });
     }
 });
