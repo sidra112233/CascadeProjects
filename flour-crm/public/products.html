@@ -77,6 +77,11 @@
                                 <i class="bi bi-graph-up"></i> Reports
                             </a>
                         </li>
+                          <li class="nav-item">
+                            <a class="nav-link" href="sales-agents.html">
+                                <i class="bi bi-person-badge"></i> Sales Agents
+                            </a>
+                        </li>
                     </ul>
                     
                     <hr class="text-white-50 mt-4">
@@ -132,6 +137,16 @@
                                         <i class="bi bi-x-circle me-1"></i>Inactive
                                     </button>
                                 </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="b2b-tab" data-bs-toggle="tab" data-bs-target="#b2b" type="button" role="tab">
+                                        <i class="bi bi-building me-1"></i>B2B
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="b2c-tab" data-bs-toggle="tab" data-bs-target="#b2c" type="button" role="tab">
+                                        <i class="bi bi-person me-1"></i>B2C
+                                    </button>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -167,6 +182,15 @@
                                 <option value="wheat_flour">Wheat Flour</option>
                                 <option value="specialty_flour">Specialty Flour</option>
                                 <option value="organic">Organic</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="productType" class="form-label">Product Type *</label>
+                            <select class="form-select" id="productType" name="product_type" required>
+                                <option value="">Select Type</option>
+                                <option value="B2B">B2B (Business)</option>
+                                <option value="B2C">B2C (Individual)</option>
                             </select>
                         </div>
                         
@@ -216,10 +240,34 @@
 
         // Tab filtering functionality
         document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-            tab.addEventListener('shown.bs.tab', function (event) {
+            tab.addEventListener('shown.bs.tab', async function (event) {
                 const target = event.target.getAttribute('data-bs-target');
-                // Filter products based on selected tab
-                console.log('Filtering products by:', target);
+                currentFilter = target.replace('#', '');
+
+                if (currentFilter === 'all') {
+                    loadProducts();
+                } else if (currentFilter === 'active' || currentFilter === 'inactive') {
+                    const isActive = currentFilter === 'active';
+                    const filtered = allProducts.filter(product => Number(product.is_active) === (isActive ? 1 : 0));
+                    renderProducts(filtered);
+                } else if (currentFilter === 'b2b' || currentFilter === 'b2c') {
+                    // Fetch filtered products from backend
+                    try {
+                        const response = await fetch(`/api/products?target_customer=${currentFilter.toUpperCase()}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            // Only show products where target_customer matches filter
+                            const filtered = data.products.filter(product => product.target_customer === currentFilter.toUpperCase());
+                            renderProducts(filtered);
+                        } else {
+                            document.getElementById('productsGrid').innerHTML = 
+                                '<div class="col-12"><div class="alert alert-danger">Failed to load products</div></div>';
+                        }
+                    } catch (error) {
+                        document.getElementById('productsGrid').innerHTML = 
+                            '<div class="col-12"><div class="alert alert-danger">Error loading products</div></div>';
+                    }
+                }
             });
         });
 
@@ -296,7 +344,7 @@
                        </button>`;
                 
                 return `
-                    <div class="col-md-4 mb-4" data-status="${product.is_active ? 'active' : 'inactive'}">
+                    <div class="col-md-4 mb-4" data-status="${product.is_active ? 'active' : 'inactive'}" data-type="${product.product_type}">
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -304,6 +352,7 @@
                                     <span class="badge ${badgeClass}">${badgeText}</span>
                                 </div>
                                 <p class="card-text text-muted">${product.category || 'No description available'}</p>
+                                <p class="card-text"><strong>Type:</strong> ${product.target_customer || 'N/A'}</p>
                                 <div class="row text-center mb-3">
                                     <div class="col-6">
                                         <small class="text-muted">Weight</small>
@@ -364,6 +413,7 @@
             // Populate form fields
             document.getElementById('productName').value = product.name || '';
             document.getElementById('productCategory').value = product.category || '';
+            document.getElementById('productType').value = product.target_customer || '';
             document.getElementById('productUnit').value = product.unit || '';
             document.getElementById('productWeight').value = product.weight_per_unit || '';
             document.getElementById('productPrice').value = product.price_per_unit || '';
@@ -380,16 +430,33 @@
 
         // Tab filtering functionality
         document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-            tab.addEventListener('shown.bs.tab', function (event) {
+            tab.addEventListener('shown.bs.tab', async function (event) {
                 const target = event.target.getAttribute('data-bs-target');
                 currentFilter = target.replace('#', '');
-                
+
                 if (currentFilter === 'all') {
-                    renderProducts(allProducts);
-                } else {
+                    loadProducts();
+                } else if (currentFilter === 'active' || currentFilter === 'inactive') {
                     const isActive = currentFilter === 'active';
-                    const filtered = allProducts.filter(product => Boolean(product.is_active) === isActive);
+                    const filtered = allProducts.filter(product => Number(product.is_active) === (isActive ? 1 : 0));
                     renderProducts(filtered);
+                } else if (currentFilter === 'b2b' || currentFilter === 'b2c') {
+                    // Fetch filtered products from backend
+                    try {
+                        const response = await fetch(`/api/products?target_customer=${currentFilter.toUpperCase()}`);
+                        if (response.ok) {
+                            const data = await response.json();
+                            // Only show products where target_customer matches filter
+                            const filtered = data.products.filter(product => product.target_customer === currentFilter.toUpperCase());
+                            renderProducts(filtered);
+                        } else {
+                            document.getElementById('productsGrid').innerHTML = 
+                                '<div class="col-12"><div class="alert alert-danger">Failed to load products</div></div>';
+                        }
+                    } catch (error) {
+                        document.getElementById('productsGrid').innerHTML = 
+                            '<div class="col-12"><div class="alert alert-danger">Error loading products</div></div>';
+                    }
                 }
             });
         });
@@ -408,6 +475,7 @@
             const productData = {
                 name: formData.get('name'),
                 category: formData.get('category'),
+                target_customer: formData.get('product_type'), // <-- Use target_customer
                 unit: formData.get('unit'),
                 weight_per_unit: parseFloat(formData.get('weight_per_unit')),
                 price_per_unit: parseFloat(formData.get('price_per_unit')),

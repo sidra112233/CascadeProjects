@@ -168,4 +168,68 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Create product with additional product_type field
+router.post('/', requireAuth, requireRole(['admin']), [
+    body('name').notEmpty().withMessage('Product name is required'),
+    body('unit').isIn(['kg', 'bag']).withMessage('Invalid unit'),
+    body('weight_per_unit').isFloat({ min: 0.01 }).withMessage('Weight per unit must be greater than 0'),
+    body('price_per_unit').isFloat({ min: 0.01 }).withMessage('Price per unit must be greater than 0'),
+    body('product_type').notEmpty().withMessage('Product type is required') // New validation rule
+], async (req, res) => {
+    const errors = validationResult(req);
+    
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ 
+            errors: errors.array(),
+            formData: req.body
+        });
+    }
+
+    const { name, category, target_customer, unit, weight_per_unit, price_per_unit, is_active, product_type } = req.body;
+
+    try {
+        const connection = await db.getConnection();
+        
+        const [result] = await connection.execute(
+            'INSERT INTO products (name, category, target_customer, unit, weight_per_unit, price_per_unit, is_active, product_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, category, target_customer || 'Both', unit, weight_per_unit, price_per_unit, is_active !== undefined ? is_active : true, product_type]
+        );
+        
+        connection.release();
+        res.json({ id: result.insertId, message: 'Product created successfully' });
+    } catch (error) {
+        console.error('Error creating product:', error);
+        res.status(500).json({ error: 'Failed to create product' });
+    }
+});
+
+// Update product including product_type
+router.put('/:id', requireAuth, async (req, res) => {
+    const { name, category, unit, weight_per_unit, price_per_unit, is_active, product_type } = req.body;
+    const { id } = req.params;
+    try {
+        // Update product in DB (example for MySQL)
+        await db.query(
+            'UPDATE products SET name=?, category=?, unit=?, weight_per_unit=?, price_per_unit=?, is_active=?, product_type=? WHERE id=?',
+            [name, category, unit, weight_per_unit, price_per_unit, is_active ? 1 : 0, product_type, id]
+        );
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Failed to update product' });
+    }
+});
+
+// Example Express route
+router.get('/api/products', async (req, res) => {
+    const { target_customer } = req.query;
+    let query = 'SELECT * FROM products';
+    let params = [];
+    if (target_customer) {
+        query += ' WHERE target_customer = ?';
+        params.push(target_customer);
+    }
+    const products = await db.query(query, params);
+    res.json({ products });
+});
+
 module.exports = router;
