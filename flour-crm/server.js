@@ -89,6 +89,8 @@ const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const salesRoutes = require('./routes/sales');
 const customerRoutes = require('./routes/customers');
+const customernewRoutes = require('./routes/customers-new');
+
 const productRoutes = require('./routes/products');
 const reportRoutes = require('./routes/reports');
 const locationRoutes = require('./routes/locations');
@@ -98,11 +100,11 @@ app.use('/api/auth', authRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/customers', customerRoutes);
+app.use('/api/customers', customernewRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/sales-agents', salesAgentRoutes);
-
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);

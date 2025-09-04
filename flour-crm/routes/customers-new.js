@@ -73,6 +73,10 @@ router.post('/', async (req, res) => {
         if (!full_name || !customer_type || !contact || !province_id || !city_id || !town_id) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
+
+        if (customer_type === 'B2B' && !business_name) {
+            return res.status(400).json({ error: 'Business name required for B2B customers' });
+        }
         
         const connection = await db.getConnection();
         
@@ -96,18 +100,18 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { 
-            full_name, 
-            customer_type, 
-            business_name, 
-            contact, 
-            whatsapp, 
-            email, 
-            address, 
-            province_id, 
-            city_id, 
-            town_id 
-        } = req.body;
+    const { 
+        full_name, 
+        customer_type, 
+        business_name, 
+        contact, 
+        whatsapp, 
+        email, 
+        address,   // 👈 optional street
+        province_id, 
+        city_id, 
+        town_id     
+    } = req.body;
         
         const connection = await db.getConnection();
         

@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const db = require('../config/database');
 const { redirectIfAuthenticated } = require('../middleware/auth');
+const checkPermission = require('../middleware/checkPermission');
 
 const router = express.Router();
 
@@ -15,6 +16,18 @@ router.get('/status', (req, res) => {
         });
     } else {
         res.json({ authenticated: false });
+    }
+});
+// Get all users (for onboarding agents etc.)
+router.get('/users', async (req, res) => {
+    try {
+        const [rows] = await db.execute(
+            'SELECT id, name, email, role FROM users ORDER BY name'
+        );
+        res.json(rows);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Failed to fetch users' });
     }
 });
 
@@ -87,6 +100,11 @@ router.post('/logout', (req, res) => {
         }
         res.json({ success: true });
     });
+});
+
+// Example: Only allow agents with edit permission on customers page
+router.post('/customers', checkPermission('customers', 'add'), async (req, res) => {
+    // ...add customer logic...
 });
 
 module.exports = router;

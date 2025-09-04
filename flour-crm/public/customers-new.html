@@ -52,9 +52,9 @@
           <li class="nav-item"><a class="nav-link" href="sales.html"><i class="bi bi-cart-plus"></i> Sales</a></li>
           <li class="nav-item"><a class="nav-link active" href="customers.html"><i class="bi bi-people"></i> Customers</a></li>
           <li class="nav-item"><a class="nav-link" href="products.html"><i class="bi bi-box-seam"></i> Products</a></li>
-          <li class="nav-item"><a class="nav-link" href="sales-agents.html"><i class="bi bi-person-badge"></i> Sales Agents</a></li>
           <li class="nav-item"><a class="nav-link" href="reports.html"><i class="bi bi-graph-up"></i> Reports</a></li>
           <li class="nav-item"><a class="nav-link" href="sales-agents.html"><i class="bi bi-person-badge"></i> Sales Agents</a></li>
+
         </ul>
 
         <hr class="text-white-50 mt-4">
@@ -263,34 +263,37 @@
     e.preventDefault();
     const formData = new FormData(this);
     const customerData = Object.fromEntries(formData.entries());
+// Convert IDs to numbers
+['province_id', 'city_id', 'town_id'].forEach(key => {
+  if (customerData[key] === '' || customerData[key] === null) {
+    if (key === 'town_id') {
+      alert('Please select a town before saving.');
+      throw new Error('Town is required');
+    }
+    customerData[key] = null;
+  } else {
+    customerData[key] = Number(customerData[key]);
+  }
+});
 
-    // Convert IDs to numbers or null
-    ['province_id', 'city_id', 'town_id'].forEach(key => {
-      if (customerData[key] === '') {
-        customerData[key] = null;
-      } else {
-        customerData[key] = Number(customerData[key]);
-      }
-    });
 
     // Remove business_name if B2C
     if (customerData.customer_type === 'B2C') {
       delete customerData.business_name;
     }
+['whatsapp', 'email', 'address', 'business_name'].forEach(key => {
+  if (customerData[key] === '') delete customerData[key];
+});
 
-    // Remove empty optional fields
-    ['whatsapp', 'email', 'address'].forEach(key => {
-      if (customerData[key] === '') delete customerData[key];
-    });
 
     console.log(customerData); // Debug
 
     try {
       const response = await fetch('/api/customers', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(customerData)
-      });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(customerData)
+});
       if (response.ok) {
         alert('Customer added successfully!');
         window.location.href = 'customers.html';
