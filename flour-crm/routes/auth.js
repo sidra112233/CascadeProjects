@@ -3,8 +3,6 @@ const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const db = require('../config/database');
 const { redirectIfAuthenticated } = require('../middleware/auth');
-const checkPermission = require('../middleware/checkPermission');
-
 const router = express.Router();
 
 // Session status endpoint
@@ -100,11 +98,6 @@ router.post('/logout', (req, res) => {
         }
         res.json({ success: true });
     });
-});
-
-// Example: Only allow agents with edit permission on customers page
-router.post('/customers', checkPermission('customers', 'add'), async (req, res) => {
-    // ...add customer logic...
 });
 
 module.exports = router;
