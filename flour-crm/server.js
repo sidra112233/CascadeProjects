@@ -6,7 +6,6 @@ require('dotenv').config();
 
 const app = express();
 
-// Test database connection on startup (non-blocking)
 async function testConnection() {
     try {
         const db = require('./config/database');
