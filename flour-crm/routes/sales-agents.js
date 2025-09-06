@@ -4,7 +4,6 @@ const db = require('../config/database');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 
-// Middleware
 const { requireAuth } = require('../middleware/auth');
 
 // Helper to build permissions JSON from body flags (you can remove if not needed anywhere else)
