@@ -17,7 +17,6 @@ async function testConnection() {
         console.log('Server will start anyway - some features may not work');
     }
 }
-// Don't wait for database connection to start server
 testConnection();
 const PORT = process.env.PORT || 3000;
 
