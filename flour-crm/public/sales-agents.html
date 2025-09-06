@@ -50,26 +50,24 @@
           <li class="nav-item"><a class="nav-link" href="reports.html"><i class="bi bi-graph-up"></i> Reports</a></li>
           <li class="nav-item"><a class="nav-link active" href="sales-agents.html"><i class="bi bi-person-badge"></i> Sales Agents</a></li>
         </ul>
-                    <hr class="text-white-50 mt-4">
-                    
-                    <div class="dropdown">
-                        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle me-2"></i>
-                            <strong>Admin User</strong>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-                            <li><span class="dropdown-item-text">Role: admin</span></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="login.html" onclick="logout()">
-                                    <i class="bi bi-box-arrow-right"></i> Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-            
+        <hr class="text-white-50 mt-4">
+        <div class="dropdown">
+          <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle me-2"></i>
+            <strong>Admin User</strong>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+            <li><span class="dropdown-item-text">Role: admin</span></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="login.html" onclick="logout()">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
     <!-- Main content -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
@@ -115,7 +113,7 @@
   </div>
 </div>
 
-<!-- Add Agent Modal (Assign Existing / Onboard New) -->
+<!-- Add Agent Modal (Onboard Only) -->
 <div class="modal fade" id="addAgentModal" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -126,127 +124,113 @@
       </div>
 
       <div class="modal-body">
-        <ul class="nav nav-pills" id="agentTabs" role="tablist">
-          <li class="nav-item ms-2" role="presentation">
-            <button class="nav-link" id="onboard-tab" data-bs-toggle="tab" data-bs-target="#tab-onboard" type="button" role="tab">
-              <i class="bi bi-person-plus-fill me-1"></i> Onboard New Agent
-            </button>
-          </li>
-        </ul>
-
-          <!-- Onboard New -->
-          <div class="tab-pane fade" id="tab-onboard" role="tabpanel" aria-labelledby="onboard-tab">
-            <form id="onboardAgentForm" class="card p-3">
-              <h5 class="mb-3">New User Details</h5>
-              <div class="row g-3">
-                <div class="col-md-4">
-                  <label for="agentName" class="form-label">Full Name *</label>
-                  <input type="text" class="form-control" id="agentName" name="name" required autocomplete="name"/>
-                </div>
-                <div class="col-md-4">
-                  <label for="agentEmail" class="form-label">Email *</label>
-                  <input type="email" class="form-control" id="agentEmail" name="email" required autocomplete="email"/>
-                </div>
-                <div class="col-md-4">
-                  <label for="agentPhone" class="form-label">Phone *</label>
-                  <input type="tel" class="form-control" id="agentPhone" name="phone" required autocomplete="tel"/>
-                </div>
-              </div>
-
-              <div class="row g-3 mt-1">
-                <div class="col-md-4">
-                  <label for="onboardAccess" class="form-label">CRM Access Level *</label>
-                  <select class="form-select" id="onboardAccess" name="access_level" required>
-                    <option value="">Select</option>
-                    <option value="view">View Only</option>
-                    <option value="edit">View & Edit</option>
-                    <option value="full">Full Access (View, Edit, Delete)</option>
-                    <option value="custom">Custom (Select below)</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label for="onboardAgentType" class="form-label">Agent Type *</label>
-                  <select class="form-select" id="onboardAgentType" name="agent_type" required>
-                    <option value="B2B">B2B</option>
-                    <option value="B2C">B2C</option>
-                    <option value="Both">Both</option>
-                  </select>
-                </div>
-                <div class="col-md-4">
-                  <label for="onboardCommission" class="form-label">Commission (%)</label>
-                  <input type="number" class="form-control" id="onboardCommission" name="commission_rate" min="0" step="0.1"/>
-                </div>
-              </div>
-
-              <div class="mt-3" id="customAccessGroup" style="display:none;">
-                <h6 class="mb-2">Custom Page Permissions</h6>
-                <div class="table-responsive">
-                  <table class="table table-bordered permissions-table">
-                    <thead>
-                      <tr>
-                        <th>Page</th>
-                        <th>View</th>
-                        <th>Add</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <!-- pages: dashboard, sales, customers, products, reports, agents -->
-                      <tr>
-                        <td class="text-start">Dashboard</td>
-                        <td><input type="checkbox" name="dashboard_view"></td>
-                        <td><input type="checkbox" name="dashboard_add"></td>
-                        <td><input type="checkbox" name="dashboard_edit"></td>
-                        <td><input type="checkbox" name="dashboard_delete"></td>
-                      </tr>
-                      <tr>
-                        <td class="text-start">Sales</td>
-                        <td><input type="checkbox" name="sales_view"></td>
-                        <td><input type="checkbox" name="sales_add"></td>
-                        <td><input type="checkbox" name="sales_edit"></td>
-                        <td><input type="checkbox" name="sales_delete"></td>
-                      </tr>
-                      <tr>
-                        <td class="text-start">Customers</td>
-                        <td><input type="checkbox" name="customers_view"></td>
-                        <td><input type="checkbox" name="customers_add"></td>
-                        <td><input type="checkbox" name="customers_edit"></td>
-                        <td><input type="checkbox" name="customers_delete"></td>
-                      </tr>
-                      <tr>
-                        <td class="text-start">Products</td>
-                        <td><input type="checkbox" name="products_view"></td>
-                        <td><input type="checkbox" name="products_add"></td>
-                        <td><input type="checkbox" name="products_edit"></td>
-                        <td><input type="checkbox" name="products_delete"></td>
-                      </tr>
-                      <tr>
-                        <td class="text-start">Reports</td>
-                        <td><input type="checkbox" name="reports_view"></td>
-                        <td><input type="checkbox" name="reports_add"></td>
-                        <td><input type="checkbox" name="reports_edit"></td>
-                        <td><input type="checkbox" name="reports_delete"></td>
-                      </tr>
-                      <tr>
-                        <td class="text-start">Sales Agents</td>
-                        <td><input type="checkbox" name="agents_view"></td>
-                        <td><input type="checkbox" name="agents_add"></td>
-                        <td><input type="checkbox" name="agents_edit"></td>
-                        <td><input type="checkbox" name="agents_delete"></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div class="text-end mt-2">
-                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Onboard Agent</button>
-              </div>
-            </form>
+        <form id="onboardAgentForm" class="card p-3">
+          <h5 class="mb-3">New User Details</h5>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="agentName" class="form-label">Full Name *</label>
+              <input type="text" class="form-control" id="agentName" name="name" required autocomplete="name"/>
+            </div>
+            <div class="col-md-4">
+              <label for="agentEmail" class="form-label">Email *</label>
+              <input type="email" class="form-control" id="agentEmail" name="email" required autocomplete="email"/>
+            </div>
+            <div class="col-md-4">
+              <label for="agentPhone" class="form-label">Phone *</label>
+              <input type="tel" class="form-control" id="agentPhone" name="phone" required autocomplete="tel"/>
+            </div>
           </div>
-          <!-- /Onboard New -->
-        </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-md-4">
+              <label for="onboardAccess" class="form-label">CRM Access Level *</label>
+              <select class="form-select" id="onboardAccess" name="access_level" required>
+                <option value="">Select</option>
+                <option value="view">View Only</option>
+                <option value="edit">View & Edit</option>
+                <option value="full">Full Access (View, Edit, Delete)</option>
+                <option value="custom">Custom (Select below)</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="onboardAgentType" class="form-label">Agent Type *</label>
+              <select class="form-select" id="onboardAgentType" name="agent_type" required>
+                <option value="B2B">B2B</option>
+                <option value="B2C">B2C</option>
+                <option value="Both">Both</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label for="onboardCommission" class="form-label">Commission (%)</label>
+              <input type="number" class="form-control" id="onboardCommission" name="commission_rate" min="0" step="0.1"/>
+            </div>
+          </div>
+
+          <div class="mt-3" id="customAccessGroup" style="display:none;">
+            <h6 class="mb-2">Custom Page Permissions</h6>
+            <div class="table-responsive">
+              <table class="table table-bordered permissions-table">
+                <thead>
+                  <tr>
+                    <th>Page</th>
+                    <th>View</th>
+                    <th>Add</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-start">Dashboard</td>
+                    <td><input type="checkbox" name="dashboard_view"></td>
+                    <td><input type="checkbox" name="dashboard_add"></td>
+                    <td><input type="checkbox" name="dashboard_edit"></td>
+                    <td><input type="checkbox" name="dashboard_delete"></td>
+                  </tr>
+                  <tr>
+                    <td class="text-start">Sales</td>
+                    <td><input type="checkbox" name="sales_view"></td>
+                    <td><input type="checkbox" name="sales_add"></td>
+                    <td><input type="checkbox" name="sales_edit"></td>
+                    <td><input type="checkbox" name="sales_delete"></td>
+                  </tr>
+                  <tr>
+                    <td class="text-start">Customers</td>
+                    <td><input type="checkbox" name="customers_view"></td>
+                    <td><input type="checkbox" name="customers_add"></td>
+                    <td><input type="checkbox" name="customers_edit"></td>
+                    <td><input type="checkbox" name="customers_delete"></td>
+                  </tr>
+                  <tr>
+                    <td class="text-start">Products</td>
+                    <td><input type="checkbox" name="products_view"></td>
+                    <td><input type="checkbox" name="products_add"></td>
+                    <td><input type="checkbox" name="products_edit"></td>
+                    <td><input type="checkbox" name="products_delete"></td>
+                  </tr>
+                  <tr>
+                    <td class="text-start">Reports</td>
+                    <td><input type="checkbox" name="reports_view"></td>
+                    <td><input type="checkbox" name="reports_add"></td>
+                    <td><input type="checkbox" name="reports_edit"></td>
+                    <td><input type="checkbox" name="reports_delete"></td>
+                  </tr>
+                  <tr>
+                    <td class="text-start">Sales Agents</td>
+                    <td><input type="checkbox" name="agents_view"></td>
+                    <td><input type="checkbox" name="agents_add"></td>
+                    <td><input type="checkbox" name="agents_edit"></td>
+                    <td><input type="checkbox" name="agents_delete"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="text-end mt-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-save me-1"></i>Onboard Agent</button>
+          </div>
+        </form>
       </div>
 
       <div class="modal-footer">
@@ -257,17 +241,15 @@
   </div>
 </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/auth-check.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/auth-check.js"></script>
 
 <script>
 let agents = [];
-let users = [];
 
 // Init
 document.addEventListener('DOMContentLoaded', () => {
-  loadUsers();
   loadAgents();
 
   // Filter tabs
@@ -286,44 +268,30 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('customAccessGroup').style.display = this.value === 'custom' ? '' : 'none';
   });
 
-  // Assign existing
-  document.getElementById('assignAgentForm').addEventListener('submit', onAssignSubmit);
-
   // Onboard new
   document.getElementById('onboardAgentForm').addEventListener('submit', onOnboardSubmit);
 });
 
-// Load users for assigning
-async function loadUsers() {
-  try {
-    const res = await fetch('/api/auth/users');
-    const select = document.getElementById('assignUserId');
-    if (!res.ok) { select.innerHTML = '<option value="">Failed to load users</option>'; return; }
-    users = await res.json();
-    select.innerHTML = '<option value="">Select User</option>';
-    users.forEach(u => {
-      const opt = document.createElement('option');
-      opt.value = u.id;
-      opt.textContent = `${u.name} (${u.email})`;
-      select.appendChild(opt);
-    });
-  } catch (e) {
-    console.error('Error loading users:', e);
-    document.getElementById('assignUserId').innerHTML = '<option value="">Error loading users</option>';
-  }
-}
-
 // Load agents list
 async function loadAgents() {
   try {
-    const res = await fetch('/api/sales-agents');
+    const res = await fetch('/api/sales-agents', {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include'
+    });
+
     if (!res.ok) throw new Error('Failed');
     agents = await res.json();
     renderAgents(agents);
+
   } catch (e) {
     console.error('Error loading agents:', e);
-    document.querySelector('#agentsTable tbody').innerHTML =
-      '<tr><td colspan="6" class="text-center text-danger">Failed to load agents</td></tr>';
+    const tbody = document.querySelector('#agentsTable tbody');
+    if (tbody) {
+      tbody.innerHTML =
+        '<tr><td colspan="6" class="text-center text-danger">Failed to load agents</td></tr>';
+    }
   }
 }
 
@@ -345,39 +313,15 @@ function renderAgents(list) {
         <button class="btn btn-sm btn-outline-${a.is_active?'warning':'success'}" onclick="toggleAgentStatus(${a.id}, ${a.is_active})" title="${a.is_active?'Deactivate':'Activate'}">
           <i class="bi bi-${a.is_active?'pause':'play'}-circle"></i>
         </button>
-      </td>
-       <button class="btn btn-sm btn-outline-primary" onclick="editAgent(${a.id})" title="Edit">
+        <button class="btn btn-sm btn-outline-primary" onclick="editAgent(${a.id})" title="Edit">
           <i class="bi bi-pencil"></i>
         </button>
         <button class="btn btn-sm btn-outline-danger" onclick="deleteAgent(${a.id})" title="Delete">
           <i class="bi bi-trash"></i>
         </button>
+      </td>
     </tr>
   `).join('');
-}
-
-// Assign submit
-async function onAssignSubmit(e) {
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.target).entries());
-  try {
-    const res = await fetch('/api/sales-agents', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(()=>({error:'Unknown error'}));
-      alert('Error: ' + err.error);
-      return;
-    }
-    e.target.reset();
-    await loadAgents();
-    bootstrap.Modal.getInstance(document.getElementById('addAgentModal')).hide();
-  } catch (err) {
-    alert('Error assigning agent');
-    console.error(err);
-  }
 }
 
 // Onboard submit
@@ -387,7 +331,6 @@ async function onOnboardSubmit(e) {
   const data = Object.fromEntries(formData.entries());
 
   if (data.access_level === 'custom') {
-    // Include custom permissions as boolean flags (server will shape to JSON)
     const pages = ['dashboard','sales','customers','products','reports','agents'];
     const actions = ['view','add','edit','delete'];
     pages.forEach(p => actions.forEach(a => {
@@ -409,7 +352,6 @@ async function onOnboardSubmit(e) {
     e.target.reset();
     document.getElementById('customAccessGroup').style.display = 'none';
     await loadAgents();
-    await loadUsers(); // so the new user appears in Assign tab too
     bootstrap.Modal.getInstance(document.getElementById('addAgentModal')).hide();
     alert('Agent onboarded successfully.');
   } catch (err) {
@@ -443,54 +385,57 @@ async function editAgent(id) {
   const agent = agents.find(a => a.id === id);
   if (!agent) return alert("Agent not found");
 
-  // Pre-fill modal with agent data (reuse your onboard form or make a new edit modal)
-  document.getElementById('agentName').value = agent.name;
-  document.getElementById('agentEmail').value = agent.email;
-  document.getElementById('agentPhone').value = agent.phone || '';
-  document.getElementById('onboardAccess').value = agent.access_level || 'view';
-  document.getElementById('onboardAgentType').value = agent.agent_type;
-  document.getElementById('onboardCommission').value = agent.commission_rate || 0;
+  // Simple prompt-based edit (you can replace with modal form later)
+  const newName = prompt("Enter agent name:", agent.name);
+  if (newName === null) return; // cancel
+  const newEmail = prompt("Enter agent email:", agent.email);
+  if (newEmail === null) return;
+  const newCommission = prompt("Enter commission (%):", agent.commission_rate || 0);
+  if (newCommission === null) return;
 
-  // Show modal
-  const modal = new bootstrap.Modal(document.getElementById('addAgentModal'));
-  modal.show();
-
-  // On submit, send PUT instead of POST
-  const form = document.getElementById('onboardAgentForm');
-  form.onsubmit = async (e) => {
-    e.preventDefault();
-    const data = Object.fromEntries(new FormData(form).entries());
-    try {
-      const res = await fetch(`/api/sales-agents/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) throw new Error("Update failed");
-      await loadAgents();
-      modal.hide();
-      alert("Agent updated successfully");
-    } catch (err) {
-      console.error(err);
-      alert("Error updating agent");
+  try {
+    const res = await fetch(`/api/sales-agents/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: newName,
+        email: newEmail,
+        commission_rate: Number(newCommission)
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({error:"Unknown error"}));
+      alert("Error: " + err.error);
+      return;
     }
-  };
+    await loadAgents();
+    alert("Agent updated successfully");
+  } catch (e) {
+    console.error(e);
+    alert("Error updating agent");
+  }
 }
 
 // Delete agent
 async function deleteAgent(id) {
   if (!confirm("Are you sure you want to delete this agent?")) return;
+
   try {
-    const res = await fetch(`/api/sales-agents/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error("Delete failed");
+    const res = await fetch(`/api/sales-agents/${id}`, {
+      method: "DELETE"
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({error:"Unknown error"}));
+      alert("Error: " + err.error);
+      return;
+    }
     await loadAgents();
     alert("Agent deleted successfully");
-  } catch (err) {
-    console.error(err);
+  } catch (e) {
+    console.error(e);
     alert("Error deleting agent");
   }
 }
-
 </script>
 </body>
 </html>
