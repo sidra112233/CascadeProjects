@@ -9,350 +9,885 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        .sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root {
+            --sidebar-bg: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --main-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: rgba(226, 232, 240, 0.8);
+            --primary-color: #4f46e5;
+            --secondary-color: #7c3aed;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --sidebar-width: 280px;
         }
+        
+        [data-theme="dark"] {
+            --sidebar-bg: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            --main-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --border-color: rgba(71, 85, 105, 0.5);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--main-bg);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            z-index: 1000;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header h4 {
+            color: white;
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-header h4 i {
+            margin-right: 0.75rem;
+            font-size: 1.75rem;
+        }
+        
+        .sidebar-header small {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.875rem;
+            display: block;
+            margin-top: 0.25rem;
+        }
+        
+        .sidebar .nav {
+            padding: 1.5rem 0;
+        }
+        
+        .sidebar .nav-item {
+            margin: 0.25rem 0;
+        }
+        
         .sidebar .nav-link {
             color: rgba(255, 255, 255, 0.8);
+            padding: 0.875rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 0 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .sidebar .nav-link:hover, 
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+        
+        .sidebar-divider {
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 1.5rem 1rem;
+        }
+        
+        .user-dropdown {
+            padding: 0 1rem 1.5rem;
+        }
+        
+        .user-dropdown .dropdown-toggle {
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            width: 100%;
             padding: 0.75rem 1rem;
-            margin: 0.25rem 0;
             border-radius: 0.5rem;
             transition: all 0.3s ease;
         }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: white;
+        
+        .user-dropdown .dropdown-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .user-dropdown .dropdown-toggle i {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .page-header h1 {
+            font-weight: 700;
+            font-size: 2rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-header h1 i {
+            margin-right: 0.75rem;
+            color: var(--primary-color);
+        }
+        
+        /* Dark Mode Toggle */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 1050;
+            background-color: var(--card-bg);
+            border-radius: 50px;
+            padding: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .dark-mode-toggle:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .dark-mode-toggle i {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .dark-mode-toggle .dark-icon {
+            margin-left: auto;
+        }
+        
+        [data-theme="dark"] .dark-mode-toggle .light-icon {
+            opacity: 0.3;
+        }
+        
+        [data-theme="light"] .dark-mode-toggle .dark-icon {
+            opacity: 0.3;
+        }
+        
+        /* Card Styles */
+        .card {
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: none;
+            transition: all 0.3s ease;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            height: 100%;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: transparent;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem 1.5rem;
+        }
+        
+        .card-header h6 {
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-header h6 i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Stats Cards */
+        .stats-card {
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: none;
+            height: 100%;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .stats-card h6 {
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .stats-card h3 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stats-card small {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+        
+        .stats-card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background-color: rgba(255, 255, 255, 0.2);
         }
-        .main-content {
-            background-color: #f8f9fa;
-            min-height: 100vh;
+        
+        .stats-card-icon i {
+            font-size: 1.75rem;
+            color: white;
         }
-        .card {
+        
+        .stats-card-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+        
+        .stats-card-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .stats-card-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .stats-card-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        
+        /* Form Styles */
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary-color);
             border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            transition: box-shadow 0.15s ease-in-out;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
-        .card:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn-outline-secondary {
+            color: var(--text-color);
+            border-color: var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        
+        /* Table Styles */
+        .table-responsive {
+            border-radius: 0 0 1rem 1rem;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            color: var(--text-color);
+            opacity: 0.7;
+            border-bottom: 2px solid var(--border-color);
+            padding: 1rem 1.5rem;
+        }
+        
+        .table tbody td {
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+        
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Badges */
+        .badge {
+            font-weight: 500;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+            border-radius: 50px;
+        }
+        
+        .bg-success {
+            background-color: var(--success-color) !important;
+        }
+        
+        /* Chart container styling */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h4 span,
+            .sidebar-header small,
+            .sidebar .nav-link span,
+            .user-dropdown .dropdown-toggle span {
+                display: none;
+            }
+            
+            .sidebar .nav-link {
+                justify-content: center;
+                padding: 0.875rem 0;
+                margin: 0.25rem 0.5rem;
+            }
+            
+            .sidebar .nav-link i {
+                margin: 0;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .page-header .btn-toolbar {
+                margin-top: 1rem;
+                width: 100%;
+            }
+            
+            .page-header .btn-group {
+                width: 100%;
+            }
+            
+            .page-header .btn {
+                width: 100%;
+            }
+            
+            .table-responsive {
+                border-radius: 1rem;
+            }
+            
+            .table thead th,
+            .table tbody td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.875rem;
+            }
         }
     </style>
 </head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="position-sticky pt-3">
-                    <div class="text-center mb-4">
-                        <h4 class="text-white"><i class="bi bi-shop"></i> Flour CRM</h4>
-                        <small class="text-white-50">Welcome, Admin User</small>
-                    </div>
-                    
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link" href="dashboard.html">
-                                <i class="bi bi-speedometer2"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="sales.html">
-                                <i class="bi bi-cart-plus"></i> Sales
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="customers.html">
-                                <i class="bi bi-people"></i> Customers
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="products.html">
-                                <i class="bi bi-box-seam"></i> Products
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="reports.html">
-                                <i class="bi bi-graph-up"></i> Reports
-                            </a>
-                        </li>
-                          <li class="nav-item">
-                            <a class="nav-link" href="sales-agents.html">
-                                <i class="bi bi-person-badge"></i> Sales Agents
-                            </a>
-                        </li>
-                    </ul>
-                    
-                    <hr class="text-white-50 mt-4">
-                    
-                    <div class="dropdown">
-                        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle me-2"></i>
-                            <strong>Admin User</strong>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-                            <li><span class="dropdown-item-text">Role: admin</span></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" href="login.html" onclick="logout()">
-                                    <i class="bi bi-box-arrow-right"></i> Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-            
-            <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <div class="py-4">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2"><i class="bi bi-graph-up me-2"></i>Reports & Analytics</h1>
-                        <div class="btn-toolbar mb-2 mb-md-0">
-                            <div class="btn-group me-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary">
-                                    <i class="bi bi-download me-1"></i>Export PDF
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary">
-                                    <i class="bi bi-file-earmark-excel me-1"></i>Export Excel
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Date Range Filter -->
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <div class="row align-items-end">
-                                <div class="col-md-3">
-                                    <label for="startDate" class="form-label">Start Date</label>
-                                    <input type="date" class="form-control" id="startDate" value="2024-01-01">
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="endDate" class="form-label">End Date</label>
-                                    <input type="date" class="form-control" id="endDate" value="2024-12-31">
-                                </div>
-                                <div class="col-md-3">
-                                    <label for="region" class="form-label">Region</label>
-                                    <select class="form-select" id="region">
-                                        <option value="">All Regions</option>
-                                        <option value="punjab">Punjab</option>
-                                        <option value="kpk">KPK</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <button type="button" class="btn btn-primary" onclick="generateReport()">
-                                        <i class="bi bi-search me-1"></i>Generate Report
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Summary Cards -->
-                    <div class="row mb-4">
-                        <div class="col-md-3 mb-3">
-                            <div class="card text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="card-title">Total Revenue</h6>
-                                            <h3 class="mb-0">Rs. 2,450,000</h3>
-                                            <small>+12% from last period</small>
-                                        </div>
-                                        <div class="align-self-center">
-                                            <i class="bi bi-currency-dollar h2"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 mb-3">
-                            <div class="card text-white" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="card-title">Total Orders</h6>
-                                            <h3 class="mb-0">1,245</h3>
-                                            <small>+8% from last period</small>
-                                        </div>
-                                        <div class="align-self-center">
-                                            <i class="bi bi-cart-check h2"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 mb-3">
-                            <div class="card text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="card-title">Avg Order Value</h6>
-                                            <h3 class="mb-0">Rs. 1,968</h3>
-                                            <small>+3% from last period</small>
-                                        </div>
-                                        <div class="align-self-center">
-                                            <i class="bi bi-graph-up-arrow h2"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 mb-3">
-                            <div class="card text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h6 class="card-title">Active Customers</h6>
-                                            <h3 class="mb-0">245</h3>
-                                            <small>+15 new this month</small>
-                                        </div>
-                                        <div class="align-self-center">
-                                            <i class="bi bi-people h2"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Charts Row -->
-                    <div class="row mb-4">
-                        <div class="col-md-8">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0"><i class="bi bi-graph-up me-2"></i>Monthly Sales Trend</h6>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="salesTrendChart" height="100"></canvas>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0"><i class="bi bi-pie-chart me-2"></i>Payment Methods</h6>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="paymentChart" height="200"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Regional Performance -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0"><i class="bi bi-geo-alt me-2"></i>Regional Performance</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>Region</th>
-                                                    <th>Revenue</th>
-                                                    <th>Orders</th>
-                                                    <th>Growth</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td><i class="bi bi-geo-alt-fill text-primary me-2"></i>Punjab</td>
-                                                    <td>Rs. 1,470,000</td>
-                                                    <td>747</td>
-                                                    <td><span class="badge bg-success">+15%</span></td>
-                                                </tr>
-                                                <tr>
-                                                    <td><i class="bi bi-geo-alt-fill text-success me-2"></i>KPK</td>
-                                                    <td>Rs. 980,000</td>
-                                                    <td>498</td>
-                                                    <td><span class="badge bg-success">+8%</span></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Customer Types</h6>
-                                </div>
-                                <div class="card-body">
-                                    <canvas id="customerTypeChart" height="200"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Top Products -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0"><i class="bi bi-trophy me-2"></i>Top Performing Products</h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Units Sold</th>
-                                            <th>Revenue</th>
-                                            <th>Profit Margin</th>
-                                            <th>Trend</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Premium Wheat Flour - 50kg</td>
-                                            <td>2,450 bags</td>
-                                            <td>Rs. 1,225,000</td>
-                                            <td>22%</td>
-                                            <td><i class="bi bi-arrow-up-circle-fill text-success"></i></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Standard Flour - 25kg</td>
-                                            <td>3,200 bags</td>
-                                            <td>Rs. 800,000</td>
-                                            <td>18%</td>
-                                            <td><i class="bi bi-arrow-up-circle-fill text-success"></i></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Bulk Flour - 100kg</td>
-                                            <td>850 bags</td>
-                                            <td>Rs. 425,000</td>
-                                            <td>15%</td>
-                                            <td><i class="bi bi-dash-circle-fill text-warning"></i></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </main>
+<body data-theme="light">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="bi bi-shop"></i> <span>Flour CRM</span></h4>
+            <small>Welcome, Admin User</small>
         </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="dashboard.html">
+                    <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="sales.html">
+                    <i class="bi bi-cart-plus"></i> <span>Sales</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="customers.html">
+                    <i class="bi bi-people"></i> <span>Customers</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="products.html">
+                    <i class="bi bi-box-seam"></i> <span>Products</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="reports.html">
+                    <i class="bi bi-graph-up"></i> <span>Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="sales-agents.html">
+                    <i class="bi bi-person-badge"></i> <span>Sales Agents</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="sidebar-divider"></div>
+        
+        <div class="user-dropdown">
+            <div class="dropdown">
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i> <span>Admin User</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                    <li><span class="dropdown-item-text">Role: admin</span></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="login.html" onclick="logout()">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Dark Mode Toggle -->
+    <div class="dark-mode-toggle" id="darkModeToggle">
+        <i class="bi bi-sun light-icon"></i>
+        <i class="bi bi-moon-stars dark-icon"></i>
     </div>
-
+    
+    <!-- Main content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1><i class="bi bi-graph-up"></i> Reports & Analytics</h1>
+            <div class="btn-toolbar">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary">
+                        <i class="bi bi-download me-1"></i>Export PDF
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary">
+                        <i class="bi bi-file-earmark-excel me-1"></i>Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Date Range Filter -->
+        <div class="card mb-4 fade-in">
+            <div class="card-body">
+                <div class="row align-items-end">
+                    <div class="col-md-3 mb-3">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" value="2024-01-01">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" value="2024-12-31">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="region" class="form-label">Region</label>
+                        <select class="form-select" id="region">
+                            <option value="">All Regions</option>
+                            <option value="punjab">Punjab</option>
+                            <option value="kpk">KPK</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button type="button" class="btn btn-primary w-100" onclick="generateReport()">
+                            <i class="bi bi-search me-1"></i>Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-4 fade-in">
+                <div class="stats-card stats-card-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6>Total Revenue</h6>
+                                <h3 class="mb-0" id="totalRevenue">Rs. 2,450,000</h3>
+                                <small>+12% from last period</small>
+                            </div>
+                            <div class="stats-card-icon">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 fade-in">
+                <div class="stats-card stats-card-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6>Total Orders</h6>
+                                <h3 class="mb-0" id="totalOrders">1,245</h3>
+                                <small>+8% from last period</small>
+                            </div>
+                            <div class="stats-card-icon">
+                                <i class="bi bi-cart-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 fade-in">
+                <div class="stats-card stats-card-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6>Avg Order Value</h6>
+                                <h3 class="mb-0" id="avgOrderValue">Rs. 1,968</h3>
+                                <small>+3% from last period</small>
+                            </div>
+                            <div class="stats-card-icon">
+                                <i class="bi bi-graph-up-arrow"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 fade-in">
+                <div class="stats-card stats-card-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6>Active Customers</h6>
+                                <h3 class="mb-0" id="activeCustomers">245</h3>
+                                <small>+15 new this month</small>
+                            </div>
+                            <div class="stats-card-icon">
+                                <i class="bi bi-people"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-lg-8 mb-4 fade-in">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0"><i class="bi bi-graph-up me-2"></i>Monthly Sales Trend</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="salesTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4 fade-in">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0"><i class="bi bi-pie-chart me-2"></i>Payment Methods</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="paymentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Regional Performance -->
+        <div class="row mb-4">
+            <div class="col-lg-6 mb-4 fade-in">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0"><i class="bi bi-geo-alt me-2"></i>Regional Performance</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Region</th>
+                                        <th>Revenue</th>
+                                        <th>Orders</th>
+                                        <th>Growth</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><i class="bi bi-geo-alt-fill text-primary me-2"></i>Punjab</td>
+                                        <td>Rs. 1,470,000</td>
+                                        <td>747</td>
+                                        <td><span class="badge bg-success">+15%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-geo-alt-fill text-success me-2"></i>KPK</td>
+                                        <td>Rs. 980,000</td>
+                                        <td>498</td>
+                                        <td><span class="badge bg-success">+8%</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4 fade-in">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Customer Types</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="customerTypeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Products -->
+        <div class="card fade-in">
+            <div class="card-header">
+                <h6 class="card-title mb-0"><i class="bi bi-trophy me-2"></i>Top Performing Products</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Units Sold</th>
+                                <th>Revenue</th>
+                                <th>Profit Margin</th>
+                                <th>Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Premium Wheat Flour - 50kg</td>
+                                <td>2,450 bags</td>
+                                <td>Rs. 1,225,000</td>
+                                <td>22%</td>
+                                <td><i class="bi bi-arrow-up-circle-fill text-success"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Standard Flour - 25kg</td>
+                                <td>3,200 bags</td>
+                                <td>Rs. 800,000</td>
+                                <td>18%</td>
+                                <td><i class="bi bi-arrow-up-circle-fill text-success"></i></td>
+                            </tr>
+                            <tr>
+                                <td>Bulk Flour - 100kg</td>
+                                <td>850 bags</td>
+                                <td>Rs. 425,000</td>
+                                <td>15%</td>
+                                <td><i class="bi bi-dash-circle-fill text-warning"></i></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script src="js/auth-check.js"></script>
+    
     <script>
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const html = document.documentElement;
+        
+        // Check for saved user preference, if any
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', currentTheme);
+        
+        darkModeToggle.addEventListener('click', () => {
+            const theme = html.getAttribute('data-theme');
+            const newTheme = theme === 'light' ? 'dark' : 'light';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        // Mobile Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.createElement('button');
+        sidebarToggle.className = 'btn btn-sm btn-primary position-fixed top-0 start-0 m-3 d-lg-none';
+        sidebarToggle.innerHTML = '<i class="bi bi-list"></i>';
+        document.body.appendChild(sidebarToggle);
+        
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+        
         // Register the datalabels plugin
         Chart.register(ChartDataLabels);
-
+        
+        // Custom plugin for center text
+        const centerTextPlugin = {
+            id: 'centerText',
+            beforeDraw(chart) {
+                if (chart.config.type === 'doughnut') {
+                    const ctx = chart.ctx;
+                    const centerConfig = chart.config.options.elements.center;
+                    const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+                    const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+                    
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = `${centerConfig.fontWeight || 'bold'} ${centerConfig.fontSize || 16}px Inter`;
+                    ctx.fillStyle = centerConfig.color || '#000';
+                    ctx.fillText(centerConfig.text, centerX, centerY);
+                }
+            }
+        };
+        
         // Sales Trend Chart
         const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
         const salesTrendChart = new Chart(salesTrendCtx, {
@@ -362,10 +897,15 @@
                 datasets: [{
                     label: 'Sales (Rs.)',
                     data: [180000, 195000, 210000, 225000, 240000, 255000, 270000, 285000, 300000, 315000, 330000, 345000],
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
+                    pointBackgroundColor: '#4f46e5',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
                 }]
             },
             options: {
@@ -374,9 +914,25 @@
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
                         ticks: {
                             callback: function(value) {
                                 return 'Rs. ' + (value / 1000) + 'K';
+                            },
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter'
                             }
                         }
                     }
@@ -386,6 +942,15 @@
                         display: false
                     },
                     tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            family: 'Inter'
+                        },
+                        bodyFont: {
+                            family: 'Inter'
+                        },
+                        padding: 12,
+                        cornerRadius: 8,
                         callbacks: {
                             label: function(context) {
                                 return 'Sales: Rs. ' + context.parsed.y.toLocaleString();
@@ -393,23 +958,13 @@
                         }
                     },
                     datalabels: {
-                        display: true,
-                        color: '#667eea',
-                        font: {
-                            weight: 'bold',
-                            size: 10
-                        },
-                        formatter: function(value, context) {
-                            return 'Rs. ' + (value / 1000) + 'K';
-                        },
-                        anchor: 'end',
-                        align: 'top'
+                        display: false
                     }
-                },
-                plugins: [ChartDataLabels]
-            }
+                }
+            },
+            plugins: [ChartDataLabels]
         });
-
+        
         // Payment Methods Chart
         const paymentCtx = document.getElementById('paymentChart').getContext('2d');
         const paymentChart = new Chart(paymentCtx, {
@@ -418,40 +973,74 @@
                 labels: ['Cash', 'Credit', 'Bank Transfer'],
                 datasets: [{
                     data: [1470000, 735000, 245000],
-                    backgroundColor: ['#28a745', '#ffc107', '#17a2b8'],
-                    borderWidth: 2
+                    backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
+                    borderColor: '#ffffff',
+                    borderWidth: 2,
+                    hoverOffset: 10
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '60%',
                 plugins: {
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                family: 'Inter',
+                                size: 12
+                            }
+                        }
                     },
                     tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            family: 'Inter'
+                        },
+                        bodyFont: {
+                            family: 'Inter'
+                        },
+                        padding: 12,
+                        cornerRadius: 8,
                         callbacks: {
                             label: function(context) {
-                                return context.label + ': Rs. ' + context.parsed.toLocaleString();
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${context.label}: Rs. ${value.toLocaleString()} (${percentage}%)`;
                             }
                         }
                     },
                     datalabels: {
                         display: true,
-                        color: 'white',
+                        color: '#fff',
                         font: {
                             weight: 'bold',
-                            size: 12
+                            size: 12,
+                            family: 'Inter'
                         },
                         formatter: function(value, context) {
-                            return 'Rs. ' + (value / 1000) + 'K';
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            return Math.round((value / total) * 100) + '%';
                         }
+                    }
+                },
+                elements: {
+                    center: {
+                        text: 'Rs. 2.45M',
+                        color: '#4f46e5',
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        fontFamily: 'Inter'
                     }
                 }
             },
-            plugins: [ChartDataLabels]
+            plugins: [centerTextPlugin, ChartDataLabels]
         });
-
+        
         // Customer Type Chart
         const customerTypeCtx = document.getElementById('customerTypeChart').getContext('2d');
         const customerTypeChart = new Chart(customerTypeCtx, {
@@ -461,8 +1050,11 @@
                 datasets: [{
                     label: 'Revenue (Rs.)',
                     data: [1470000, 980000],
-                    backgroundColor: ['#007bff', '#28a745'],
-                    borderWidth: 1
+                    backgroundColor: ['#4f46e5', '#10b981'],
+                    borderColor: ['#4f46e5', '#10b981'],
+                    borderWidth: 1,
+                    borderRadius: 6,
+                    barThickness: 60
                 }]
             },
             options: {
@@ -471,9 +1063,27 @@
                 scales: {
                     y: {
                         beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
                         ticks: {
                             callback: function(value) {
                                 return 'Rs. ' + (value / 1000) + 'K';
+                            },
+                            font: {
+                                family: 'Inter'
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter',
+                                weight: 'bold',
+                                size: 14
                             }
                         }
                     }
@@ -483,22 +1093,32 @@
                         display: false
                     },
                     tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleFont: {
+                            family: 'Inter'
+                        },
+                        bodyFont: {
+                            family: 'Inter'
+                        },
+                        padding: 12,
+                        cornerRadius: 8,
                         callbacks: {
                             label: function(context) {
-                                return context.dataset.label + ': Rs. ' + context.parsed.y.toLocaleString();
+                                return 'Revenue: Rs. ' + context.parsed.y.toLocaleString();
                             }
                         }
                     },
                     datalabels: {
                         display: true,
-                        color: 'white',
+                        color: '#fff',
                         font: {
                             weight: 'bold',
-                            size: 12
+                            size: 14,
+                            family: 'Inter'
                         },
-                        anchor: 'center',
-                        align: 'center',
-                        formatter: function(value, context) {
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: function(value) {
                             return 'Rs. ' + (value / 1000) + 'K';
                         }
                     }
@@ -506,7 +1126,7 @@
             },
             plugins: [ChartDataLabels]
         });
-
+        
         // Load reports data from backend
         async function loadReportsData() {
             try {
@@ -528,10 +1148,10 @@
                     const data = await response.json();
                     
                     // Update summary cards
-                    document.querySelector('.card:nth-child(1) h3').textContent = `Rs. ${data.totalRevenue?.toLocaleString() || '0'}`;
-                    document.querySelector('.card:nth-child(2) h3').textContent = data.totalOrders?.toLocaleString() || '0';
-                    document.querySelector('.card:nth-child(3) h3').textContent = `Rs. ${data.avgOrderValue?.toLocaleString() || '0'}`;
-                    document.querySelector('.card:nth-child(4) h3').textContent = data.activeCustomers?.toLocaleString() || '0';
+                    document.getElementById('totalRevenue').textContent = `Rs. ${(data.totalRevenue || 0).toLocaleString()}`;
+                    document.getElementById('totalOrders').textContent = (data.totalOrders || 0).toLocaleString();
+                    document.getElementById('avgOrderValue').textContent = `Rs. ${(data.avgOrderValue || 0).toLocaleString()}`;
+                    document.getElementById('activeCustomers').textContent = (data.activeCustomers || 0).toLocaleString();
                     
                     // Update sales trend chart
                     if (data.salesTrend && data.salesTrend.length > 0) {
@@ -550,6 +1170,8 @@
                     if (data.paymentMethods && data.paymentMethods.length > 0) {
                         paymentChart.data.labels = data.paymentMethods.map(p => p.type);
                         paymentChart.data.datasets[0].data = data.paymentMethods.map(p => p.amount);
+                        const total = data.paymentMethods.reduce((sum, p) => sum + p.amount, 0);
+                        paymentChart.options.elements.center.text = 'Rs. ' + (total / 1000000).toFixed(2) + 'M';
                         paymentChart.update();
                     }
                     
@@ -564,13 +1186,29 @@
                 console.error('Error loading reports data:', error);
             }
         }
-
+        
         function generateReport() {
             loadReportsData();
         }
         
         // Load data on page load
-        document.addEventListener('DOMContentLoaded', loadReportsData);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadReportsData();
+            
+            // Add fade-in animation to elements
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                }, index * 100);
+            });
+        });
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        }
     </script>
 </body>
 </html>
