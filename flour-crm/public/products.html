@@ -270,6 +270,12 @@
             color: var(--primary-color);
         }
         
+        .nav-tabs .nav-link.type {
+            background-color: transparent;
+            border-bottom-color: var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
         .nav-tabs .nav-link.active {
             background-color: transparent;
             border-bottom-color: var(--primary-color);
@@ -780,280 +786,298 @@
             html.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
         });
-        
-        // Mobile Sidebar Toggle
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.createElement('button');
-        sidebarToggle.className = 'btn btn-sm btn-primary position-fixed top-0 start-0 m-3 d-lg-none';
-        sidebarToggle.innerHTML = '<i class="bi bi-list"></i>';
-        document.body.appendChild(sidebarToggle);
-        
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('active');
+    // --- STATE ---
+    let allProducts = [];
+    let currentFilter = 'all';
+    let editingProductId = null;
+
+    // --- UTIL: normalize product fields so filtering works consistently ---
+    function normalizeProduct(raw) {
+      // Normalize is_active to boolean
+      const isActiveRaw = raw.is_active;
+      const isActive = (isActiveRaw === true || isActiveRaw === 1 || isActiveRaw === '1' || String(isActiveRaw).toLowerCase() === 'true');
+
+      // Normalize numeric fields
+      const price = raw.price_per_unit == null ? 0 : Number(raw.price_per_unit);
+      const weight = raw.weight_per_unit == null ? 0 : Number(raw.weight_per_unit);
+
+      // Normalize target customer to uppercase string if present (B2B / B2C)
+      const targetCustomer = raw.target_customer ? String(raw.target_customer).toUpperCase() : '';
+
+      return {
+        ...raw,
+        is_active: isActive,
+        price_per_unit: price,
+        weight_per_unit: weight,
+        target_customer: targetCustomer
+      };
+    }
+
+    // --- LOAD PRODUCTS ---
+    async function loadProducts() {
+      try {
+        const response = await fetch('/api/products');
+        if (!response.ok) throw new Error('Failed to fetch products: ' + response.status);
+        const data = await response.json();
+
+        // If your backend returns { products: [...] } or [...] handle both:
+        const rawProducts = data.products || data;
+
+        // Normalize and store
+        allProducts = (rawProducts || []).map(normalizeProduct);
+
+        // Render according to current filter (so if user is on 'inactive' tab it stays)
+        applyCurrentFilter();
+      } catch (err) {
+        console.error('Error loading products:', err);
+        document.getElementById('productsTableBody').innerHTML =
+          '<tr><td colspan="7" class="text-center text-danger py-4">Error loading products</td></tr>';
+      }
+    }
+
+    // --- RENDER PRODUCTS ---
+    function renderProducts(products) {
+      const tbody = document.getElementById('productsTableBody');
+
+      if (!products || products.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No products found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = products.map(product => {
+        const badgeClass = product.is_active ? 'bg-success' : 'bg-secondary';
+        const badgeText = product.is_active ? 'Active' : 'Inactive';
+
+        // action buttons: simplified & consistent
+        const actionButton = product.is_active
+          ? `<button class="btn btn-outline-warning btn-sm" onclick="toggleProductStatus(${product.id}, false)" title="Deactivate"><i class="bi bi-pause-circle"></i></button>`
+          : `<button class="btn btn-outline-success btn-sm" onclick="toggleProductStatus(${product.id}, true)" title="Activate"><i class="bi bi-play-circle"></i></button>`;
+
+        const priceText = product.price_per_unit ? product.price_per_unit.toLocaleString() : '0';
+        const weightText = (product.weight_per_unit ? product.weight_per_unit : '0') + ' ' + (product.unit || '');
+
+        // target_customer display (fallback)
+        const targetDisplay = product.target_customer || (product.product_type || 'N/A');
+
+        return `
+          <tr data-status="${product.is_active ? 'active' : 'inactive'}" data-type="${targetDisplay}">
+            <td><div><strong>${escapeHtml(product.name || '')}</strong></div></td>
+            <td>${escapeHtml(product.category || 'N/A')}</td>
+            <td>${escapeHtml(targetDisplay)}</td>
+            <td>${escapeHtml(weightText)}</td>
+            <td>Rs. ${escapeHtml(priceText)}</td>
+            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+            <td>
+              <div class="btn-group btn-group-sm">
+                <button class="btn btn-outline-primary" onclick="editProduct(${product.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+                ${actionButton}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // small helper to avoid XSS when injecting strings
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    // --- APPLY CURRENT TAB FILTER ---
+    function applyCurrentFilter() {
+      switch (currentFilter) {
+        case 'all':
+          renderProducts(allProducts);
+          break;
+        case 'active':
+          renderProducts(allProducts.filter(p => p.is_active === true));
+          break;
+        case 'inactive':
+          renderProducts(allProducts.filter(p => p.is_active === false));
+          break;
+        case 'b2b':
+          renderProducts(allProducts.filter(p => p.target_customer === 'B2B'));
+          break;
+        case 'b2c':
+          renderProducts(allProducts.filter(p => p.target_customer === 'B2C'));
+          break;
+        default:
+          renderProducts(allProducts);
+      }
+    }
+
+    // --- TAB HANDLER: use client-side filtering (no extra backend calls required) ---
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+      tab.addEventListener('shown.bs.tab', function (event) {
+        const target = event.target.getAttribute('data-bs-target').replace('#', '');
+        currentFilter = target;
+        applyCurrentFilter();
+      });
+    });
+
+    // --- TOGGLE PRODUCT STATUS (activate/deactivate) ---
+    async function toggleProductStatus(productId, newStatus) {
+      const action = newStatus ? 'activate' : 'deactivate';
+      if (!confirm(`Are you sure you want to ${action} this product?`)) return;
+
+      try {
+        const response = await fetch(`/api/products/${productId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_active: newStatus })
         });
-        
-        let allProducts = [];
-        let currentFilter = 'all';
-        let editingProductId = null;
-        
-        // Load products from backend
-        async function loadProducts() {
-            try {
-                const response = await fetch('/api/products');
-                if (response.ok) {
-                    const data = await response.json();
-                    allProducts = data.products;
-                    renderProducts(allProducts);
-                } else {
-                    console.error('Failed to load products');
-                    document.getElementById('productsTableBody').innerHTML = 
-                        '<tr><td colspan="7" class="text-center text-danger py-4">Failed to load products</td></tr>';
-                }
-            } catch (error) {
-                console.error('Error loading products:', error);
-                document.getElementById('productsTableBody').innerHTML = 
-                    '<tr><td colspan="7" class="text-center text-danger py-4">Error loading products</td></tr>';
-            }
+
+        if (!response.ok) {
+          const err = await response.json().catch(()=>({ error: 'Unknown error' }));
+          showNotification(err.error || `Failed to ${action} product`, 'danger');
+          return;
         }
-        
-        // Render products in table
-        function renderProducts(products) {
-            const tbody = document.getElementById('productsTableBody');
-            
-            if (products.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No products found</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = products.map(product => {
-                const badgeClass = product.is_active ? 'bg-success' : 'bg-secondary';
-                const badgeText = product.is_active ? 'Active' : 'Inactive';
-                const actionButton = product.is_active 
-                    ? `<button class="btn btn-outline-warning btn-sm" onclick="toggleProductStatus(${product.id}, false)">
-                         <i class="bi bi-pause-circle"></i> Deactivate
-                       </button>`
-                    : `<button class="btn btn-outline-success btn-sm" onclick="toggleProductStatus(${product.id}, true)">
-                         <i class="bi bi-play-circle"></i> Activate
-                       </button>`;
-                
-                return `
-                    <tr data-status="${product.is_active ? 'active' : 'inactive'}" data-type="${product.product_type}">
-                        <td>
-                            <div>
-                                <strong>${product.name}</strong>
-                            </div>
-                        </td>
-                        <td>${product.category || 'N/A'}</td>
-                        <td>${product.target_customer || 'N/A'}</td>
-                        <td>${product.weight_per_unit} ${product.unit}</td>
-                        <td>Rs. ${product.price_per_unit?.toLocaleString()}</td>
-                        <td>
-                            <span class="badge ${badgeClass}">${badgeText}</span>
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-primary" onclick="editProduct(${product.id})" title="Edit">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                ${actionButton}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+
+        // Optimistically update local state so UI reflects change immediately
+        allProducts = allProducts.map(p => p.id === productId ? { ...p, is_active: !!newStatus } : p);
+
+        // Re-apply filter and re-render
+        applyCurrentFilter();
+
+        showNotification(`Product ${action}d successfully!`, 'success');
+
+        // Optionally re-load from backend to ensure sync (keeps local cache fresh)
+        // Don't strictly need to await; call in background
+        loadProducts().catch(()=>{ /* ignore */ });
+
+      } catch (error) {
+        console.error(`Error ${action}ing product:`, error);
+        showNotification(`Error ${action}ing product`, 'danger');
+      }
+    }
+
+    // --- EDIT PRODUCT: open modal and populate fields ---
+    function editProduct(productId) {
+      const product = allProducts.find(p => p.id === productId);
+      if (!product) return;
+
+      editingProductId = productId;
+
+      document.getElementById('productName').value = product.name || '';
+      document.getElementById('productCategory').value = product.category || '';
+      // product.target_customer normalized to 'B2B'/'B2C'
+      document.getElementById('productType').value = product.target_customer || '';
+      document.getElementById('productUnit').value = product.unit || '';
+      document.getElementById('productWeight').value = product.weight_per_unit || '';
+      document.getElementById('productPrice').value = product.price_per_unit || '';
+      document.getElementById('productActive').checked = !!product.is_active;
+
+      // Update modal UI & show it
+      document.querySelector('#addProductModal .modal-title').textContent = 'Edit Product';
+      document.querySelector('#addProductModal [type="submit"]').textContent = 'Update Product';
+      const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
+      modal.show();
+    }
+
+    // --- ADD/UPDATE PRODUCT SUBMIT ---
+    document.getElementById('addProductForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const form = this;
+      if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+      }
+
+      const fd = new FormData(form);
+      const productData = {
+        name: fd.get('name'),
+        category: fd.get('category'),
+        target_customer: fd.get('product_type'), // backend expected key may vary
+        unit: fd.get('unit'),
+        weight_per_unit: Number(fd.get('weight_per_unit') || 0),
+        price_per_unit: Number(fd.get('price_per_unit') || 0),
+        is_active: fd.get('is_active') === 'on'
+      };
+
+      try {
+        let response;
+        if (editingProductId) {
+          response = await fetch(`/api/products/${editingProductId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productData)
+          });
+        } else {
+          response = await fetch('/api/products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productData)
+          });
         }
-        
-        // Tab filtering functionality
-        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-            tab.addEventListener('shown.bs.tab', async function (event) {
-                const target = event.target.getAttribute('data-bs-target');
-                currentFilter = target.replace('#', '');
-                
-                if (currentFilter === 'all') {
-                    loadProducts();
-                } else if (currentFilter === 'active' || currentFilter === 'inactive') {
-                    const isActive = currentFilter === 'active';
-                    const filtered = allProducts.filter(product => Number(product.is_active) === (isActive ? 1 : 0));
-                    renderProducts(filtered);
-                } else if (currentFilter === 'b2b' || currentFilter === 'b2c') {
-                    // Fetch filtered products from backend
-                    try {
-                        const response = await fetch(`/api/products?target_customer=${currentFilter.toUpperCase()}`);
-                        if (response.ok) {
-                            const data = await response.json();
-                            // Only show products where target_customer matches filter
-                            const filtered = data.products.filter(product => product.target_customer === currentFilter.toUpperCase());
-                            renderProducts(filtered);
-                        } else {
-                            document.getElementById('productsTableBody').innerHTML = 
-                                '<tr><td colspan="7" class="text-center text-danger py-4">Failed to load products</td></tr>';
-                        }
-                    } catch (error) {
-                        document.getElementById('productsTableBody').innerHTML = 
-                            '<tr><td colspan="7" class="text-center text-danger py-4">Error loading products</td></tr>';
-                    }
-                }
-            });
-        });
-        
-        // Toggle product status
-        async function toggleProductStatus(productId, newStatus) {
-            const action = newStatus ? 'activate' : 'deactivate';
-            if (confirm(`Are you sure you want to ${action} this product?`)) {
-                try {
-                    const response = await fetch(`/api/products/${productId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ is_active: newStatus })
-                    });
-                    
-                    if (response.ok) {
-                        showNotification(`Product ${action}d successfully!`, 'success');
-                        loadProducts(); // Reload the list
-                    } else {
-                        const error = await response.json();
-                        showNotification(error.error || `Failed to ${action} product`, 'danger');
-                    }
-                } catch (error) {
-                    console.error(`Error ${action}ing product:`, error);
-                    showNotification(`Error ${action}ing product`, 'danger');
-                }
-            }
+
+        if (!response.ok) {
+          const err = await response.json().catch(()=>({ error: 'Unknown' }));
+          showNotification(err.error || 'Failed to save product', 'danger');
+          return;
         }
-        
-        // Edit product
-        function editProduct(productId) {
-            const product = allProducts.find(p => p.id === productId);
-            if (!product) return;
-            
-            editingProductId = productId;
-            
-            // Populate form fields
-            document.getElementById('productName').value = product.name || '';
-            document.getElementById('productCategory').value = product.category || '';
-            document.getElementById('productType').value = product.target_customer || '';
-            document.getElementById('productUnit').value = product.unit || '';
-            document.getElementById('productWeight').value = product.weight_per_unit || '';
-            document.getElementById('productPrice').value = product.price_per_unit || '';
-            document.getElementById('productActive').checked = !!product.is_active;
-            
-            // Change modal title and button text
-            document.querySelector('#addProductModal .modal-title').textContent = 'Edit Product';
-            document.querySelector('#addProductModal [type="submit"]').textContent = 'Update Product';
-            
-            // Show modal
-            const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
-            modal.show();
-        }
-        
-        // Add product form submission
-        document.getElementById('addProductForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            if (!this.checkValidity()) {
-                e.stopPropagation();
-                this.classList.add('was-validated');
-                return;
-            }
-            
-            const formData = new FormData(this);
-            const productData = {
-                name: formData.get('name'),
-                category: formData.get('category'),
-                target_customer: formData.get('product_type'),
-                unit: formData.get('unit'),
-                weight_per_unit: parseFloat(formData.get('weight_per_unit')),
-                price_per_unit: parseFloat(formData.get('price_per_unit')),
-                is_active: formData.get('is_active') === 'on'
-            };
-            
-            try {
-                let response;
-                
-                if (editingProductId) {
-                    // Update product
-                    response = await fetch(`/api/products/${editingProductId}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(productData)
-                    });
-                } else {
-                    // Add new product
-                    response = await fetch('/api/products', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(productData)
-                    });
-                }
-                
-                if (response.ok) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addProductModal'));
-                    modal.hide();
-                    
-                    showNotification(editingProductId ? 'Product updated successfully!' : 'Product added successfully!', 'success');
-                    
-                    this.reset();
-                    this.classList.remove('was-validated');
-                    loadProducts();
-                } else {
-                    const error = await response.json();
-                    showNotification(error.error || 'Failed to save product', 'danger');
-                }
-            } catch (error) {
-                console.error('Error saving product:', error);
-                showNotification('Error saving product', 'danger');
-            }
-        });
-        
-        // Reset modal on hidden
-        document.getElementById('addProductModal').addEventListener('hidden.bs.modal', function () {
-            editingProductId = null;
-            document.getElementById('addProductForm').reset();
-            document.querySelector('#addProductModal .modal-title').textContent = 'Add New Product';
-            document.querySelector('#addProductModal [type="submit"]').textContent = 'Add Product';
-        });
-        
-        // Notification function
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
-            notification.style.zIndex = '9999';
-            notification.innerHTML = `
-                <div class="d-flex align-items-center">
-                    <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
-                    <div>${message}</div>
-                    <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            // Auto remove after 3 seconds
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-        
-        // Load products on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadProducts();
-            
-            // Add fade-in animation to elements
-            const fadeElements = document.querySelectorAll('.fade-in');
-            fadeElements.forEach((el, index) => {
-                setTimeout(() => {
-                    el.style.opacity = '1';
-                }, index * 100);
-            });
-        });
-        
-        // Logout function
-        function logout() {
-            localStorage.removeItem('authToken');
-            window.location.href = 'login.html';
-        }
-    </script>
+
+        // success: close modal and reload
+        const modalEl = document.getElementById('addProductModal');
+        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        modal.hide();
+
+        showNotification(editingProductId ? 'Product updated successfully!' : 'Product added successfully!', 'success');
+
+        // reset form & reload products
+        form.reset();
+        form.classList.remove('was-validated');
+        editingProductId = null;
+        await loadProducts();
+
+      } catch (err) {
+        console.error('Save product error:', err);
+        showNotification('Error saving product', 'danger');
+      }
+    });
+
+    // reset modal when hidden
+    document.getElementById('addProductModal').addEventListener('hidden.bs.modal', function () {
+      editingProductId = null;
+      document.getElementById('addProductForm').reset();
+      document.querySelector('#addProductModal .modal-title').textContent = 'Add New Product';
+      document.querySelector('#addProductModal [type="submit"]').textContent = 'Add Product';
+      document.getElementById('addProductForm').classList.remove('was-validated');
+    });
+
+    // --- simple notification helper ---
+    function showNotification(message, type='info') {
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
+      alert.style.zIndex = '9999';
+      alert.innerHTML = `<div class="d-flex align-items-center"><i class="bi me-2"></i><div>${escapeHtml(message)}</div><button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button></div>`;
+      document.body.appendChild(alert);
+      setTimeout(()=> alert.remove(), 3500);
+    }
+
+    // --- page load ---
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProducts();
+
+      // fade-in UI effect
+      const fadeElements = document.querySelectorAll('.fade-in');
+      fadeElements.forEach((el, i) => setTimeout(()=> el.style.opacity = '1', i * 80));
+    });
+
+    // mobile sidebar toggle (unchanged)
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.createElement('button');
+    sidebarToggle.className = 'btn btn-sm btn-primary position-fixed top-0 start-0 m-3 d-lg-none';
+    sidebarToggle.innerHTML = '<i class="bi bi-list"></i>';
+    document.body.appendChild(sidebarToggle);
+    sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
+
+    // logout (unchanged)
+    function logout() { localStorage.removeItem('authToken'); window.location.href = 'login.html'; }
+  </script>
 </body>
 </html>
