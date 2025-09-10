@@ -147,24 +147,27 @@ router.patch('/:id/price', async (req, res) => {
         res.status(500).json({ error: 'Failed to update product price' });
     }
 });
-
-// Delete product
+// Deactivate product (soft delete)
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const connection = await db.getConnection();
         
-        const [result] = await connection.execute('DELETE FROM products WHERE id = ?', [id]);
+        const [result] = await connection.execute(
+            'UPDATE products SET is_active = 0 WHERE id = ?',
+            [id]
+        );
+        
         connection.release();
         
         if (result.affectedRows === 0) {
             return res.status(404).json({ error: 'Product not found' });
         }
         
-        res.json({ message: 'Product deleted successfully' });
+        res.json({ message: 'Product deactivated successfully' });
     } catch (error) {
-        console.error('Error deleting product:', error);
-        res.status(500).json({ error: 'Failed to delete product' });
+        console.error('Error deactivating product:', error);
+        res.status(500).json({ error: 'Failed to deactivate product' });
     }
 });
 

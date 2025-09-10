@@ -455,6 +455,7 @@
         
         .fade-in {
             animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
         }
         
         /* Responsive */
@@ -601,10 +602,10 @@
             <h1><i class="bi bi-graph-up"></i> Reports & Analytics</h1>
             <div class="btn-toolbar">
                 <div class="btn-group">
-                    <button type="button" class="btn btn-outline-secondary">
+                    <button type="button" class="btn btn-outline-secondary" id="exportPdfBtn">
                         <i class="bi bi-download me-1"></i>Export PDF
                     </button>
-                    <button type="button" class="btn btn-outline-secondary">
+                    <button type="button" class="btn btn-outline-secondary" id="exportExcelBtn">
                         <i class="bi bi-file-earmark-excel me-1"></i>Export Excel
                     </button>
                 </div>
@@ -617,11 +618,11 @@
                 <div class="row align-items-end">
                     <div class="col-md-3 mb-3">
                         <label for="startDate" class="form-label">Start Date</label>
-                        <input type="date" class="form-control" id="startDate" value="2024-01-01">
+                        <input type="date" class="form-control" id="startDate">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="endDate" class="form-label">End Date</label>
-                        <input type="date" class="form-control" id="endDate" value="2024-12-31">
+                        <input type="date" class="form-control" id="endDate">
                     </div>
                     <div class="col-md-3 mb-3">
                         <label for="region" class="form-label">Region</label>
@@ -648,8 +649,8 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6>Total Revenue</h6>
-                                <h3 class="mb-0" id="totalRevenue">Rs. 2,450,000</h3>
-                                <small>+12% from last period</small>
+                                <h3 class="mb-0" id="totalRevenue">Loading...</h3>
+                                <small id="totalRevenueChange"></small>
                             </div>
                             <div class="stats-card-icon">
                                 <i class="bi bi-currency-dollar"></i>
@@ -664,8 +665,8 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6>Total Orders</h6>
-                                <h3 class="mb-0" id="totalOrders">1,245</h3>
-                                <small>+8% from last period</small>
+                                <h3 class="mb-0" id="totalOrders">Loading...</h3>
+                                <small id="totalOrdersChange"></small>
                             </div>
                             <div class="stats-card-icon">
                                 <i class="bi bi-cart-check"></i>
@@ -680,8 +681,8 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6>Avg Order Value</h6>
-                                <h3 class="mb-0" id="avgOrderValue">Rs. 1,968</h3>
-                                <small>+3% from last period</small>
+                                <h3 class="mb-0" id="avgOrderValue">Loading...</h3>
+                                <small id="avgOrderValueChange"></small>
                             </div>
                             <div class="stats-card-icon">
                                 <i class="bi bi-graph-up-arrow"></i>
@@ -696,8 +697,8 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6>Active Customers</h6>
-                                <h3 class="mb-0" id="activeCustomers">245</h3>
-                                <small>+15 new this month</small>
+                                <h3 class="mb-0" id="activeCustomers">Loading...</h3>
+                                <small id="activeCustomersChange"></small>
                             </div>
                             <div class="stats-card-icon">
                                 <i class="bi bi-people"></i>
@@ -745,7 +746,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover" id="regionalPerformanceTable">
                                 <thead>
                                     <tr>
                                         <th>Region</th>
@@ -755,18 +756,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td><i class="bi bi-geo-alt-fill text-primary me-2"></i>Punjab</td>
-                                        <td>Rs. 1,470,000</td>
-                                        <td>747</td>
-                                        <td><span class="badge bg-success">+15%</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td><i class="bi bi-geo-alt-fill text-success me-2"></i>KPK</td>
-                                        <td>Rs. 980,000</td>
-                                        <td>498</td>
-                                        <td><span class="badge bg-success">+8%</span></td>
-                                    </tr>
+                                    <tr><td colspan="4">Loading...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -794,7 +784,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover" id="topProductsTable">
                         <thead>
                             <tr>
                                 <th>Product</th>
@@ -805,27 +795,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Premium Wheat Flour - 50kg</td>
-                                <td>2,450 bags</td>
-                                <td>Rs. 1,225,000</td>
-                                <td>22%</td>
-                                <td><i class="bi bi-arrow-up-circle-fill text-success"></i></td>
-                            </tr>
-                            <tr>
-                                <td>Standard Flour - 25kg</td>
-                                <td>3,200 bags</td>
-                                <td>Rs. 800,000</td>
-                                <td>18%</td>
-                                <td><i class="bi bi-arrow-up-circle-fill text-success"></i></td>
-                            </tr>
-                            <tr>
-                                <td>Bulk Flour - 100kg</td>
-                                <td>850 bags</td>
-                                <td>Rs. 425,000</td>
-                                <td>15%</td>
-                                <td><i class="bi bi-dash-circle-fill text-warning"></i></td>
-                            </tr>
+                            <tr><td colspan="5">Loading...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -837,20 +807,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script src="js/auth-check.js"></script>
-    
     <script>
         // Dark Mode Toggle
         const darkModeToggle = document.getElementById('darkModeToggle');
         const html = document.documentElement;
-        
-        // Check for saved user preference, if any
         const currentTheme = localStorage.getItem('theme') || 'light';
         html.setAttribute('data-theme', currentTheme);
-        
         darkModeToggle.addEventListener('click', () => {
             const theme = html.getAttribute('data-theme');
             const newTheme = theme === 'light' ? 'dark' : 'light';
-            
             html.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
         });
@@ -861,7 +826,6 @@
         sidebarToggle.className = 'btn btn-sm btn-primary position-fixed top-0 start-0 m-3 d-lg-none';
         sidebarToggle.innerHTML = '<i class="bi bi-list"></i>';
         document.body.appendChild(sidebarToggle);
-        
         sidebarToggle.addEventListener('click', () => {
             sidebar.classList.toggle('active');
         });
@@ -878,7 +842,6 @@
                     const centerConfig = chart.config.options.elements.center;
                     const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
                     const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-                    
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     ctx.font = `${centerConfig.fontWeight || 'bold'} ${centerConfig.fontSize || 16}px Inter`;
@@ -888,248 +851,211 @@
             }
         };
         
-        // Sales Trend Chart
-        const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
-        const salesTrendChart = new Chart(salesTrendCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                datasets: [{
-                    label: 'Sales (Rs.)',
-                    data: [180000, 195000, 210000, 225000, 240000, 255000, 270000, 285000, 300000, 315000, 330000, 345000],
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: '#4f46e5',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return 'Rs. ' + (value / 1000) + 'K';
-                            },
-                            font: {
-                                family: 'Inter'
+        // Chart instances (initialized empty)
+        let salesTrendChart, paymentChart, customerTypeChart;
+        
+        // Chart initialization with empty data
+        function initCharts() {
+            // Sales Trend Chart
+            const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
+            salesTrendChart = new Chart(salesTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Sales (Rs.)',
+                        data: [],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#4f46e5',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: {
+                                callback: function(value) { return 'Rs. ' + (value / 1000) + 'K'; },
+                                font: { family: 'Inter' }
                             }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter' } }
                         }
                     },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: {
-                                family: 'Inter'
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { family: 'Inter' },
+                            bodyFont: { family: 'Inter' },
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Sales: Rs. ' + context.parsed.y.toLocaleString();
+                                }
                             }
-                        }
+                        },
+                        datalabels: { display: false }
                     }
                 },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: {
-                            family: 'Inter'
-                        },
-                        bodyFont: {
-                            family: 'Inter'
-                        },
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(context) {
-                                return 'Sales: Rs. ' + context.parsed.y.toLocaleString();
+                plugins: [ChartDataLabels]
+            });
+            
+            // Payment Methods Chart
+            const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+            paymentChart = new Chart(paymentCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        data: [],
+                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
+                        borderColor: '#ffffff',
+                        borderWidth: 2,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: { family: 'Inter', size: 12 }
                             }
-                        }
-                    },
-                    datalabels: {
-                        display: false
-                    }
-                }
-            },
-            plugins: [ChartDataLabels]
-        });
-        
-        // Payment Methods Chart
-        const paymentCtx = document.getElementById('paymentChart').getContext('2d');
-        const paymentChart = new Chart(paymentCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Cash', 'Credit', 'Bank Transfer'],
-                datasets: [{
-                    data: [1470000, 735000, 245000],
-                    backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
-                    borderColor: '#ffffff',
-                    borderWidth: 2,
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '60%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true,
-                            font: {
-                                family: 'Inter',
-                                size: 12
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { family: 'Inter' },
+                            bodyFont: { family: 'Inter' },
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total ? Math.round((value / total) * 100) : 0;
+                                    return `${context.label}: Rs. ${value.toLocaleString()} (${percentage}%)`;
+                                }
                             }
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: {
-                            family: 'Inter'
                         },
-                        bodyFont: {
-                            family: 'Inter'
-                        },
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(context) {
-                                const value = context.parsed;
+                        datalabels: {
+                            display: true,
+                            color: '#fff',
+                            font: { weight: 'bold', size: 12, family: 'Inter' },
+                            formatter: function(value, context) {
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = Math.round((value / total) * 100);
-                                return `${context.label}: Rs. ${value.toLocaleString()} (${percentage}%)`;
+                                return total ? Math.round((value / total) * 100) + '%' : '';
                             }
                         }
                     },
-                    datalabels: {
-                        display: true,
-                        color: '#fff',
-                        font: {
-                            weight: 'bold',
-                            size: 12,
-                            family: 'Inter'
-                        },
-                        formatter: function(value, context) {
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            return Math.round((value / total) * 100) + '%';
+                    elements: {
+                        center: {
+                            text: '',
+                            color: '#4f46e5',
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                            fontFamily: 'Inter'
                         }
                     }
                 },
-                elements: {
-                    center: {
-                        text: 'Rs. 2.45M',
-                        color: '#4f46e5',
-                        fontSize: 18,
-                        fontWeight: 'bold',
-                        fontFamily: 'Inter'
-                    }
-                }
-            },
-            plugins: [centerTextPlugin, ChartDataLabels]
-        });
-        
-        // Customer Type Chart
-        const customerTypeCtx = document.getElementById('customerTypeChart').getContext('2d');
-        const customerTypeChart = new Chart(customerTypeCtx, {
-            type: 'bar',
-            data: {
-                labels: ['B2B', 'B2C'],
-                datasets: [{
-                    label: 'Revenue (Rs.)',
-                    data: [1470000, 980000],
-                    backgroundColor: ['#4f46e5', '#10b981'],
-                    borderColor: ['#4f46e5', '#10b981'],
-                    borderWidth: 1,
-                    borderRadius: 6,
-                    barThickness: 60
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
+                plugins: [centerTextPlugin, ChartDataLabels]
+            });
+            
+            // Customer Type Chart
+            const customerTypeCtx = document.getElementById('customerTypeChart').getContext('2d');
+            customerTypeChart = new Chart(customerTypeCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Revenue (Rs.)',
+                        data: [],
+                        backgroundColor: ['#4f46e5', '#10b981'],
+                        borderColor: ['#4f46e5', '#10b981'],
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barThickness: 60
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: {
+                                callback: function(value) { return 'Rs. ' + (value / 1000) + 'K'; },
+                                font: { family: 'Inter' }
+                            }
                         },
-                        ticks: {
-                            callback: function(value) {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter', weight: 'bold', size: 14 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { family: 'Inter' },
+                            bodyFont: { family: 'Inter' },
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Revenue: Rs. ' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        },
+                        datalabels: {
+                            display: true,
+                            color: '#fff',
+                            font: { weight: 'bold', size: 14, family: 'Inter' },
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: function(value) {
                                 return 'Rs. ' + (value / 1000) + 'K';
-                            },
-                            font: {
-                                family: 'Inter'
-                            }
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        },
-                        ticks: {
-                            font: {
-                                family: 'Inter',
-                                weight: 'bold',
-                                size: 14
                             }
                         }
                     }
                 },
-                plugins: {
-                    legend: {
-                        display: false
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleFont: {
-                            family: 'Inter'
-                        },
-                        bodyFont: {
-                            family: 'Inter'
-                        },
-                        padding: 12,
-                        cornerRadius: 8,
-                        callbacks: {
-                            label: function(context) {
-                                return 'Revenue: Rs. ' + context.parsed.y.toLocaleString();
-                            }
-                        }
-                    },
-                    datalabels: {
-                        display: true,
-                        color: '#fff',
-                        font: {
-                            weight: 'bold',
-                            size: 14,
-                            family: 'Inter'
-                        },
-                        anchor: 'end',
-                        align: 'top',
-                        formatter: function(value) {
-                            return 'Rs. ' + (value / 1000) + 'K';
-                        }
-                    }
-                }
-            },
-            plugins: [ChartDataLabels]
-        });
+                plugins: [ChartDataLabels]
+            });
+        }
         
-        // Load reports data from backend
+        // Load reports data from backend and update UI
         async function loadReportsData() {
             try {
+                // Set loading states
+                document.getElementById('totalRevenue').textContent = 'Loading...';
+                document.getElementById('totalOrders').textContent = 'Loading...';
+                document.getElementById('avgOrderValue').textContent = 'Loading...';
+                document.getElementById('activeCustomers').textContent = 'Loading...';
+                document.getElementById('totalRevenueChange').textContent = '';
+                document.getElementById('totalOrdersChange').textContent = '';
+                document.getElementById('avgOrderValueChange').textContent = '';
+                document.getElementById('activeCustomersChange').textContent = '';
+                document.querySelector('#regionalPerformanceTable tbody').innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+                document.querySelector('#topProductsTable tbody').innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+                
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
                 const region = document.getElementById('region').value;
@@ -1144,45 +1070,123 @@
                 url += params.toString();
                 
                 const response = await fetch(url);
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    // Update summary cards
-                    document.getElementById('totalRevenue').textContent = `Rs. ${(data.totalRevenue || 0).toLocaleString()}`;
-                    document.getElementById('totalOrders').textContent = (data.totalOrders || 0).toLocaleString();
-                    document.getElementById('avgOrderValue').textContent = `Rs. ${(data.avgOrderValue || 0).toLocaleString()}`;
-                    document.getElementById('activeCustomers').textContent = (data.activeCustomers || 0).toLocaleString();
-                    
-                    // Update sales trend chart
-                    if (data.salesTrend && data.salesTrend.length > 0) {
-                        const months = data.salesTrend.map(item => {
-                            const date = new Date(item.month + '-01');
-                            return date.toLocaleDateString('en-US', { month: 'short' });
-                        });
-                        const revenues = data.salesTrend.map(item => item.revenue);
-                        
-                        salesTrendChart.data.labels = months;
-                        salesTrendChart.data.datasets[0].data = revenues;
-                        salesTrendChart.update();
-                    }
-                    
-                    // Update payment methods chart
-                    if (data.paymentMethods && data.paymentMethods.length > 0) {
-                        paymentChart.data.labels = data.paymentMethods.map(p => p.type);
-                        paymentChart.data.datasets[0].data = data.paymentMethods.map(p => p.amount);
-                        const total = data.paymentMethods.reduce((sum, p) => sum + p.amount, 0);
-                        paymentChart.options.elements.center.text = 'Rs. ' + (total / 1000000).toFixed(2) + 'M';
-                        paymentChart.update();
-                    }
-                    
-                    // Update customer types chart
-                    if (data.customerTypes && data.customerTypes.length > 0) {
-                        customerTypeChart.data.labels = data.customerTypes.map(c => c.type);
-                        customerTypeChart.data.datasets[0].data = data.customerTypes.map(c => c.revenue);
-                        customerTypeChart.update();
-                    }
+                if (!response.ok) throw new Error('Failed to fetch data');
+                
+                const data = await response.json();
+                
+                // Update summary cards
+                document.getElementById('totalRevenue').textContent = data.totalRevenue !== undefined ? `Rs. ${(data.totalRevenue || 0).toLocaleString()}` : 'N/A';
+                document.getElementById('totalOrders').textContent = data.totalOrders !== undefined ? (data.totalOrders || 0).toLocaleString() : 'N/A';
+                document.getElementById('avgOrderValue').textContent = data.avgOrderValue !== undefined ? `Rs. ${(data.avgOrderValue || 0).toLocaleString()}` : 'N/A';
+                document.getElementById('activeCustomers').textContent = data.activeCustomers !== undefined ? (data.activeCustomers || 0).toLocaleString() : 'N/A';
+                document.getElementById('totalRevenueChange').textContent = data.totalRevenueChange || '';
+                document.getElementById('totalOrdersChange').textContent = data.totalOrdersChange || '';
+                document.getElementById('avgOrderValueChange').textContent = data.avgOrderValueChange || '';
+                document.getElementById('activeCustomersChange').textContent = data.activeCustomersChange || '';
+                
+                // Update sales trend chart
+                if (data.salesTrend && data.salesTrend.length > 0) {
+                    const months = data.salesTrend.map(item => {
+                        const date = new Date(item.month + '-01');
+                        return date.toLocaleDateString('en-US', { month: 'short' });
+                    });
+                    const revenues = data.salesTrend.map(item => item.revenue);
+                    salesTrendChart.data.labels = months;
+                    salesTrendChart.data.datasets[0].data = revenues;
+                    salesTrendChart.update();
+                } else {
+                    salesTrendChart.data.labels = [];
+                    salesTrendChart.data.datasets[0].data = [];
+                    salesTrendChart.update();
+                }
+                
+                // Update payment methods chart
+                if (data.paymentMethods && data.paymentMethods.length > 0) {
+                    paymentChart.data.labels = data.paymentMethods.map(p => p.type);
+                    paymentChart.data.datasets[0].data = data.paymentMethods.map(p => p.amount);
+                    const total = data.paymentMethods.reduce((sum, p) => sum + p.amount, 0);
+                    paymentChart.options.elements.center.text = 'Rs. ' + (total / 1000000).toFixed(2) + 'M';
+                    paymentChart.update();
+                } else {
+                    paymentChart.data.labels = [];
+                    paymentChart.data.datasets[0].data = [];
+                    paymentChart.options.elements.center.text = '';
+                    paymentChart.update();
+                }
+                
+                // Update customer types chart
+                if (data.customerTypes && data.customerTypes.length > 0) {
+                    customerTypeChart.data.labels = data.customerTypes.map(c => c.type);
+                    customerTypeChart.data.datasets[0].data = data.customerTypes.map(c => c.revenue);
+                    customerTypeChart.update();
+                } else {
+                    customerTypeChart.data.labels = [];
+                    customerTypeChart.data.datasets[0].data = [];
+                    customerTypeChart.update();
+                }
+                
+                // Update regional performance table
+                const regionalTbody = document.querySelector('#regionalPerformanceTable tbody');
+                if (data.regionalPerformance && data.regionalPerformance.length > 0) {
+                    regionalTbody.innerHTML = '';
+                    data.regionalPerformance.forEach(region => {
+                        regionalTbody.innerHTML += `
+                            <tr>
+                                <td><i class="bi bi-geo-alt-fill text-primary me-2"></i>${region.name}</td>
+                                <td>Rs. ${(region.revenue || 0).toLocaleString()}</td>
+                                <td>${(region.orders || 0).toLocaleString()}</td>
+                                <td><span class="badge bg-success">${region.growth || ''}</span></td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    regionalTbody.innerHTML = '<tr><td colspan="4">No data available</td></tr>';
+                }
+                
+                // Update top products table
+                const productsTbody = document.querySelector('#topProductsTable tbody');
+                if (data.topProducts && data.topProducts.length > 0) {
+                    productsTbody.innerHTML = '';
+                    data.topProducts.forEach(product => {
+                        let trendIcon = '';
+                        if (product.trend === 'up') {
+                            trendIcon = '<i class="bi bi-arrow-up-circle-fill text-success"></i>';
+                        } else if (product.trend === 'down') {
+                            trendIcon = '<i class="bi bi-arrow-down-circle-fill text-danger"></i>';
+                        } else {
+                            trendIcon = '<i class="bi bi-dash-circle-fill text-warning"></i>';
+                        }
+                        productsTbody.innerHTML += `
+                            <tr>
+                                <td>${product.name}</td>
+                                <td>${(product.unitsSold || 0).toLocaleString()}</td>
+                                <td>Rs. ${(product.revenue || 0).toLocaleString()}</td>
+                                <td>${product.profitMargin || ''}</td>
+                                <td>${trendIcon}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    productsTbody.innerHTML = '<tr><td colspan="5">No data available</td></tr>';
                 }
             } catch (error) {
+                // Show error states
+                document.getElementById('totalRevenue').textContent = 'Error';
+                document.getElementById('totalOrders').textContent = 'Error';
+                document.getElementById('avgOrderValue').textContent = 'Error';
+                document.getElementById('activeCustomers').textContent = 'Error';
+                document.querySelector('#regionalPerformanceTable tbody').innerHTML = '<tr><td colspan="4">Error loading data</td></tr>';
+                document.querySelector('#topProductsTable tbody').innerHTML = '<tr><td colspan="5">Error loading data</td></tr>';
+                salesTrendChart.data.labels = [];
+                salesTrendChart.data.datasets[0].data = [];
+                salesTrendChart.update();
+                paymentChart.data.labels = [];
+                paymentChart.data.datasets[0].data = [];
+                paymentChart.options.elements.center.text = '';
+                paymentChart.update();
+                customerTypeChart.data.labels = [];
+                customerTypeChart.data.datasets[0].data = [];
+                customerTypeChart.update();
                 console.error('Error loading reports data:', error);
             }
         }
@@ -1191,16 +1195,40 @@
             loadReportsData();
         }
         
+        // Export buttons (optional: connect to backend endpoints)
+        document.getElementById('exportPdfBtn').onclick = function() {
+            window.open('/api/reports/export/pdf?' + new URLSearchParams({
+                start_date: document.getElementById('startDate').value,
+                end_date: document.getElementById('endDate').value,
+                region: document.getElementById('region').value
+            }), '_blank');
+        };
+        
+        document.getElementById('exportExcelBtn').onclick = function() {
+            window.open('/api/reports/export/excel?' + new URLSearchParams({
+                start_date: document.getElementById('startDate').value,
+                end_date: document.getElementById('endDate').value,
+                region: document.getElementById('region').value
+            }), '_blank');
+        };
+        
         // Load data on page load
         document.addEventListener('DOMContentLoaded', () => {
+            // Set default dates (optional)
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('startDate').value = yyyy + '-01-01';
+            document.getElementById('endDate').value = yyyy + '-' + mm + '-' + dd;
+            
+            initCharts();
             loadReportsData();
             
             // Add fade-in animation to elements
             const fadeElements = document.querySelectorAll('.fade-in');
             fadeElements.forEach((el, index) => {
-                setTimeout(() => {
-                    el.style.opacity = '1';
-                }, index * 100);
+                setTimeout(() => { el.style.opacity = '1'; }, index * 100);
             });
         });
         
