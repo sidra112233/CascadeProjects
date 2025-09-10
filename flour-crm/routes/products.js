@@ -9,11 +9,12 @@ const router = express.Router();
 router.get('/', requireAuth, async (req, res) => {
     try {
         const { customer_type } = req.query; // B2B, B2C filter
-        let query = 'SELECT * FROM products WHERE is_active = 1';
+        // Return ALL products so frontend can show Active/Inactive tabs properly
+        let query = 'SELECT * FROM products';
         let params = [];
         
         if (customer_type && ['B2B', 'B2C'].includes(customer_type)) {
-            query += ' AND (target_customer = ? OR target_customer = "Both")';
+            query += ' WHERE (target_customer = ? OR target_customer = "Both")';
             params.push(customer_type);
         }
         
@@ -109,13 +110,13 @@ router.post('/', async (req, res) => {
 
 // Update product
 router.put('/:id', requireAuth, async (req, res) => {
-    const { name, category, unit, weight_per_unit, price_per_unit, is_active } = req.body;
+    const { name, category,target_customer, unit, weight_per_unit, price_per_unit, is_active } = req.body;
     const { id } = req.params;
     try {
         // Update product in DB (example for MySQL)
         await db.query(
-            'UPDATE products SET name=?, category=?, unit=?, weight_per_unit=?, price_per_unit=?, is_active=? WHERE id=?',
-            [name, category, unit, weight_per_unit, price_per_unit, is_active ? 1 : 0, id]
+            'UPDATE products SET name=?, category=?,target_customer=?, unit=?, weight_per_unit=?, price_per_unit=?, is_active=? WHERE id=?',
+            [name, category, unit, target_customer, weight_per_unit, price_per_unit, is_active ? 1 : 0, id]
         );
         res.json({ success: true });
     } catch (err) {

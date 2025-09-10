@@ -25,6 +25,8 @@
             --warning-color: #f59e0b;
             --info-color: #3b82f6;
             --sidebar-width: 280px;
+            --b2b-color: #6366f1;
+            --b2c-color: #8b5cf6;
         }
         
         [data-theme="dark"] {
@@ -270,12 +272,6 @@
             color: var(--primary-color);
         }
         
-        .nav-tabs .nav-link.type {
-            background-color: transparent;
-            border-bottom-color: var(--primary-color);
-            color: var(--primary-color);
-            font-weight: 600;
-        }
         .nav-tabs .nav-link.active {
             background-color: transparent;
             border-bottom-color: var(--primary-color);
@@ -319,6 +315,17 @@
         
         [data-theme="dark"] .table-hover tbody tr:hover {
             background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Product Type Badge */
+        .badge-b2b {
+            background-color: var(--b2b-color);
+            color: white;
+        }
+        
+        .badge-b2c {
+            background-color: var(--b2c-color);
+            color: white;
         }
         
         /* Buttons */
@@ -483,6 +490,43 @@
         
         .fade-in {
             animation: fadeIn 0.5s ease forwards;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            min-width: 250px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .notification i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .notification.success {
+            background-color: var(--success-color);
+        }
+        
+        .notification.error {
+            background-color: #ef4444;
         }
         
         /* Responsive */
@@ -786,298 +830,314 @@
             html.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
         });
-    // --- STATE ---
-    let allProducts = [];
-    let currentFilter = 'all';
-    let editingProductId = null;
-
-    // --- UTIL: normalize product fields so filtering works consistently ---
-    function normalizeProduct(raw) {
-      // Normalize is_active to boolean
-      const isActiveRaw = raw.is_active;
-      const isActive = (isActiveRaw === true || isActiveRaw === 1 || isActiveRaw === '1' || String(isActiveRaw).toLowerCase() === 'true');
-
-      // Normalize numeric fields
-      const price = raw.price_per_unit == null ? 0 : Number(raw.price_per_unit);
-      const weight = raw.weight_per_unit == null ? 0 : Number(raw.weight_per_unit);
-
-      // Normalize target customer to uppercase string if present (B2B / B2C)
-      const targetCustomer = raw.target_customer ? String(raw.target_customer).toUpperCase() : '';
-
-      return {
-        ...raw,
-        is_active: isActive,
-        price_per_unit: price,
-        weight_per_unit: weight,
-        target_customer: targetCustomer
-      };
-    }
-
-    // --- LOAD PRODUCTS ---
-    async function loadProducts() {
-      try {
-        const response = await fetch('/api/products');
-        if (!response.ok) throw new Error('Failed to fetch products: ' + response.status);
-        const data = await response.json();
-
-        // If your backend returns { products: [...] } or [...] handle both:
-        const rawProducts = data.products || data;
-
-        // Normalize and store
-        allProducts = (rawProducts || []).map(normalizeProduct);
-
-        // Render according to current filter (so if user is on 'inactive' tab it stays)
-        applyCurrentFilter();
-      } catch (err) {
-        console.error('Error loading products:', err);
-        document.getElementById('productsTableBody').innerHTML =
-          '<tr><td colspan="7" class="text-center text-danger py-4">Error loading products</td></tr>';
-      }
-    }
-
-    // --- RENDER PRODUCTS ---
-    function renderProducts(products) {
-      const tbody = document.getElementById('productsTableBody');
-
-      if (!products || products.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No products found</td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = products.map(product => {
-        const badgeClass = product.is_active ? 'bg-success' : 'bg-secondary';
-        const badgeText = product.is_active ? 'Active' : 'Inactive';
-
-        // action buttons: simplified & consistent
-        const actionButton = product.is_active
-          ? `<button class="btn btn-outline-warning btn-sm" onclick="toggleProductStatus(${product.id}, false)" title="Deactivate"><i class="bi bi-pause-circle"></i></button>`
-          : `<button class="btn btn-outline-success btn-sm" onclick="toggleProductStatus(${product.id}, true)" title="Activate"><i class="bi bi-play-circle"></i></button>`;
-
-        const priceText = product.price_per_unit ? product.price_per_unit.toLocaleString() : '0';
-        const weightText = (product.weight_per_unit ? product.weight_per_unit : '0') + ' ' + (product.unit || '');
-
-        // target_customer display (fallback)
-        const targetDisplay = product.target_customer || (product.product_type || 'N/A');
-
-        return `
-          <tr data-status="${product.is_active ? 'active' : 'inactive'}" data-type="${targetDisplay}">
-            <td><div><strong>${escapeHtml(product.name || '')}</strong></div></td>
-            <td>${escapeHtml(product.category || 'N/A')}</td>
-            <td>${escapeHtml(targetDisplay)}</td>
-            <td>${escapeHtml(weightText)}</td>
-            <td>Rs. ${escapeHtml(priceText)}</td>
-            <td><span class="badge ${badgeClass}">${badgeText}</span></td>
-            <td>
-              <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-primary" onclick="editProduct(${product.id})" title="Edit"><i class="bi bi-pencil"></i></button>
-                ${actionButton}
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    // small helper to avoid XSS when injecting strings
-    function escapeHtml(str) {
-      return String(str)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
-    }
-
-    // --- APPLY CURRENT TAB FILTER ---
-    function applyCurrentFilter() {
-      switch (currentFilter) {
-        case 'all':
-          renderProducts(allProducts);
-          break;
-        case 'active':
-          renderProducts(allProducts.filter(p => p.is_active === true));
-          break;
-        case 'inactive':
-          renderProducts(allProducts.filter(p => p.is_active === false));
-          break;
-        case 'b2b':
-          renderProducts(allProducts.filter(p => p.target_customer === 'B2B'));
-          break;
-        case 'b2c':
-          renderProducts(allProducts.filter(p => p.target_customer === 'B2C'));
-          break;
-        default:
-          renderProducts(allProducts);
-      }
-    }
-
-    // --- TAB HANDLER: use client-side filtering (no extra backend calls required) ---
-    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-      tab.addEventListener('shown.bs.tab', function (event) {
-        const target = event.target.getAttribute('data-bs-target').replace('#', '');
-        currentFilter = target;
-        applyCurrentFilter();
-      });
-    });
-
-    // --- TOGGLE PRODUCT STATUS (activate/deactivate) ---
-    async function toggleProductStatus(productId, newStatus) {
-      const action = newStatus ? 'activate' : 'deactivate';
-      if (!confirm(`Are you sure you want to ${action} this product?`)) return;
-
-      try {
-        const response = await fetch(`/api/products/${productId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ is_active: newStatus })
+        
+        // --- STATE ---
+        let allProducts = [];
+        let currentFilter = 'all';
+        let editingProductId = null;
+        
+        // --- UTIL: normalize product fields so filtering works consistently ---
+        function normalizeProduct(raw) {
+            // Normalize is_active to boolean
+            const isActiveRaw = raw.is_active;
+            const isActive = (isActiveRaw === true || isActiveRaw === 1 || isActiveRaw === '1' || String(isActiveRaw).toLowerCase() === 'true');
+            // Normalize numeric fields
+            const price = raw.price_per_unit == null ? 0 : Number(raw.price_per_unit);
+            const weight = raw.weight_per_unit == null ? 0 : Number(raw.weight_per_unit);
+            // Normalize target customer to uppercase string if present (B2B / B2C)
+            const targetCustomer = raw.target_customer ? String(raw.target_customer).toUpperCase() : '';
+            return {
+                ...raw,
+                is_active: isActive,
+                price_per_unit: price,
+                weight_per_unit: weight,
+                target_customer: targetCustomer
+            };
+        }
+        
+        // --- LOAD PRODUCTS ---
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                if (!response.ok) throw new Error('Failed to fetch products: ' + response.status);
+                const data = await response.json();
+                // If your backend returns { products: [...] } or [...] handle both:
+                const rawProducts = data.products || data;
+                // Normalize and store
+                allProducts = (rawProducts || []).map(normalizeProduct);
+                // Render according to current filter (so if user is on 'inactive' tab it stays)
+                applyCurrentFilter();
+            } catch (err) {
+                console.error('Error loading products:', err);
+                document.getElementById('productsTableBody').innerHTML =
+                    '<tr><td colspan="7" class="text-center text-danger py-4">Error loading products</td></tr>';
+            }
+        }
+        
+        // --- RENDER PRODUCTS ---
+        function renderProducts(products) {
+            const tbody = document.getElementById('productsTableBody');
+            if (!products || products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">No products found</td></tr>';
+                return;
+            }
+            tbody.innerHTML = products.map(product => {
+                const badgeClass = product.is_active ? 'bg-success' : 'bg-secondary';
+                const badgeText = product.is_active ? 'Active' : 'Inactive';
+                
+                // Product type badge with color
+                let typeBadgeClass = '';
+                let typeBadgeText = product.target_customer || (product.product_type || 'N/A');
+                
+                if (typeBadgeText.toUpperCase() === 'B2B') {
+                    typeBadgeClass = 'badge-b2b';
+                    typeBadgeText = 'B2B';
+                } else if (typeBadgeText.toUpperCase() === 'B2C') {
+                    typeBadgeClass = 'badge-b2c';
+                    typeBadgeText = 'B2C';
+                }
+                
+                // action buttons: simplified & consistent
+                const actionButton = product.is_active
+                    ? `<button class="btn btn-outline-warning btn-sm" onclick="toggleProductStatus(${product.id}, false)" title="Deactivate"><i class="bi bi-pause-circle"></i></button>`
+                    : `<button class="btn btn-outline-success btn-sm" onclick="toggleProductStatus(${product.id}, true)" title="Activate"><i class="bi bi-play-circle"></i></button>`;
+                
+                const priceText = product.price_per_unit ? product.price_per_unit.toLocaleString() : '0';
+                const weightText = (product.weight_per_unit ? product.weight_per_unit : '0') + ' ' + (product.unit || '');
+                
+                return `
+                    <tr data-status="${product.is_active ? 'active' : 'inactive'}" data-type="${typeBadgeText}">
+                        <td><div><strong>${escapeHtml(product.name || '')}</strong></div></td>
+                        <td>${escapeHtml(product.category || 'N/A')}</td>
+                        <td><span class="badge ${typeBadgeClass}">${escapeHtml(typeBadgeText)}</span></td>
+                        <td>${escapeHtml(weightText)}</td>
+                        <td>Rs. ${escapeHtml(priceText)}</td>
+                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-primary" onclick="editProduct(${product.id})" title="Edit"><i class="bi bi-pencil"></i></button>
+                                ${actionButton}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // small helper to avoid XSS when injecting strings
+        function escapeHtml(str) {
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+        
+        // --- APPLY CURRENT TAB FILTER ---
+        function applyCurrentFilter() {
+            switch (currentFilter) {
+                case 'all':
+                    renderProducts(allProducts);
+                    break;
+                case 'active':
+                    renderProducts(allProducts.filter(p => p.is_active === true));
+                    break;
+                case 'inactive':
+                    renderProducts(allProducts.filter(p => p.is_active === false));
+                    break;
+                case 'b2b':
+                    renderProducts(allProducts.filter(p => (p.target_customer || p.product_type || '').toUpperCase() === 'B2B'));
+                    break;
+                case 'b2c':
+                    renderProducts(allProducts.filter(p => (p.target_customer || p.product_type || '').toUpperCase() === 'B2C'));
+                    break;
+                default:
+                    renderProducts(allProducts);
+            }
+        }
+        
+        // --- TAB HANDLER: use client-side filtering (no extra backend calls required) ---
+        document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function (event) {
+                const target = event.target.getAttribute('data-bs-target').replace('#', '');
+                currentFilter = target;
+                applyCurrentFilter();
+            });
         });
-
-        if (!response.ok) {
-          const err = await response.json().catch(()=>({ error: 'Unknown error' }));
-          showNotification(err.error || `Failed to ${action} product`, 'danger');
-          return;
+        
+        // --- TOGGLE PRODUCT STATUS (activate/deactivate) ---
+        async function toggleProductStatus(productId, newStatus) {
+            const action = newStatus ? 'activate' : 'deactivate';
+            if (!confirm(`Are you sure you want to ${action} this product?`)) return;
+            try {
+                const response = await fetch(`/api/products/${productId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_active: newStatus })
+                });
+                if (!response.ok) {
+                    const err = await response.json().catch(()=>({ error: 'Unknown error' }));
+                    showNotification(err.error || `Failed to ${action} product`, 'danger');
+                    return;
+                }
+                // Optimistically update local state so UI reflects change immediately
+                allProducts = allProducts.map(p => p.id === productId ? { ...p, is_active: !!newStatus } : p);
+                // Re-apply filter and re-render
+                applyCurrentFilter();
+                showNotification(`Product ${action}d successfully!`, 'success');
+                // Optionally re-load from backend to ensure sync (keeps local cache fresh)
+                // Don't strictly need to await; call in background
+                loadProducts().catch(()=>{ /* ignore */ });
+            } catch (error) {
+                console.error(`Error ${action}ing product:`, error);
+                showNotification(`Error ${action}ing product`, 'danger');
+            }
         }
-
-        // Optimistically update local state so UI reflects change immediately
-        allProducts = allProducts.map(p => p.id === productId ? { ...p, is_active: !!newStatus } : p);
-
-        // Re-apply filter and re-render
-        applyCurrentFilter();
-
-        showNotification(`Product ${action}d successfully!`, 'success');
-
-        // Optionally re-load from backend to ensure sync (keeps local cache fresh)
-        // Don't strictly need to await; call in background
-        loadProducts().catch(()=>{ /* ignore */ });
-
-      } catch (error) {
-        console.error(`Error ${action}ing product:`, error);
-        showNotification(`Error ${action}ing product`, 'danger');
-      }
-    }
-
-    // --- EDIT PRODUCT: open modal and populate fields ---
-    function editProduct(productId) {
-      const product = allProducts.find(p => p.id === productId);
-      if (!product) return;
-
-      editingProductId = productId;
-
-      document.getElementById('productName').value = product.name || '';
-      document.getElementById('productCategory').value = product.category || '';
-      // product.target_customer normalized to 'B2B'/'B2C'
-      document.getElementById('productType').value = product.target_customer || '';
-      document.getElementById('productUnit').value = product.unit || '';
-      document.getElementById('productWeight').value = product.weight_per_unit || '';
-      document.getElementById('productPrice').value = product.price_per_unit || '';
-      document.getElementById('productActive').checked = !!product.is_active;
-
-      // Update modal UI & show it
-      document.querySelector('#addProductModal .modal-title').textContent = 'Edit Product';
-      document.querySelector('#addProductModal [type="submit"]').textContent = 'Update Product';
-      const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
-      modal.show();
-    }
-
-    // --- ADD/UPDATE PRODUCT SUBMIT ---
-    document.getElementById('addProductForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const form = this;
-      if (!form.checkValidity()) {
-        form.classList.add('was-validated');
-        return;
-      }
-
-      const fd = new FormData(form);
-      const productData = {
-        name: fd.get('name'),
-        category: fd.get('category'),
-        target_customer: fd.get('product_type'), // backend expected key may vary
-        unit: fd.get('unit'),
-        weight_per_unit: Number(fd.get('weight_per_unit') || 0),
-        price_per_unit: Number(fd.get('price_per_unit') || 0),
-        is_active: fd.get('is_active') === 'on'
-      };
-
-      try {
-        let response;
-        if (editingProductId) {
-          response = await fetch(`/api/products/${editingProductId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(productData)
-          });
-        } else {
-          response = await fetch('/api/products', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(productData)
-          });
+        
+        // --- EDIT PRODUCT: open modal and populate fields ---
+        function editProduct(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) return;
+            editingProductId = productId;
+            document.getElementById('productName').value = product.name || '';
+            document.getElementById('productCategory').value = product.category || '';
+            
+            // Fixed: Get the product type from either target_customer or product_type field
+            const productType = (product.target_customer || product.product_type || '').toUpperCase();
+            document.getElementById('productType').value = productType;
+            
+            document.getElementById('productUnit').value = product.unit || '';
+            document.getElementById('productWeight').value = product.weight_per_unit || '';
+            document.getElementById('productPrice').value = product.price_per_unit || '';
+            document.getElementById('productActive').checked = !!product.is_active;
+            
+            // Update modal UI & show it
+            document.querySelector('#addProductModal .modal-title').textContent = 'Edit Product';
+            document.querySelector('#addProductModal [type="submit"]').textContent = 'Update Product';
+            const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
+            modal.show();
         }
-
-        if (!response.ok) {
-          const err = await response.json().catch(()=>({ error: 'Unknown' }));
-          showNotification(err.error || 'Failed to save product', 'danger');
-          return;
+        
+        // --- ADD/UPDATE PRODUCT SUBMIT ---
+        document.getElementById('addProductForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const form = this;
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+            const fd = new FormData(form);
+            const productData = {
+                name: fd.get('name'),
+                category: fd.get('category'),
+                // Fixed: Send both target_customer and product_type to ensure backend compatibility
+                target_customer: fd.get('product_type'),
+                product_type: fd.get('product_type'),
+                unit: fd.get('unit'),
+                weight_per_unit: Number(fd.get('weight_per_unit') || 0),
+                price_per_unit: Number(fd.get('price_per_unit') || 0),
+                is_active: fd.get('is_active') === 'on'
+            };
+            try {
+                let response;
+                if (editingProductId) {
+                    response = await fetch(`/api/products/${editingProductId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(productData)
+                    });
+                } else {
+                    response = await fetch('/api/products', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(productData)
+                    });
+                }
+                if (!response.ok) {
+                    const err = await response.json().catch(()=>({ error: 'Unknown' }));
+                    showNotification(err.error || 'Failed to save product', 'danger');
+                    return;
+                }
+                // success: close modal and reload
+                const modalEl = document.getElementById('addProductModal');
+                const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                modal.hide();
+                showNotification(editingProductId ? 'Product updated successfully!' : 'Product added successfully!', 'success');
+                // reset form & reload products
+                form.reset();
+                form.classList.remove('was-validated');
+                editingProductId = null;
+                await loadProducts();
+            } catch (err) {
+                console.error('Save product error:', err);
+                showNotification('Error saving product', 'danger');
+            }
+        });
+        
+        // reset modal when hidden
+        document.getElementById('addProductModal').addEventListener('hidden.bs.modal', function () {
+            editingProductId = null;
+            document.getElementById('addProductForm').reset();
+            document.querySelector('#addProductModal .modal-title').textContent = 'Add New Product';
+            document.querySelector('#addProductModal [type="submit"]').textContent = 'Add Product';
+            document.getElementById('addProductForm').classList.remove('was-validated');
+        });
+        
+        // --- simple notification helper ---
+        function showNotification(message, type='info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            // Add icon based on type
+            let icon = '';
+            if (type === 'success') {
+                icon = '<i class="bi bi-check-circle-fill"></i>';
+            } else if (type === 'error' || type === 'danger') {
+                icon = '<i class="bi bi-exclamation-triangle-fill"></i>';
+            } else {
+                icon = '<i class="bi bi-info-circle-fill"></i>';
+            }
+            
+            notification.innerHTML = `${icon} <span>${message}</span>`;
+            document.body.appendChild(notification);
+            
+            // Show notification with animation
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // Hide and remove notification after 3.5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3500);
         }
-
-        // success: close modal and reload
-        const modalEl = document.getElementById('addProductModal');
-        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-        modal.hide();
-
-        showNotification(editingProductId ? 'Product updated successfully!' : 'Product added successfully!', 'success');
-
-        // reset form & reload products
-        form.reset();
-        form.classList.remove('was-validated');
-        editingProductId = null;
-        await loadProducts();
-
-      } catch (err) {
-        console.error('Save product error:', err);
-        showNotification('Error saving product', 'danger');
-      }
-    });
-
-    // reset modal when hidden
-    document.getElementById('addProductModal').addEventListener('hidden.bs.modal', function () {
-      editingProductId = null;
-      document.getElementById('addProductForm').reset();
-      document.querySelector('#addProductModal .modal-title').textContent = 'Add New Product';
-      document.querySelector('#addProductModal [type="submit"]').textContent = 'Add Product';
-      document.getElementById('addProductForm').classList.remove('was-validated');
-    });
-
-    // --- simple notification helper ---
-    function showNotification(message, type='info') {
-      const alert = document.createElement('div');
-      alert.className = `alert alert-${type} position-fixed top-0 end-0 m-3`;
-      alert.style.zIndex = '9999';
-      alert.innerHTML = `<div class="d-flex align-items-center"><i class="bi me-2"></i><div>${escapeHtml(message)}</div><button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button></div>`;
-      document.body.appendChild(alert);
-      setTimeout(()=> alert.remove(), 3500);
-    }
-
-    // --- page load ---
-    document.addEventListener('DOMContentLoaded', () => {
-      loadProducts();
-
-      // fade-in UI effect
-      const fadeElements = document.querySelectorAll('.fade-in');
-      fadeElements.forEach((el, i) => setTimeout(()=> el.style.opacity = '1', i * 80));
-    });
-
-    // mobile sidebar toggle (unchanged)
-    const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.createElement('button');
-    sidebarToggle.className = 'btn btn-sm btn-primary position-fixed top-0 start-0 m-3 d-lg-none';
-    sidebarToggle.innerHTML = '<i class="bi bi-list"></i>';
-    document.body.appendChild(sidebarToggle);
-    sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
-
-    // logout (unchanged)
-    function logout() { localStorage.removeItem('authToken'); window.location.href = 'login.html'; }
-  </script>
+        
+        // --- page load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProducts();
+            // fade-in UI effect
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((el, i) => setTimeout(() => el.style.opacity = '1', i * 80));
+        });
+        
+        // mobile sidebar toggle (unchanged)
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.createElement('button');
+        sidebarToggle.className = 'btn btn-sm btn-primary position-fixed top-0 start-0 m-3 d-lg-none';
+        sidebarToggle.innerHTML = '<i class="bi bi-list"></i>';
+        document.body.appendChild(sidebarToggle);
+        sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('active'));
+        
+        // logout (unchanged)
+        function logout() { 
+            localStorage.removeItem('authToken'); 
+            window.location.href = 'login.html'; 
+        }
+    </script>
 </body>
 </html>

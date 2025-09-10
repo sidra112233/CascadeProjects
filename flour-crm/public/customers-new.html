@@ -553,8 +553,10 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadProvinces();
             // Hide business name initially
-            const businessNameGroup = document.getElementById('businessNameGroup');
-            businessNameGroup.style.display = 'none';
+            const businessNameGroup = document.getElementById('businessNameWrapper');
+            if (businessNameGroup) {
+                businessNameGroup.style.display = 'none';
+            }
             
             // Add fade-in animation
             const fadeElements = document.querySelectorAll('.fade-in');
