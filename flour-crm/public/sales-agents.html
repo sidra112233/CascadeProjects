@@ -878,6 +878,15 @@
                             <input type="email" class="form-control" id="editAgentEmail" name="email" required>
                         </div>
                         <div class="mb-3">
+                            <label for="editAgentType" class="form-label">Agent Type *</label>
+                            <select class="form-select" id="editAgentType" name="agent_type" required>
+                                <option value="">Select Type</option>
+                                <option value="B2B">B2B</option>
+                                <option value="B2C">B2C</option>
+                                <option value="Both">Both</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label for="editAgentCommission" class="form-label">Commission (%)</label>
                             <input type="number" class="form-control" id="editAgentCommission" name="commission_rate" min="0" step="0.1">
                         </div>
@@ -1068,6 +1077,7 @@
             document.getElementById('editAgentId').value = agent.id;
             document.getElementById('editAgentName').value = agent.name;
             document.getElementById('editAgentEmail').value = agent.email;
+            document.getElementById('editAgentType').value = agent.agent_type || '';
             document.getElementById('editAgentCommission').value = agent.commission_rate || 0;
             
             // Show modal
@@ -1080,10 +1090,11 @@
             const id = document.getElementById('editAgentId').value;
             const name = document.getElementById('editAgentName').value;
             const email = document.getElementById('editAgentEmail').value;
+            const agent_type = document.getElementById('editAgentType').value;
             const commission_rate = document.getElementById('editAgentCommission').value;
             
-            if (!name || !email) {
-                showNotification("Please fill in all required fields", 'warning');
+            if (!name || !email || !agent_type) {
+                showNotification("Please fill in all required fields, including agent type.", 'warning');
                 return;
             }
             
@@ -1094,6 +1105,7 @@
                     body: JSON.stringify({
                         name: name,
                         email: email,
+                        agent_type: agent_type,
                         commission_rate: Number(commission_rate)
                     })
                 });
