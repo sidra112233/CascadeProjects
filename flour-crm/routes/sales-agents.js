@@ -6,7 +6,6 @@ const bcrypt = require('bcryptjs');
 
 const { requireAuth } = require('../middleware/auth');
 
-// Helper to build permissions JSON from body flags (you can remove if not needed anywhere else)
 function buildPermissions(body) {
   const pages = ['dashboard', 'sales', 'customers', 'products', 'reports', 'agents'];
   const actions = ['view', 'add', 'edit', 'delete'];
