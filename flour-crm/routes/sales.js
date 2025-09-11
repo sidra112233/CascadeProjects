@@ -83,7 +83,7 @@ router.post('/', requireAuth, async (req, res) => {
                 tax_rate, tax_amount, total_price, payment_type, payment_status, 
                 sales_channel, sales_agent_id, notes
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [customer_id, product_id, quantity, price_per_unit, subtotal, tax_rate || 0, tax_amount, total_price, payment_type, payment_status, sales_channel, sales_agent_id, notes]
+            [customer_id, product_id, quantity, price_per_unit, subtotal, tax_rate || 0, tax_amount, total_price, payment_type, payment_status, sales_channel, sales_agent_id, notes || null]
         );
 
         res.status(201).json({ id: result.insertId, message: 'Sale created successfully' });
@@ -100,6 +100,11 @@ router.put('/:id', requireAuth, async (req, res) => {
         customer_id, product_id, quantity, price_per_unit, tax_rate,
         sales_channel, sales_agent_id, payment_type, payment_status, notes
     } = req.body;
+
+    // Add validation to prevent undefined parameters
+    if (!customer_id || !product_id || !quantity || !price_per_unit || !sales_channel || !sales_agent_id || !payment_type || !payment_status) {
+        return res.status(400).json({ error: 'Missing required fields for update' });
+    }
 
     // Recalculate total price
     const subtotal = parseFloat(quantity) * parseFloat(price_per_unit);

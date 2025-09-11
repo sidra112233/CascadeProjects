@@ -379,6 +379,10 @@
             background-color: var(--warning-color) !important;
         }
         
+        .bg-info {
+            background-color: var(--info-color) !important;
+        }
+
         /* Pagination */
         .pagination {
             margin-top: 2rem;
@@ -580,6 +584,11 @@
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="partial-tab" data-bs-toggle="tab" data-bs-target="#partial" type="button" role="tab">
+                            <i class="bi bi-pie-chart-fill me-1"></i>Partial Payment
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link" id="paid-tab" data-bs-toggle="tab" data-bs-target="#paid" type="button" role="tab">
                             <i class="bi bi-check-circle me-1"></i>Paid
                         </button>
@@ -633,6 +642,30 @@
                                     </tr>
                                 </thead>
                                 <tbody id="pendingSalesTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="partial" role="tabpanel">
+                <div class="card fade-in">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Amount</th>
+                                        <th>Payment</th>
+                                        <th>Status</th>
+                                        <th>Agent</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="partialSalesTableBody"></tbody>
                             </table>
                         </div>
                     </div>
@@ -901,24 +934,35 @@
                 const allTbody = document.querySelector('#salesTableBody');
                 // Pending sales
                 const pendingTbody = document.querySelector('#pendingSalesTableBody');
+                // Partial sales
+                const partialTbody = document.querySelector('#partialSalesTableBody');
                 // Paid sales
                 const paidTbody = document.querySelector('#paidSalesTableBody');
                 
                 allTbody.innerHTML = '';
                 pendingTbody.innerHTML = '';
+                partialTbody.innerHTML = '';
                 paidTbody.innerHTML = '';
                 
                 if (!data.sales || data.sales.length === 0) {
                     allTbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No sales found</td></tr>`;
                     pendingTbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No pending sales</td></tr>`;
+                    partialTbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No partial sales</td></tr>`;
                     paidTbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No paid sales</td></tr>`;
                     return;
                 }
                 
                 data.sales.forEach(sale => {
-                    const statusBadge = sale.payment_status === 'paid' 
-                        ? '<span class="badge bg-success">Paid</span>' 
-                        : '<span class="badge bg-warning">Pending</span>';
+                    let statusBadge;
+                    if (sale.payment_status === 'paid') {
+                        statusBadge = '<span class="badge bg-success">Paid</span>';
+                    } else if (sale.payment_status === 'pending') {
+                        statusBadge = '<span class="badge bg-warning">Pending</span>';
+                    } else if (sale.payment_status === 'partial') {
+                        statusBadge = '<span class="badge bg-info">Partial</span>';
+                    } else {
+                        statusBadge = `<span class="badge bg-secondary">${sale.payment_status}</span>`;
+                    }
                         
                     const row = `
                         <tr>
@@ -948,6 +992,11 @@
                         pendingTbody.innerHTML += row;
                     }
                     
+                    // Partial Payment
+                    if (sale.payment_status === 'partial') {
+                        partialTbody.innerHTML += row;
+                    }
+                    
                     // Paid
                     if (sale.payment_status === 'paid') {
                         paidTbody.innerHTML += row;
@@ -958,6 +1007,8 @@
                 document.querySelector('#salesTableBody').innerHTML = 
                     `<tr><td colspan="9" class="text-center text-danger py-4">Error loading sales</td></tr>`;
                 document.querySelector('#pendingSalesTableBody').innerHTML = 
+                    `<tr><td colspan="9" class="text-center text-danger py-4">Error loading sales</td></tr>`;
+                document.querySelector('#partialSalesTableBody').innerHTML = 
                     `<tr><td colspan="9" class="text-center text-danger py-4">Error loading sales</td></tr>`;
                 document.querySelector('#paidSalesTableBody').innerHTML = 
                     `<tr><td colspan="9" class="text-center text-danger py-4">Error loading sales</td></tr>`;
