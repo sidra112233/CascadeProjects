@@ -116,7 +116,7 @@ router.put('/:id', requireAuth, async (req, res) => {
         // Update product in DB (example for MySQL)
         await db.query(
             'UPDATE products SET name=?, category=?,target_customer=?, unit=?, weight_per_unit=?, price_per_unit=?, is_active=? WHERE id=?',
-            [name, category, unit, target_customer, weight_per_unit, price_per_unit, is_active ? 1 : 0, id]
+            [name, category, target_customer, unit, weight_per_unit, price_per_unit, is_active ? 1 : 0, id]
         );
         res.json({ success: true });
     } catch (err) {
@@ -209,13 +209,13 @@ router.post('/', requireAuth, requireRole(['admin']), [
 
 // Update product including product_type
 router.put('/:id', requireAuth, async (req, res) => {
-    const { name, category, unit, weight_per_unit, price_per_unit, is_active, product_type } = req.body;
+    const { name, category, target_customer, unit, weight_per_unit, price_per_unit, is_active, product_type } = req.body;
     const { id } = req.params;
     try {
         // Update product in DB (example for MySQL)
         await db.query(
-            'UPDATE products SET name=?, category=?, unit=?, weight_per_unit=?, price_per_unit=?, is_active=?, product_type=? WHERE id=?',
-            [name, category, unit, weight_per_unit, price_per_unit, is_active ? 1 : 0, product_type, id]
+            'UPDATE products SET name=?, category=?, target_customer=?, unit=?, weight_per_unit=?, price_per_unit=?, is_active=?, product_type=? WHERE id=?',
+            [name, category, target_customer, unit, weight_per_unit, price_per_unit, is_active ? 1 : 0, product_type, id]
         );
         res.json({ success: true });
     } catch (err) {

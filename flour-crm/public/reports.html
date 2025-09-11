@@ -832,24 +832,42 @@
         
         // Register the datalabels plugin
         Chart.register(ChartDataLabels);
-        
-        // Custom plugin for center text
         const centerTextPlugin = {
-            id: 'centerText',
-            beforeDraw(chart) {
-                if (chart.config.type === 'doughnut') {
-                    const ctx = chart.ctx;
-                    const centerConfig = chart.config.options.elements.center;
-                    const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-                    const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.font = `${centerConfig.fontWeight || 'bold'} ${centerConfig.fontSize || 16}px Inter`;
-                    ctx.fillStyle = centerConfig.color || '#000';
-                    ctx.fillText(centerConfig.text, centerX, centerY);
-                }
-            }
-        };
+  id: 'centerText',
+  beforeDraw(chart) {
+    if (chart.config.type !== 'doughnut') return;
+
+    const ctx = chart.ctx;
+    const cfg = chart.options.elements?.center || {};
+    const dataArr = chart.data.datasets?.[0]?.data || [];
+
+    // ensure numeric total
+    const total = dataArr.reduce((acc, v) => acc + (Number(v) || 0), 0);
+    const formatted = total.toLocaleString();
+
+    const line1 = cfg.textTop || 'Total';
+    const line2 = (cfg.currencySymbol ?? '₨') + formatted;
+
+    const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+    const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Top line
+    ctx.fillStyle = cfg.colorTop || '#6b7280';
+    ctx.font = `${cfg.fontWeightTop || '600'} ${cfg.fontSizeTop || 12}px ${cfg.fontFamily || 'Inter'}`;
+    ctx.fillText(line1, centerX, centerY - (cfg.lineHeight || 12));
+
+    // Bottom (amount) line
+    ctx.fillStyle = cfg.color || (cfg.colorTop || '#4f46e5');
+    ctx.font = `${cfg.fontWeight || '700'} ${cfg.fontSize || 18}px ${cfg.fontFamily || 'Inter'}`;
+    ctx.fillText(line2, centerX, centerY + (cfg.lineHeight || 6));
+
+    ctx.restore();
+  }
+};
         
         // Chart instances (initialized empty)
         let salesTrendChart, paymentChart, customerTypeChart;
@@ -912,72 +930,75 @@
                 },
                 plugins: [ChartDataLabels]
             });
-            
-            // Payment Methods Chart
-            const paymentCtx = document.getElementById('paymentChart').getContext('2d');
-            paymentChart = new Chart(paymentCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        data: [],
-                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
-                        borderColor: '#ffffff',
-                        borderWidth: 2,
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '60%',
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true,
-                                font: { family: 'Inter', size: 12 }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleFont: { family: 'Inter' },
-                            bodyFont: { family: 'Inter' },
-                            padding: 12,
-                            cornerRadius: 8,
-                            callbacks: {
-                                label: function(context) {
-                                    const value = context.parsed;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total ? Math.round((value / total) * 100) : 0;
-                                    return `${context.label}: Rs. ${value.toLocaleString()} (${percentage}%)`;
-                                }
-                            }
-                        },
-                        datalabels: {
-                            display: true,
-                            color: '#fff',
-                            font: { weight: 'bold', size: 12, family: 'Inter' },
-                            formatter: function(value, context) {
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                return total ? Math.round((value / total) * 100) + '%' : '';
+    
+        // Init empty Payment Chart
+        const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+        const paymentChart = new Chart(paymentCtx, {
+            type: 'doughnut',
+            data: { 
+                labels: [], 
+                datasets: [{ 
+                    data: [], 
+                    backgroundColor: [
+                        '#4f46e5', 
+                        '#7c3aed', 
+                        '#10b981', 
+                        '#f59e0b', 
+                        '#3b82f6'
+                    ], 
+                    borderColor: '#ffffff',
+                    borderWidth: 2, 
+                    hoverOffset: 10 
+                }] 
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: { 
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                family: 'Inter',
+                                size: 12
                             }
                         }
                     },
-                    elements: {
-                        center: {
-                            text: '',
-                            color: '#4f46e5',
-                            fontSize: 18,
-                            fontWeight: 'bold',
-                            fontFamily: 'Inter'
+                    datalabels: {
+                        display: true,
+                        color: '#fff',
+                        font: { 
+                            weight: 'bold', 
+                            size: 14,
+                            family: 'Inter'
+                        },
+                        formatter(value, context) {
+                            const dataArr = context.dataset.data.map(v => Number(v));
+                            const total = dataArr.reduce((a, b) => a + b, 0);
+                            return total ? Math.round((value / total) * 100) + '%' : '0%';
                         }
                     }
                 },
-                plugins: [centerTextPlugin, ChartDataLabels]
-            });
-            
+                elements: { 
+                    center: { 
+                        text: '₨ 0', 
+                        color: '#4f46e5', 
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        fontFamily: 'Inter'
+                    } 
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            },
+            plugins: [centerTextPlugin, ChartDataLabels]
+        });
+        
             // Customer Type Chart
             const customerTypeCtx = document.getElementById('customerTypeChart').getContext('2d');
             customerTypeChart = new Chart(customerTypeCtx, {
