@@ -26,8 +26,9 @@ router.get('/api', requireAuth, async (req, res) => {
         }
         
         if (region) {
-            whereClause += ' AND c.region = ?';
-            params.push(region);
+            // Use LOWER() to make the filter case-insensitive (e.g., 'punjab' matches 'Punjab')
+            whereClause += ' AND LOWER(pr.name) = ?';
+            params.push(region.toLowerCase());
         }
 
         // Get total revenue
@@ -35,6 +36,7 @@ router.get('/api', requireAuth, async (req, res) => {
             SELECT COALESCE(SUM(s.total_price), 0) as total_revenue 
             FROM sales s
             JOIN customers c ON s.customer_id = c.id
+            LEFT JOIN provinces pr ON c.province_id = pr.id
             ${whereClause}
         `, params);
 
@@ -43,6 +45,7 @@ router.get('/api', requireAuth, async (req, res) => {
             SELECT COUNT(*) as total_orders 
             FROM sales s
             JOIN customers c ON s.customer_id = c.id
+            LEFT JOIN provinces pr ON c.province_id = pr.id
             ${whereClause}
         `, params);
 
@@ -51,6 +54,7 @@ router.get('/api', requireAuth, async (req, res) => {
             SELECT COALESCE(AVG(s.total_price), 0) as avg_order_value 
             FROM sales s
             JOIN customers c ON s.customer_id = c.id
+            LEFT JOIN provinces pr ON c.province_id = pr.id
             ${whereClause}
         `, params);
 
@@ -59,26 +63,29 @@ router.get('/api', requireAuth, async (req, res) => {
             SELECT COUNT(DISTINCT s.customer_id) as active_customers 
             FROM sales s
             JOIN customers c ON s.customer_id = c.id
+            LEFT JOIN provinces pr ON c.province_id = pr.id
             ${whereClause}
         `, params);
 
-        // Monthly sales trend (last 12 months)
+        // Monthly sales trend (filtered)
         const [salesTrend] = await db.execute(`
             SELECT 
                 DATE_FORMAT(s.created_at, '%Y-%m') as month,
                 COALESCE(SUM(s.total_price), 0) as revenue
             FROM sales s
             JOIN customers c ON s.customer_id = c.id
-            WHERE s.created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+            LEFT JOIN provinces pr ON c.province_id = pr.id
+            ${whereClause}
             GROUP BY DATE_FORMAT(s.created_at, '%Y-%m')
             ORDER BY month
-        `);
+        `, params);
 
         // Payment methods breakdown
         const [paymentMethods] = await db.execute(`
             SELECT s.payment_type as type, COALESCE(SUM(s.total_price), 0) as amount
             FROM sales s
             JOIN customers c ON s.customer_id = c.id
+            LEFT JOIN provinces pr ON c.province_id = pr.id
             ${whereClause}
             GROUP BY s.payment_type
         `, params);
@@ -88,6 +95,7 @@ router.get('/api', requireAuth, async (req, res) => {
             SELECT c.customer_type as type, COALESCE(SUM(s.total_price), 0) as revenue
             FROM sales s
             JOIN customers c ON s.customer_id = c.id
+            LEFT JOIN provinces pr ON c.province_id = pr.id
             ${whereClause}
             GROUP BY c.customer_type
         `, params);

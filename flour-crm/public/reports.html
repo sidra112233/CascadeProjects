@@ -933,7 +933,7 @@
     
         // Init empty Payment Chart
         const paymentCtx = document.getElementById('paymentChart').getContext('2d');
-        const paymentChart = new Chart(paymentCtx, {
+        paymentChart = new Chart(paymentCtx, {
             type: 'doughnut',
             data: { 
                 labels: [], 
@@ -1125,13 +1125,10 @@
                 if (data.paymentMethods && data.paymentMethods.length > 0) {
                     paymentChart.data.labels = data.paymentMethods.map(p => p.type);
                     paymentChart.data.datasets[0].data = data.paymentMethods.map(p => p.amount);
-                    const total = data.paymentMethods.reduce((sum, p) => sum + p.amount, 0);
-                    paymentChart.options.elements.center.text = 'Rs. ' + (total / 1000000).toFixed(2) + 'M';
                     paymentChart.update();
                 } else {
                     paymentChart.data.labels = [];
                     paymentChart.data.datasets[0].data = [];
-                    paymentChart.options.elements.center.text = '';
                     paymentChart.update();
                 }
                 

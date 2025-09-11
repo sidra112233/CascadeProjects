@@ -956,10 +956,10 @@ const datalabelsFormatter = (value, context) => {
                 recentSalesTable.innerHTML = '';
                 
                 if (data.recentSales && data.recentSales.length > 0) {
-                    data.recentSales.forEach(sale => {
+                    data.recentSales.forEach((sale, index) => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>#${sale.id}</td>
+                            <td>${index + 1}</td>
                             <td>${sale.customer}</td>
                             <td>₨${Number(sale.total_price).toLocaleString()}</td>
                             <td>
