@@ -1096,7 +1096,7 @@
                 const data = await response.json();
                 
                 // Update summary cards
-                document.getElementById('totalRevenue').textContent = data.totalRevenue !== undefined ? `Rs. ${(data.totalRevenue || 0).toLocaleString()}` : 'N/A';
+                document.getElementById('totalRevenue').textContent = data.totalRevenue !== undefined ? `Rs ${(data.totalRevenue || 0).toLocaleString()}` : 'N/A';
                 document.getElementById('totalOrders').textContent = data.totalOrders !== undefined ? (data.totalOrders || 0).toLocaleString() : 'N/A';
                 document.getElementById('avgOrderValue').textContent = data.avgOrderValue !== undefined ? `Rs. ${(data.avgOrderValue || 0).toLocaleString()}` : 'N/A';
                 document.getElementById('activeCustomers').textContent = data.activeCustomers !== undefined ? (data.activeCustomers || 0).toLocaleString() : 'N/A';

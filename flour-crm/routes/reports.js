@@ -348,9 +348,9 @@ router.get('/export/pdf', requireAuth, requireRole(['admin', 'accountant']), asy
         // Summary
         doc.fontSize(16).text('Summary', 50, 120);
         doc.fontSize(12)
-           .text(`Total Sales: ${summary[0].total_sales}`, 50, 150)
-           .text(`Total Revenue: Rs. ${summary[0].total_revenue.toLocaleString()}`, 50, 170)
-           .text(`Deposit Amount: Rs. ${summary[0].deposit_amount.toLocaleString()}`, 50, 190)
+           .text(`Total Sales:${summary[0].total_sales}`, 50, 150)
+           .text(`Total Revenue: Rs${summary[0].total_revenue.toLocaleString()}`, 50, 170)
+           .text(`Deposit Amount: Rs.${summary[0].deposit_amount.toLocaleString()}`, 50, 190)
            .text(`Credit Amount: Rs. ${summary[0].credit_amount.toLocaleString()}`, 50, 210);
 
         doc.end();
