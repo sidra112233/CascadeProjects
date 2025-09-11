@@ -696,12 +696,12 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6>Active Customers</h6>
-                                <h3 class="mb-0" id="activeCustomers">Loading...</h3>
-                                <small id="activeCustomersChange"></small>
+                                <h6>Active Products</h6>
+                                <h3 class="mb-0" id="activeProducts">Loading...</h3>
+                                <small id="activeProductsChange"></small>
                             </div>
                             <div class="stats-card-icon">
-                                <i class="bi bi-people"></i>
+                                <i class="bi bi-box-seam"></i>
                             </div>
                         </div>
                     </div>
@@ -1069,11 +1069,11 @@
                 document.getElementById('totalRevenue').textContent = 'Loading...';
                 document.getElementById('totalOrders').textContent = 'Loading...';
                 document.getElementById('avgOrderValue').textContent = 'Loading...';
-                document.getElementById('activeCustomers').textContent = 'Loading...';
+                document.getElementById('activeProducts').textContent = 'Loading...';
                 document.getElementById('totalRevenueChange').textContent = '';
                 document.getElementById('totalOrdersChange').textContent = '';
                 document.getElementById('avgOrderValueChange').textContent = '';
-                document.getElementById('activeCustomersChange').textContent = '';
+                document.getElementById('activeProductsChange').textContent = '';
                 document.querySelector('#regionalPerformanceTable tbody').innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
                 document.querySelector('#topProductsTable tbody').innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
                 
@@ -1099,11 +1099,11 @@
                 document.getElementById('totalRevenue').textContent = data.totalRevenue !== undefined ? `Rs ${(data.totalRevenue || 0).toLocaleString()}` : 'N/A';
                 document.getElementById('totalOrders').textContent = data.totalOrders !== undefined ? (data.totalOrders || 0).toLocaleString() : 'N/A';
                 document.getElementById('avgOrderValue').textContent = data.avgOrderValue !== undefined ? `Rs. ${(data.avgOrderValue || 0).toLocaleString()}` : 'N/A';
-                document.getElementById('activeCustomers').textContent = data.activeCustomers !== undefined ? (data.activeCustomers || 0).toLocaleString() : 'N/A';
+                document.getElementById('activeProducts').textContent = data.activeProducts !== undefined ? (data.activeProducts || 0).toLocaleString() : 'N/A';
                 document.getElementById('totalRevenueChange').textContent = data.totalRevenueChange || '';
                 document.getElementById('totalOrdersChange').textContent = data.totalOrdersChange || '';
                 document.getElementById('avgOrderValueChange').textContent = data.avgOrderValueChange || '';
-                document.getElementById('activeCustomersChange').textContent = data.activeCustomersChange || '';
+                document.getElementById('activeProductsChange').textContent = data.activeProductsChange || '';
                 
                 // Update sales trend chart
                 if (data.salesTrend && data.salesTrend.length > 0) {
@@ -1192,7 +1192,7 @@
                 document.getElementById('totalRevenue').textContent = 'Error';
                 document.getElementById('totalOrders').textContent = 'Error';
                 document.getElementById('avgOrderValue').textContent = 'Error';
-                document.getElementById('activeCustomers').textContent = 'Error';
+                document.getElementById('activeProducts').textContent = 'Error';
                 document.querySelector('#regionalPerformanceTable tbody').innerHTML = '<tr><td colspan="4">Error loading data</td></tr>';
                 document.querySelector('#topProductsTable tbody').innerHTML = '<tr><td colspan="5">Error loading data</td></tr>';
                 salesTrendChart.data.labels = [];
