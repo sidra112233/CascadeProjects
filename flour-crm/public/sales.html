@@ -930,13 +930,9 @@
                 const res = await fetch('/api/sales');
                 const data = await res.json();
                 
-                // All sales
                 const allTbody = document.querySelector('#salesTableBody');
-                // Pending sales
                 const pendingTbody = document.querySelector('#pendingSalesTableBody');
-                // Partial sales
                 const partialTbody = document.querySelector('#partialSalesTableBody');
-                // Paid sales
                 const paidTbody = document.querySelector('#paidSalesTableBody');
                 
                 allTbody.innerHTML = '';
