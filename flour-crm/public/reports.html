@@ -45,7 +45,6 @@
             transition: all 0.3s ease;
         }
         
-        /* Sidebar Styles */
         .sidebar {
             position: fixed;
             top: 0;
@@ -587,13 +586,11 @@
         </div>
     </nav>
     
-    <!-- Dark Mode Toggle -->
     <div class="dark-mode-toggle" id="darkModeToggle">
         <i class="bi bi-sun light-icon"></i>
         <i class="bi bi-moon-stars dark-icon"></i>
     </div>
     
-    <!-- Main content -->
     <main class="main-content">
         <div class="page-header">
             <h1><i class="bi bi-graph-up"></i> Reports & Analytics</h1>
@@ -609,7 +606,6 @@
             </div>
         </div>
         
-        <!-- Date Range Filter -->
         <div class="card mb-4 fade-in">
             <div class="card-body">
                 <div class="row align-items-end">
@@ -638,7 +634,6 @@
             </div>
         </div>
         
-        <!-- Summary Cards -->
         <div class="row mb-4">
             <div class="col-lg-3 col-md-6 mb-4 fade-in">
                 <div class="stats-card stats-card-primary">
@@ -774,7 +769,6 @@
             </div>
         </div>
         
-        <!-- Top Products -->
         <div class="card fade-in">
             <div class="card-header">
                 <h6 class="card-title mb-0"><i class="bi bi-trophy me-2"></i>Top Performing Products</h6>
@@ -852,12 +846,10 @@
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Top line
     ctx.fillStyle = cfg.colorTop || '#6b7280';
     ctx.font = `${cfg.fontWeightTop || '600'} ${cfg.fontSizeTop || 12}px ${cfg.fontFamily || 'Inter'}`;
     ctx.fillText(line1, centerX, centerY - (cfg.lineHeight || 12));
 
-    // Bottom (amount) line
     ctx.fillStyle = cfg.color || (cfg.colorTop || '#4f46e5');
     ctx.font = `${cfg.fontWeight || '700'} ${cfg.fontSize || 18}px ${cfg.fontFamily || 'Inter'}`;
     ctx.fillText(line2, centerX, centerY + (cfg.lineHeight || 6));
@@ -866,12 +858,9 @@
   }
 };
         
-        // Chart instances (initialized empty)
         let salesTrendChart, paymentChart, customerTypeChart;
         
-        // Chart initialization with empty data
         function initCharts() {
-            // Sales Trend Chart
             const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
             salesTrendChart = new Chart(salesTrendCtx, {
                 type: 'line',
