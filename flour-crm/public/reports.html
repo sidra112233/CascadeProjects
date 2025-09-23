@@ -5,11 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports - Flour CRM</title>
     
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -48,7 +45,6 @@
             transition: all 0.3s ease;
         }
         
-        /* Sidebar Styles */
         .sidebar {
             position: fixed;
             top: 0;
@@ -590,13 +586,11 @@
         </div>
     </nav>
     
-    <!-- Dark Mode Toggle -->
     <div class="dark-mode-toggle" id="darkModeToggle">
         <i class="bi bi-sun light-icon"></i>
         <i class="bi bi-moon-stars dark-icon"></i>
     </div>
     
-    <!-- Main content -->
     <main class="main-content">
         <div class="page-header">
             <h1><i class="bi bi-graph-up"></i> Reports & Analytics</h1>
@@ -612,7 +606,6 @@
             </div>
         </div>
         
-        <!-- Date Range Filter -->
         <div class="card mb-4 fade-in">
             <div class="card-body">
                 <div class="row align-items-end">
@@ -641,7 +634,6 @@
             </div>
         </div>
         
-        <!-- Summary Cards -->
         <div class="row mb-4">
             <div class="col-lg-3 col-md-6 mb-4 fade-in">
                 <div class="stats-card stats-card-primary">
@@ -696,12 +688,12 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6>Active Customers</h6>
-                                <h3 class="mb-0" id="activeCustomers">Loading...</h3>
-                                <small id="activeCustomersChange"></small>
+                                <h6>Active Products</h6>
+                                <h3 class="mb-0" id="activeProducts">Loading...</h3>
+                                <small id="activeProductsChange"></small>
                             </div>
                             <div class="stats-card-icon">
-                                <i class="bi bi-people"></i>
+                                <i class="bi bi-box-seam"></i>
                             </div>
                         </div>
                     </div>
@@ -777,7 +769,6 @@
             </div>
         </div>
         
-        <!-- Top Products -->
         <div class="card fade-in">
             <div class="card-header">
                 <h6 class="card-title mb-0"><i class="bi bi-trophy me-2"></i>Top Performing Products</h6>
@@ -832,31 +823,44 @@
         
         // Register the datalabels plugin
         Chart.register(ChartDataLabels);
-        
-        // Custom plugin for center text
         const centerTextPlugin = {
-            id: 'centerText',
-            beforeDraw(chart) {
-                if (chart.config.type === 'doughnut') {
-                    const ctx = chart.ctx;
-                    const centerConfig = chart.config.options.elements.center;
-                    const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-                    const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.font = `${centerConfig.fontWeight || 'bold'} ${centerConfig.fontSize || 16}px Inter`;
-                    ctx.fillStyle = centerConfig.color || '#000';
-                    ctx.fillText(centerConfig.text, centerX, centerY);
-                }
-            }
-        };
+  id: 'centerText',
+  beforeDraw(chart) {
+    if (chart.config.type !== 'doughnut') return;
+
+    const ctx = chart.ctx;
+    const cfg = chart.options.elements?.center || {};
+    const dataArr = chart.data.datasets?.[0]?.data || [];
+
+    // ensure numeric total
+    const total = dataArr.reduce((acc, v) => acc + (Number(v) || 0), 0);
+    const formatted = total.toLocaleString();
+
+    const line1 = cfg.textTop || 'Total';
+    const line2 = (cfg.currencySymbol ?? '₨') + formatted;
+
+    const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+    const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.fillStyle = cfg.colorTop || '#6b7280';
+    ctx.font = `${cfg.fontWeightTop || '600'} ${cfg.fontSizeTop || 12}px ${cfg.fontFamily || 'Inter'}`;
+    ctx.fillText(line1, centerX, centerY - (cfg.lineHeight || 12));
+
+    ctx.fillStyle = cfg.color || (cfg.colorTop || '#4f46e5');
+    ctx.font = `${cfg.fontWeight || '700'} ${cfg.fontSize || 18}px ${cfg.fontFamily || 'Inter'}`;
+    ctx.fillText(line2, centerX, centerY + (cfg.lineHeight || 6));
+
+    ctx.restore();
+  }
+};
         
-        // Chart instances (initialized empty)
         let salesTrendChart, paymentChart, customerTypeChart;
         
-        // Chart initialization with empty data
         function initCharts() {
-            // Sales Trend Chart
             const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
             salesTrendChart = new Chart(salesTrendCtx, {
                 type: 'line',
@@ -912,72 +916,75 @@
                 },
                 plugins: [ChartDataLabels]
             });
-            
-            // Payment Methods Chart
-            const paymentCtx = document.getElementById('paymentChart').getContext('2d');
-            paymentChart = new Chart(paymentCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        data: [],
-                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
-                        borderColor: '#ffffff',
-                        borderWidth: 2,
-                        hoverOffset: 10
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '60%',
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: 20,
-                                usePointStyle: true,
-                                font: { family: 'Inter', size: 12 }
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleFont: { family: 'Inter' },
-                            bodyFont: { family: 'Inter' },
-                            padding: 12,
-                            cornerRadius: 8,
-                            callbacks: {
-                                label: function(context) {
-                                    const value = context.parsed;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total ? Math.round((value / total) * 100) : 0;
-                                    return `${context.label}: Rs. ${value.toLocaleString()} (${percentage}%)`;
-                                }
-                            }
-                        },
-                        datalabels: {
-                            display: true,
-                            color: '#fff',
-                            font: { weight: 'bold', size: 12, family: 'Inter' },
-                            formatter: function(value, context) {
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                return total ? Math.round((value / total) * 100) + '%' : '';
+    
+        // Init empty Payment Chart
+        const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+        paymentChart = new Chart(paymentCtx, {
+            type: 'doughnut',
+            data: { 
+                labels: [], 
+                datasets: [{ 
+                    data: [], 
+                    backgroundColor: [
+                        '#4f46e5', 
+                        '#7c3aed', 
+                        '#10b981', 
+                        '#f59e0b', 
+                        '#3b82f6'
+                    ], 
+                    borderColor: '#ffffff',
+                    borderWidth: 2, 
+                    hoverOffset: 10 
+                }] 
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: { 
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                family: 'Inter',
+                                size: 12
                             }
                         }
                     },
-                    elements: {
-                        center: {
-                            text: '',
-                            color: '#4f46e5',
-                            fontSize: 18,
-                            fontWeight: 'bold',
-                            fontFamily: 'Inter'
+                    datalabels: {
+                        display: true,
+                        color: '#fff',
+                        font: { 
+                            weight: 'bold', 
+                            size: 14,
+                            family: 'Inter'
+                        },
+                        formatter(value, context) {
+                            const dataArr = context.dataset.data.map(v => Number(v));
+                            const total = dataArr.reduce((a, b) => a + b, 0);
+                            return total ? Math.round((value / total) * 100) + '%' : '0%';
                         }
                     }
                 },
-                plugins: [centerTextPlugin, ChartDataLabels]
-            });
-            
+                elements: { 
+                    center: { 
+                        text: '₨ 0', 
+                        color: '#4f46e5', 
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        fontFamily: 'Inter'
+                    } 
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            },
+            plugins: [centerTextPlugin, ChartDataLabels]
+        });
+        
             // Customer Type Chart
             const customerTypeCtx = document.getElementById('customerTypeChart').getContext('2d');
             customerTypeChart = new Chart(customerTypeCtx, {
@@ -1048,11 +1055,11 @@
                 document.getElementById('totalRevenue').textContent = 'Loading...';
                 document.getElementById('totalOrders').textContent = 'Loading...';
                 document.getElementById('avgOrderValue').textContent = 'Loading...';
-                document.getElementById('activeCustomers').textContent = 'Loading...';
+                document.getElementById('activeProducts').textContent = 'Loading...';
                 document.getElementById('totalRevenueChange').textContent = '';
                 document.getElementById('totalOrdersChange').textContent = '';
                 document.getElementById('avgOrderValueChange').textContent = '';
-                document.getElementById('activeCustomersChange').textContent = '';
+                document.getElementById('activeProductsChange').textContent = '';
                 document.querySelector('#regionalPerformanceTable tbody').innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
                 document.querySelector('#topProductsTable tbody').innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
                 
@@ -1075,14 +1082,14 @@
                 const data = await response.json();
                 
                 // Update summary cards
-                document.getElementById('totalRevenue').textContent = data.totalRevenue !== undefined ? `Rs. ${(data.totalRevenue || 0).toLocaleString()}` : 'N/A';
+                document.getElementById('totalRevenue').textContent = data.totalRevenue !== undefined ? `Rs ${(data.totalRevenue || 0).toLocaleString()}` : 'N/A';
                 document.getElementById('totalOrders').textContent = data.totalOrders !== undefined ? (data.totalOrders || 0).toLocaleString() : 'N/A';
                 document.getElementById('avgOrderValue').textContent = data.avgOrderValue !== undefined ? `Rs. ${(data.avgOrderValue || 0).toLocaleString()}` : 'N/A';
-                document.getElementById('activeCustomers').textContent = data.activeCustomers !== undefined ? (data.activeCustomers || 0).toLocaleString() : 'N/A';
+                document.getElementById('activeProducts').textContent = data.activeProducts !== undefined ? (data.activeProducts || 0).toLocaleString() : 'N/A';
                 document.getElementById('totalRevenueChange').textContent = data.totalRevenueChange || '';
                 document.getElementById('totalOrdersChange').textContent = data.totalOrdersChange || '';
                 document.getElementById('avgOrderValueChange').textContent = data.avgOrderValueChange || '';
-                document.getElementById('activeCustomersChange').textContent = data.activeCustomersChange || '';
+                document.getElementById('activeProductsChange').textContent = data.activeProductsChange || '';
                 
                 // Update sales trend chart
                 if (data.salesTrend && data.salesTrend.length > 0) {
@@ -1104,13 +1111,10 @@
                 if (data.paymentMethods && data.paymentMethods.length > 0) {
                     paymentChart.data.labels = data.paymentMethods.map(p => p.type);
                     paymentChart.data.datasets[0].data = data.paymentMethods.map(p => p.amount);
-                    const total = data.paymentMethods.reduce((sum, p) => sum + p.amount, 0);
-                    paymentChart.options.elements.center.text = 'Rs. ' + (total / 1000000).toFixed(2) + 'M';
                     paymentChart.update();
                 } else {
                     paymentChart.data.labels = [];
                     paymentChart.data.datasets[0].data = [];
-                    paymentChart.options.elements.center.text = '';
                     paymentChart.update();
                 }
                 
@@ -1174,7 +1178,7 @@
                 document.getElementById('totalRevenue').textContent = 'Error';
                 document.getElementById('totalOrders').textContent = 'Error';
                 document.getElementById('avgOrderValue').textContent = 'Error';
-                document.getElementById('activeCustomers').textContent = 'Error';
+                document.getElementById('activeProducts').textContent = 'Error';
                 document.querySelector('#regionalPerformanceTable tbody').innerHTML = '<tr><td colspan="4">Error loading data</td></tr>';
                 document.querySelector('#topProductsTable tbody').innerHTML = '<tr><td colspan="5">Error loading data</td></tr>';
                 salesTrendChart.data.labels = [];

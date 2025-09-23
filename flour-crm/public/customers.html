@@ -597,6 +597,90 @@
             </div>
         </div>
     </main>
+
+    <!-- Edit Customer Modal -->
+    <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCustomerModalLabel"><i class="bi bi-pencil-square me-2"></i>Edit Customer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editCustomerForm" novalidate>
+                        <input type="hidden" id="editCustomerId" name="id">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editFullName" class="form-label">Full Name *</label>
+                                <input type="text" class="form-control" id="editFullName" name="full_name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editCustomerType" class="form-label">Customer Type *</label>
+                                <select class="form-select" id="editCustomerType" name="customer_type" required>
+                                    <option value="">Select Type</option>
+                                    <option value="B2B">B2B (Business)</option>
+                                    <option value="B2C">B2C (Consumer)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" id="editBusinessNameWrapper" style="display:none;">
+                            <div class="col-md-6 mb-3">
+                                <label for="editBusinessName" class="form-label">Business Name *</label>
+                                <input type="text" class="form-control" id="editBusinessName" name="business_name">
+                                <small class="form-text text-muted">Required for B2B customers</small>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editContact" class="form-label">Contact *</label>
+                                <input type="text" class="form-control" id="editContact" name="contact" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editWhatsapp" class="form-label">WhatsApp</label>
+                                <input type="text" class="form-control" id="editWhatsapp" name="whatsapp">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editEmail" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="editEmail" name="email">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editAddress" class="form-label">Address</label>
+                                <input type="text" class="form-control" id="editAddress" name="address">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="editProvince" class="form-label">Province *</label>
+                                <select id="editProvince" class="form-select" name="province_id" required>
+                                    <option value="">Loading...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="editCity" class="form-label">City *</label>
+                                <select id="editCity" class="form-select" name="city_id" required disabled>
+                                    <option value="">Select Province First</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="editTown" class="form-label">Town *</label>
+                                <select id="editTown" class="form-select" name="town_id" required disabled>
+                                    <option value="">Select City First</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="editCustomerForm" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/auth-check.js"></script>
@@ -633,24 +717,20 @@
         let currentFilter = 'all';
         
         // Load customers from backend
-        async function loadCustomers(filterType = 'all') {
+        async function loadCustomers() {
             try {
-                const url = filterType === 'all' ? '/api/customers' : `/api/customers?type=${filterType}`;
-                const response = await fetch(url);
+                const response = await fetch('/api/customers');
                 const data = await response.json();
                 
                 if (data.customers) {
                     allCustomers = data.customers;
-                    renderCustomers(allCustomers);
                 } else {
                     console.error('No customers data received');
-                    document.getElementById('customersTableBody').innerHTML = 
-                        '<tr><td colspan="6" class="text-center text-muted py-4">No customers data received</td></tr>';
+                    allCustomers = [];
                 }
             } catch (error) {
                 console.error('Error loading customers:', error);
-                document.getElementById('customersTableBody').innerHTML = 
-                    '<tr><td colspan="6" class="text-center text-danger py-4">Error loading customers data</td></tr>';
+                allCustomers = [];
             }
         }
         
@@ -698,9 +778,9 @@
                                 <a href="customers-profile.html?id=${customer.id}" class="btn btn-outline-primary" title="View Profile">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="customers-edit.html?id=${customer.id}" class="btn btn-outline-secondary" title="Edit">
+                                <button type="button" class="btn btn-outline-secondary" title="Edit" onclick="editCustomer(${customer.id})">
                                     <i class="bi bi-pencil"></i>
-                                </a>
+                                </button>
                                 <button type="button" class="btn btn-outline-danger" title="Delete" onclick="confirmDelete(${customer.id})">
                                     <i class="bi bi-trash"></i>
                                 </button>
@@ -711,25 +791,21 @@
             }).join('');
         }
         
+        function applyCurrentFilter() {
+            if (currentFilter === 'all') {
+                renderCustomers(allCustomers);
+            } else {
+                const filtered = allCustomers.filter(customer => customer.customer_type === currentFilter);
+                renderCustomers(filtered);
+            }
+        }
+
         // Filter functionality
         document.querySelectorAll('[data-filter]').forEach(tab => {
             tab.addEventListener('click', function(e) {
                 e.preventDefault();
-                
-                // Update active tab
-                document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Filter customers
-                const filter = this.dataset.filter;
-                currentFilter = filter;
-                
-                if (filter === 'all') {
-                    renderCustomers(allCustomers);
-                } else {
-                    const filtered = allCustomers.filter(customer => customer.customer_type === filter);
-                    renderCustomers(filtered);
-                }
+                currentFilter = this.dataset.filter;
+                applyCurrentFilter();
             });
         });
         
@@ -741,7 +817,8 @@
                     
                     if (response.ok) {
                         showNotification('Customer deleted successfully!', 'success');
-                        loadCustomers(currentFilter);
+                        await loadCustomers();
+                        applyCurrentFilter();
                     } else {
                         let errorMsg = 'Failed to delete customer';
                         try {
@@ -781,8 +858,9 @@
         }
         
         // Load customers on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadCustomers();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadCustomers();
+            applyCurrentFilter();
             
             // Add fade-in animation to elements
             const fadeElements = document.querySelectorAll('.fade-in');
@@ -791,6 +869,166 @@
                     el.style.opacity = '1';
                 }, index * 100);
             });
+
+            // --- Edit Modal Logic ---
+
+            // Handle form submission for editing
+            document.getElementById('editCustomerForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const customerId = document.getElementById('editCustomerId').value;
+                if (!customerId) return;
+
+                const formData = new FormData(this);
+                const customerData = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch(`/api/customers/${customerId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(customerData)
+                    });
+
+                    if (response.ok) {
+                        const editModalEl = document.getElementById('editCustomerModal');
+                        const editModal = bootstrap.Modal.getInstance(editModalEl);
+                        editModal.hide();
+                        showNotification('Customer updated successfully!', 'success');
+                        await loadCustomers();
+                        applyCurrentFilter();
+                    } else {
+                        const error = await response.json();
+                        showNotification('Error: ' + (error.error || 'Unknown error'), 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error updating customer:', error);
+                    showNotification('Error updating customer. Please try again.', 'danger');
+                }
+            });
+
+            // Dynamic fields in edit modal
+            document.getElementById('editCustomerType').addEventListener('change', function() {
+                const businessNameWrapper = document.getElementById('editBusinessNameWrapper');
+                businessNameWrapper.style.display = this.value === 'B2B' ? 'block' : 'none';
+            });
+            document.getElementById('editProvince').addEventListener('change', e => {
+                if (e.target.value) loadCitiesForEdit(e.target.value);
+            });
+            document.getElementById('editCity').addEventListener('change', e => {
+                if (e.target.value) loadTownsForEdit(e.target.value);
+            });
+        });
+
+        // --- Edit Modal Functions ---
+
+        async function editCustomer(customerId) {
+            try {
+                const response = await fetch(`/api/customers/${customerId}`);
+                if (!response.ok) throw new Error('Customer not found or failed to load');
+                
+                // Handle both { customer: {...} } and {...} API responses for robustness
+                const data = await response.json();
+                const customer = data.customer || data;
+
+                // Check if we have a valid customer object
+                if (!customer || typeof customer.id === 'undefined') {
+                    throw new Error('Invalid customer data received from the API.');
+                }
+
+                // Populate simple fields
+                document.getElementById('editCustomerId').value = customer.id || '';
+                document.getElementById('editFullName').value = customer.full_name || '';
+                document.getElementById('editCustomerType').value = customer.customer_type || '';
+                document.getElementById('editBusinessName').value = customer.business_name || '';
+                document.getElementById('editContact').value = customer.contact || '';
+                document.getElementById('editWhatsapp').value = customer.whatsapp || '';
+                document.getElementById('editEmail').value = customer.email || '';
+                document.getElementById('editAddress').value = customer.address || '';
+
+                // Show/hide business name field
+                document.getElementById('editBusinessNameWrapper').style.display = customer.customer_type === 'B2B' ? 'block' : 'none';
+
+                // Sequentially load and set location. This must be done in order.
+                await loadProvincesForEdit();
+                document.getElementById('editProvince').value = customer.province_id || '';
+
+                await loadCitiesForEdit(customer.province_id);
+                document.getElementById('editCity').value = customer.city_id || '';
+
+                await loadTownsForEdit(customer.city_id);
+                document.getElementById('editTown').value = customer.town_id || '';
+
+                // Show modal
+                const editModal = new bootstrap.Modal(document.getElementById('editCustomerModal'));
+                editModal.show();
+
+            } catch (error) {
+                console.error('Error preparing customer for edit:', error);
+                showNotification(error.message, 'danger');
+            }
+        }
+
+        async function loadProvincesForEdit() {
+            try {
+                const response = await fetch('/api/locations/provinces');
+                if (!response.ok) throw new Error('Failed to load provinces');
+                const provinces = await response.json();
+                const provinceSelect = document.getElementById('editProvince');
+                provinceSelect.innerHTML = '<option value="">Select Province</option>';
+                provinces.forEach(p => {
+                    provinceSelect.innerHTML += `<option value="${p.id}">${p.name}</option>`;
+                });
+            } catch (err) {
+                showNotification('Error loading provinces', 'danger');
+            }
+        }
+
+        async function loadCitiesForEdit(provinceId) {
+            const citySelect = document.getElementById('editCity');
+            const townSelect = document.getElementById('editTown');
+            citySelect.innerHTML = '<option value="">Loading...</option>';
+            citySelect.disabled = true;
+            townSelect.innerHTML = '<option value="">Select City First</option>';
+            townSelect.disabled = true;
+
+            if (!provinceId) return;
+
+            try {
+                const response = await fetch(`/api/locations/cities/${provinceId}`);
+                if (!response.ok) throw new Error('Failed to load cities');
+                const cities = await response.json();
+                citySelect.innerHTML = '<option value="">Select City</option>';
+                cities.forEach(c => {
+                    citySelect.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+                });
+                citySelect.disabled = false;
+            } catch (err) {
+                showNotification('Error loading cities', 'danger');
+            }
+        }
+
+        async function loadTownsForEdit(cityId) {
+            const townSelect = document.getElementById('editTown');
+            townSelect.innerHTML = '<option value="">Loading...</option>';
+            townSelect.disabled = true;
+
+            if (!cityId) return;
+
+            try {
+                const response = await fetch(`/api/locations/towns/${cityId}`);
+                if (!response.ok) throw new Error('Failed to load towns');
+                const towns = await response.json();
+                townSelect.innerHTML = '<option value="">Select Town</option>';
+                towns.forEach(t => {
+                    townSelect.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+                });
+                townSelect.disabled = false;
+            } catch (err) {
+                showNotification('Error loading towns', 'danger');
+            }
+        }
+
+        document.getElementById('editCustomerModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('editCustomerForm').reset();
         });
         
         // Logout function

@@ -461,7 +461,6 @@
                 margin-left: 70px;
             }
         }
-        
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -469,7 +468,6 @@
             .sidebar.active {
                 transform: translateX(0);
             }
-            
             .main-content {
                 margin-left: 0;
             }
@@ -555,13 +553,11 @@
         </div>
     </nav>
     
-    <!-- Dark Mode Toggle -->
     <div class="dark-mode-toggle" id="darkModeToggle">
         <i class="bi bi-sun light-icon"></i>
         <i class="bi bi-moon-stars dark-icon"></i>
     </div>
     
-    <!-- Main content -->
     <main class="main-content">
         <div class="page-header">
             <h1><i class="bi bi-speedometer2"></i> Dashboard</h1>
@@ -582,7 +578,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6>Today's Sales</h6>
-                                <h3 class="mb-0" id="totalRevenue">₨0</h3>
+                                <h3 class="mb-0" id="totalRevenue"> ₨ 0 </h3>
                                 <small id="totalSales">0 orders</small>
                             </div>
                             <div class="stats-card-icon">
@@ -598,7 +594,7 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6>Pending Payments</h6>
-                                <h3 class="mb-0" id="pendingPayments">₨0</h3>
+                                <h3 class="mb-0" id="pendingPayments"> ₨ 0 </h3>
                                 <small id="pendingOrders">0 pending orders</small>
                             </div>
                             <div class="stats-card-icon">
@@ -631,7 +627,7 @@
                             <div>
                                 <h6>Sales Channels</h6>
                                 <h3 class="mb-0" id="salesChannelsCount">0</h3>
-                                <small id="salesChannelsRevenue">₨0 revenue</small>
+                                <small id="salesChannelsRevenue">₨ 0 revenue</small>
                             </div>
                             <div class="stats-card-icon">
                                 <i class="bi bi-bar-chart"></i>
@@ -730,26 +726,51 @@
         
         // Chart.js setup
         Chart.register(ChartDataLabels);
-        
-        // Custom plugin for center text
-        const centerTextPlugin = {
-            id: 'centerText',
-            beforeDraw(chart) {
-                if (chart.config.type === 'doughnut') {
-                    const ctx = chart.ctx;
-                    const centerConfig = chart.config.options.elements.center;
-                    const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
-                    const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-                    
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.font = `${centerConfig.fontWeight || 'bold'} ${centerConfig.fontSize || 16}px Inter`;
-                    ctx.fillStyle = centerConfig.color || '#000';
-                    ctx.fillText(centerConfig.text, centerX, centerY);
-                }
-            }
-        };
-        
+      // --- robust centerText plugin (draws two lines: "Total" and currency amount) ---
+const centerTextPlugin = {
+  id: 'centerText',
+  beforeDraw(chart) {
+    if (chart.config.type !== 'doughnut') return;
+
+    const ctx = chart.ctx;
+    const cfg = chart.options.elements?.center || {};
+    const dataArr = chart.data.datasets?.[0]?.data || [];
+
+    // ensure numeric total
+    const total = dataArr.reduce((acc, v) => acc + (Number(v) || 0), 0);
+    const formatted = total.toLocaleString();
+
+    const line1 = cfg.textTop || 'Total';
+    const line2 = (cfg.currencySymbol ?? '₨') + formatted;
+
+    const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+    const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Top line
+    ctx.fillStyle = cfg.colorTop || '#6b7280';
+    ctx.font = `${cfg.fontWeightTop || '600'} ${cfg.fontSizeTop || 12}px ${cfg.fontFamily || 'Inter'}`;
+    ctx.fillText(line1, centerX, centerY - (cfg.lineHeight || 12));
+
+    // Bottom (amount) line
+    ctx.fillStyle = cfg.color || (cfg.colorTop || '#4f46e5');
+    ctx.font = `${cfg.fontWeight || '700'} ${cfg.fontSize || 18}px ${cfg.fontFamily || 'Inter'}`;
+    ctx.fillText(line2, centerX, centerY + (cfg.lineHeight || 6));
+
+    ctx.restore();
+  }
+};
+
+// --- safer datalabels formatter (ensures numeric calculation for percentages) ---
+const datalabelsFormatter = (value, context) => {
+  const dataArr = context.dataset.data.map(v => Number(v) || 0);
+  const total = dataArr.reduce((a, b) => a + b, 0);
+  return total ? Math.round((Number(value || 0) / total) * 100) + '%' : '0%';
+};
+
         // Init empty Payment Chart
         const paymentCtx = document.getElementById('paymentChart').getContext('2d');
         const paymentChart = new Chart(paymentCtx, {
@@ -803,7 +824,7 @@
                 },
                 elements: { 
                     center: { 
-                        text: '₨0', 
+                        text: '₨ 0', 
                         color: '#4f46e5', 
                         fontSize: 18,
                         fontWeight: 'bold',
@@ -933,10 +954,10 @@
                 recentSalesTable.innerHTML = '';
                 
                 if (data.recentSales && data.recentSales.length > 0) {
-                    data.recentSales.forEach(sale => {
+                    data.recentSales.forEach((sale, index) => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
-                            <td>#${sale.id}</td>
+                            <td>${index + 1}</td>
                             <td>${sale.customer}</td>
                             <td>₨${Number(sale.total_price).toLocaleString()}</td>
                             <td>

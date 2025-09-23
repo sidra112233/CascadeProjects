@@ -379,6 +379,10 @@
             background-color: var(--warning-color) !important;
         }
         
+        .bg-info {
+            background-color: var(--info-color) !important;
+        }
+
         /* Pagination */
         .pagination {
             margin-top: 2rem;
@@ -580,6 +584,11 @@
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="partial-tab" data-bs-toggle="tab" data-bs-target="#partial" type="button" role="tab">
+                            <i class="bi bi-pie-chart-fill me-1"></i>Partial Payment
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <button class="nav-link" id="paid-tab" data-bs-toggle="tab" data-bs-target="#paid" type="button" role="tab">
                             <i class="bi bi-check-circle me-1"></i>Paid
                         </button>
@@ -638,6 +647,30 @@
                     </div>
                 </div>
             </div>
+            <div class="tab-pane fade" id="partial" role="tabpanel">
+                <div class="card fade-in">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Customer</th>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Amount</th>
+                                        <th>Payment</th>
+                                        <th>Status</th>
+                                        <th>Agent</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="partialSalesTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="tab-pane fade" id="paid" role="tabpanel">
                 <div class="card fade-in">
                     <div class="card-body">
@@ -686,10 +719,184 @@
         </nav>
     </main>
     
+    <!-- Edit Sale Modal -->
+    <div class="modal fade" id="editSaleModal" tabindex="-1" aria-labelledby="editSaleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editSaleModalLabel"><i class="bi bi-pencil-square me-2"></i>Edit Sale</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editSaleForm" novalidate>
+                        <input type="hidden" id="editSaleId" name="id">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editCustomer" class="form-label">Customer *</label>
+                                <select class="form-select" id="editCustomer" name="customer_id" required>
+                                    <option value="">Loading customers...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editProduct" class="form-label">Product *</label>
+                                <select class="form-select" id="editProduct" name="product_id" required>
+                                    <option value="">Select customer first</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="editQuantity" class="form-label">Quantity *</label>
+                                <input type="number" class="form-control" id="editQuantity" name="quantity" min="1" step="0.01" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="editPricePerUnit" class="form-label">Price per Unit *</label>
+                                <input type="number" class="form-control" id="editPricePerUnit" name="price_per_unit" min="0" step="0.01" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="editTotalPrice" class="form-label">Total Price</label>
+                                <input type="number" class="form-control" id="editTotalPrice" name="total_price" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="editTaxRate" class="form-label">Tax Rate (%)</label>
+                                <input type="number" class="form-control" id="editTaxRate" name="tax_rate" min="0" max="100" step="0.01" value="0">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="editSalesChannel" class="form-label">Sales Channel *</label>
+                                <select class="form-select" id="editSalesChannel" name="sales_channel" required>
+                                    <option value="">Select Channel</option>
+                                    <option value="referral">Referral</option>
+                                    <option value="phone">Phone</option>
+                                    <option value="website">Website</option>
+                                    <option value="whatsapp">WhatsApp</option>
+                                    <option value="in_person">In-Person</option>
+                                    <option value="existing_customer">Existing Customer</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="editSalesAgent" class="form-label">Sales Agent *</label>
+                                <select class="form-select" id="editSalesAgent" name="sales_agent_id" required>
+                                    <option value="">Select customer first</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="editPaymentType" class="form-label">Payment Type *</label>
+                                <select class="form-select" id="editPaymentType" name="payment_type" required>
+                                    <option value="">Select Payment Type</option>
+                                    <option value="cash">Cash</option>
+                                    <option value="bank_transfer">Bank Transfer</option>
+                                    <option value="credit">Credit</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editPaymentStatus" class="form-label">Payment Status *</label>
+                                <select class="form-select" id="editPaymentStatus" name="payment_status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="paid">Paid</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="partial">Partial</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editNotes" class="form-label">Notes</label>
+                            <textarea class="form-control" id="editNotes" name="notes" rows="3" placeholder="Additional notes about this sale..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" form="editSaleForm" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/auth-check.js"></script>
     
     <script>
+        // --- Edit Sale Modal Logic ---
+
+        // Load customers into the edit form dropdown
+        async function loadCustomersForEdit() {
+            try {
+                const response = await fetch('/api/customers');
+                if (!response.ok) throw new Error('Failed to load customers');
+                const result = await response.json();
+                const customerSelect = document.getElementById('editCustomer');
+                customerSelect.innerHTML = '<option value="">Select Customer</option>';
+                result.customers.forEach(customer => {
+                    const option = document.createElement('option');
+                    option.value = customer.id;
+                    option.setAttribute('data-type', customer.customer_type);
+                    option.textContent = customer.full_name;
+                    customerSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading customers for edit:', error);
+                showNotification('Error loading customers', 'danger');
+            }
+        }
+
+        // Load products based on customer type for the edit form
+        async function loadProductsForEdit(customerType) {
+            try {
+                const response = await fetch(`/api/products?customer_type=${customerType}`);
+                if (!response.ok) throw new Error('Failed to load products');
+                const result = await response.json();
+                const productSelect = document.getElementById('editProduct');
+                productSelect.innerHTML = '<option value="">Select Product</option>';
+                result.products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.id;
+                    option.setAttribute('data-price', product.price_per_unit);
+                    option.textContent = `${product.name} - ${product.weight_per_unit}${product.unit}`;
+                    productSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading products for edit:', error);
+                showNotification('Error loading products', 'danger');
+            }
+        }
+
+        // Load sales agents based on customer type for the edit form
+        async function loadSalesAgentsForEdit(customerType) {
+            try {
+                const response = await fetch(`/api/sales-agents?type=${customerType}`);
+                if (!response.ok) throw new Error('Failed to load sales agents');
+                const agents = await response.json();
+                const agentSelect = document.getElementById('editSalesAgent');
+                agentSelect.innerHTML = '<option value="">Select Sales Agent</option>';
+                agents.forEach(agent => {
+                    const option = document.createElement('option');
+                    option.value = agent.id;
+                    option.textContent = agent.name;
+                    agentSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading sales agents for edit:', error);
+                showNotification('Error loading sales agents', 'danger');
+            }
+        }
+
+        // Calculate total price in the edit form
+        function calculateEditTotal() {
+            const quantity = parseFloat(document.getElementById('editQuantity').value) || 0;
+            const pricePerUnit = parseFloat(document.getElementById('editPricePerUnit').value) || 0;
+            const taxRate = parseFloat(document.getElementById('editTaxRate').value) || 0;
+            
+            const subtotal = quantity * pricePerUnit;
+            const taxAmount = subtotal * (taxRate / 100);
+            const total = subtotal + taxAmount;
+            
+            document.getElementById('editTotalPrice').value = total.toFixed(2);
+        }
+
         // Dark Mode Toggle
         const darkModeToggle = document.getElementById('darkModeToggle');
         const html = document.documentElement;
@@ -717,34 +924,40 @@
             sidebar.classList.toggle('active');
         });
         
-        // Load Sales Data
         async function loadSales() {
             try {
                 const res = await fetch('/api/sales');
                 const data = await res.json();
                 
-                // All sales
                 const allTbody = document.querySelector('#salesTableBody');
-                // Pending sales
                 const pendingTbody = document.querySelector('#pendingSalesTableBody');
-                // Paid sales
+                const partialTbody = document.querySelector('#partialSalesTableBody');
                 const paidTbody = document.querySelector('#paidSalesTableBody');
                 
                 allTbody.innerHTML = '';
                 pendingTbody.innerHTML = '';
+                partialTbody.innerHTML = '';
                 paidTbody.innerHTML = '';
                 
                 if (!data.sales || data.sales.length === 0) {
                     allTbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No sales found</td></tr>`;
                     pendingTbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No pending sales</td></tr>`;
+                    partialTbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No partial sales</td></tr>`;
                     paidTbody.innerHTML = `<tr><td colspan="9" class="text-center text-muted py-4">No paid sales</td></tr>`;
                     return;
                 }
                 
                 data.sales.forEach(sale => {
-                    const statusBadge = sale.payment_status === 'paid' 
-                        ? '<span class="badge bg-success">Paid</span>' 
-                        : '<span class="badge bg-warning">Pending</span>';
+                    let statusBadge;
+                    if (sale.payment_status === 'paid') {
+                        statusBadge = '<span class="badge bg-success">Paid</span>';
+                    } else if (sale.payment_status === 'pending') {
+                        statusBadge = '<span class="badge bg-warning">Pending</span>';
+                    } else if (sale.payment_status === 'partial') {
+                        statusBadge = '<span class="badge bg-info">Partial</span>';
+                    } else {
+                        statusBadge = `<span class="badge bg-secondary">${sale.payment_status}</span>`;
+                    }
                         
                     const row = `
                         <tr>
@@ -766,13 +979,17 @@
                             </td>
                         </tr>
                     `;
-                    
-                    // All sales
+                
                     allTbody.innerHTML += row;
                     
                     // Pending Payment
                     if (sale.payment_status === 'pending') {
                         pendingTbody.innerHTML += row;
+                    }
+                    
+                    // Partial Payment
+                    if (sale.payment_status === 'partial') {
+                        partialTbody.innerHTML += row;
                     }
                     
                     // Paid
@@ -785,6 +1002,8 @@
                 document.querySelector('#salesTableBody').innerHTML = 
                     `<tr><td colspan="9" class="text-center text-danger py-4">Error loading sales</td></tr>`;
                 document.querySelector('#pendingSalesTableBody').innerHTML = 
+                    `<tr><td colspan="9" class="text-center text-danger py-4">Error loading sales</td></tr>`;
+                document.querySelector('#partialSalesTableBody').innerHTML = 
                     `<tr><td colspan="9" class="text-center text-danger py-4">Error loading sales</td></tr>`;
                 document.querySelector('#paidSalesTableBody').innerHTML = 
                     `<tr><td colspan="9" class="text-center text-danger py-4">Error loading sales</td></tr>`;
@@ -802,11 +1021,100 @@
                     el.style.opacity = '1';
                 }, index * 100);
             });
+
+            // --- Event Listeners for Edit Modal ---
+            document.getElementById('editSaleForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const saleId = document.getElementById('editSaleId').value;
+                if (!saleId) return;
+
+                const formData = new FormData(this);
+                const saleData = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch(`/api/sales/${saleId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(saleData)
+                    });
+
+                    if (response.ok) {
+                        const editModalEl = document.getElementById('editSaleModal');
+                        const editModal = bootstrap.Modal.getInstance(editModalEl);
+                        editModal.hide();
+                        showNotification('Sale updated successfully!', 'success');
+                        await loadSales(); // Reload the sales table
+                    } else {
+                        const error = await response.json();
+                        showNotification('Error: ' + (error.error || 'Unknown error'), 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error updating sale:', error);
+                    showNotification('Error updating sale. Please try again.', 'danger');
+                }
+            });
+
+            // Dynamic fields in edit modal
+            document.getElementById('editCustomer').addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const customerType = selectedOption.getAttribute('data-type');
+                if (customerType) {
+                    loadProductsForEdit(customerType);
+                    loadSalesAgentsForEdit(customerType);
+                }
+            });
+
+            document.getElementById('editProduct').addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const price = selectedOption.getAttribute('data-price');
+                if (price) {
+                    document.getElementById('editPricePerUnit').value = price;
+                    calculateEditTotal();
+                }
+            });
+
+            document.getElementById('editQuantity').addEventListener('input', calculateEditTotal);
+            document.getElementById('editPricePerUnit').addEventListener('input', calculateEditTotal);
+            document.getElementById('editTaxRate').addEventListener('input', calculateEditTotal);
         });
         
-        // Edit sale: redirect to sales-new.html with sale id
-        function editSale(saleId) {
-            window.location.href = `sales-new.html?id=${saleId}`;
+        // Edit sale: fetch data, populate modal, and show it
+        async function editSale(saleId) {
+            try {
+                const response = await fetch(`/api/sales/${saleId}`);
+                if (!response.ok) throw new Error('Sale not found or failed to load');
+                const sale = await response.json();
+
+                // Populate simple fields first
+                document.getElementById('editSaleId').value = sale.id;
+                document.getElementById('editQuantity').value = sale.quantity;
+                document.getElementById('editPricePerUnit').value = sale.price_per_unit;
+                document.getElementById('editTaxRate').value = sale.tax_rate || 0;
+                document.getElementById('editSalesChannel').value = sale.sales_channel;
+                document.getElementById('editPaymentType').value = sale.payment_type;
+                document.getElementById('editPaymentStatus').value = sale.payment_status;
+                document.getElementById('editNotes').value = sale.notes || '';
+
+                await loadCustomersForEdit();
+                const customerSelect = document.getElementById('editCustomer');
+                customerSelect.value = sale.customer_id;
+
+                const customerType = customerSelect.options[customerSelect.selectedIndex].getAttribute('data-type');
+                if (customerType) {
+                    await Promise.all([loadProductsForEdit(customerType), loadSalesAgentsForEdit(customerType)]);
+                }
+
+                document.getElementById('editProduct').value = sale.product_id;
+                document.getElementById('editSalesAgent').value = sale.sales_agent_id;
+
+                calculateEditTotal();
+
+                const editModal = new bootstrap.Modal(document.getElementById('editSaleModal'));
+                editModal.show();
+            } catch (error) {
+                console.error('Error preparing sale for edit:', error);
+                showNotification(error.message, 'danger');
+            }
         }
         
         // Delete sale: send DELETE request and reload sales
@@ -814,7 +1122,7 @@
             if (!confirm('Are you sure you want to delete this sale?')) return;
             
             try {
-                const response = await fetch(`/api/sales/${saleId}/delete`, { method: 'POST' });
+                const response = await fetch(`/api/sales/${saleId}`, { method: 'DELETE' });
                 
                 if (response.ok) {
                     // Show success notification instead of alert

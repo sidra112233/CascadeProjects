@@ -24,21 +24,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Session configuration
 app.use(session({
     secret: process.env.SESSION_SECRET || 'flour-crm-secret-key',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false, // Set to true if using HTTPS
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        secure: false,
+        maxAge: 24 * 60 * 60 * 1000 
     }
 }));
 
-// Import auth middleware
 const { requireAuth, redirectIfAuthenticated } = require('./middleware/auth');
 
-// Static HTML routes
 app.get('/', redirectIfAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
@@ -47,7 +44,6 @@ app.get('/login', redirectIfAuthenticated, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
 
-// Protected routes - require authentication
 app.get('/dashboard', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
@@ -81,12 +77,10 @@ app.get('/sales-agents', requireAuth, (req, res) => {
 });
 
 
-// API routes for data operations (keep existing route handlers for AJAX calls)
 const authRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
 const salesRoutes = require('./routes/sales');
 const customerRoutes = require('./routes/customers');
-const customernewRoutes = require('./routes/customers-new');
 
 const productRoutes = require('./routes/products');
 const reportRoutes = require('./routes/reports');
@@ -97,7 +91,6 @@ app.use('/api/auth', authRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/customers', customerRoutes);
-app.use('/api/customers', customernewRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/locations', locationRoutes);
@@ -111,7 +104,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-// 404 handler
 app.use((req, res) => {
     res.status(404).sendFile(path.join(__dirname, 'public', 'login.html'));
 });
