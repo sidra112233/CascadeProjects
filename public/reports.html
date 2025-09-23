@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Flour CRM</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --sidebar-bg: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --main-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+            --border-color: rgba(226, 232, 240, 0.8);
+            --primary-color: #4f46e5;
+            --secondary-color: #7c3aed;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --sidebar-width: 280px;
+        }
+        
+        [data-theme="dark"] {
+            --sidebar-bg: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            --main-bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-color: #f1f5f9;
+            --border-color: rgba(71, 85, 105, 0.5);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--main-bg);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            z-index: 1000;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header h4 {
+            color: white;
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar-header h4 i {
+            margin-right: 0.75rem;
+            font-size: 1.75rem;
+        }
+        
+        .sidebar-header small {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.875rem;
+            display: block;
+            margin-top: 0.25rem;
+        }
+        
+        .sidebar .nav {
+            padding: 1.5rem 0;
+        }
+        
+        .sidebar .nav-item {
+            margin: 0.25rem 0;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.875rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 0 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .sidebar .nav-link:hover, 
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+        }
+        
+        .sidebar-divider {
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.1);
+            margin: 1.5rem 1rem;
+        }
+        
+        .user-dropdown {
+            padding: 0 1rem 1.5rem;
+        }
+        
+        .user-dropdown .dropdown-toggle {
+            color: white;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .user-dropdown .dropdown-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .user-dropdown .dropdown-toggle i {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .page-header h1 {
+            font-weight: 700;
+            font-size: 2rem;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-header h1 i {
+            margin-right: 0.75rem;
+            color: var(--primary-color);
+        }
+        
+        /* Dark Mode Toggle */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 1050;
+            background-color: var(--card-bg);
+            border-radius: 50px;
+            padding: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .dark-mode-toggle:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+        
+        .dark-mode-toggle i {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+        
+        .dark-mode-toggle .dark-icon {
+            margin-left: auto;
+        }
+        
+        [data-theme="dark"] .dark-mode-toggle .light-icon {
+            opacity: 0.3;
+        }
+        
+        [data-theme="light"] .dark-mode-toggle .dark-icon {
+            opacity: 0.3;
+        }
+        
+        /* Card Styles */
+        .card {
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border: none;
+            transition: all 0.3s ease;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            height: 100%;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-header {
+            background-color: transparent;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem 1.5rem;
+        }
+        
+        .card-header h6 {
+            font-weight: 600;
+            font-size: 1rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-header h6 i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Stats Cards */
+        .stats-card {
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: none;
+            height: 100%;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .stats-card h6 {
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .stats-card h3 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stats-card small {
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+        
+        .stats-card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .stats-card-icon i {
+            font-size: 1.75rem;
+            color: white;
+        }
+        
+        .stats-card-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+        
+        .stats-card-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .stats-card-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+        
+        .stats-card-info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        
+        /* Form Styles */
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            font-weight: 500;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn-outline-secondary {
+            color: var(--text-color);
+            border-color: var(--border-color);
+            border-radius: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-secondary:hover {
+            background-color: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        
+        /* Table Styles */
+        .table-responsive {
+            border-radius: 0 0 1rem 1rem;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            color: var(--text-color);
+            opacity: 0.7;
+            border-bottom: 2px solid var(--border-color);
+            padding: 1rem 1.5rem;
+        }
+        
+        .table tbody td {
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+        
+        [data-theme="dark"] .table-hover tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Badges */
+        .badge {
+            font-weight: 500;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+            border-radius: 50px;
+        }
+        
+        .bg-success {
+            background-color: var(--success-color) !important;
+        }
+        
+        /* Chart container styling */
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h4 span,
+            .sidebar-header small,
+            .sidebar .nav-link span,
+            .user-dropdown .dropdown-toggle span {
+                display: none;
+            }
+            
+            .sidebar .nav-link {
+                justify-content: center;
+                padding: 0.875rem 0;
+                margin: 0.25rem 0.5rem;
+            }
+            
+            .sidebar .nav-link i {
+                margin: 0;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .page-header .btn-toolbar {
+                margin-top: 1rem;
+                width: 100%;
+            }
+            
+            .page-header .btn-group {
+                width: 100%;
+            }
+            
+            .page-header .btn {
+                width: 100%;
+            }
+            
+            .table-responsive {
+                border-radius: 1rem;
+            }
+            
+            .table thead th,
+            .table tbody td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="bi bi-shop"></i> <span>Flour CRM</span></h4>
+            <small>Welcome, Admin User</small>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="dashboard.html">
+                    <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="sales.html">
+                    <i class="bi bi-cart-plus"></i> <span>Sales</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="customers.html">
+                    <i class="bi bi-people"></i> <span>Customers</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="products.html">
+                    <i class="bi bi-box-seam"></i> <span>Products</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="reports.html">
+                    <i class="bi bi-graph-up"></i> <span>Reports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="sales-agents.html">
+                    <i class="bi bi-person-badge"></i> <span>Sales Agents</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="sidebar-divider"></div>
+        
+        <div class="user-dropdown">
+            <div class="dropdown">
+                <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                    <i class="bi bi-person-circle"></i> <span>Admin User</span>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+                    <li><span class="dropdown-item-text">Role: admin</span></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="login.html" onclick="logout()">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="dark-mode-toggle" id="darkModeToggle">
+        <i class="bi bi-sun light-icon"></i>
+        <i class="bi bi-moon-stars dark-icon"></i>
+    </div>
+    
+    <main class="main-content">
+        <div class="page-header">
+            <h1><i class="bi bi-graph-up"></i> Reports & Analytics</h1>
+            <div class="btn-toolbar">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary" id="exportPdfBtn">
+                        <i class="bi bi-download me-1"></i>Export PDF
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" id="exportExcelBtn">
+                        <i class="bi bi-file-earmark-excel me-1"></i>Export Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4 fade-in">
+            <div class="card-body">
+                <div class="row align-items-end">
+                    <div class="col-md-3 mb-3">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="region" class="form-label">Region</label>
+                        <select class="form-select" id="region">
+                            <option value="">All Regions</option>
+                            <option value="punjab">Punjab</option>
+                            <option value="kpk">KPK</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button type="button" class="btn btn-primary w-100" onclick="generateReport()">
+                            <i class="bi bi-search me-1"></i>Generate Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-4 fade-in">
+                <div class="stats-card stats-card-primary">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6>Total Revenue</h6>
+                                <h3 class="mb-0" id="totalRevenue">Loading...</h3>
+                                <small id="totalRevenueChange"></small>
+                            </div>
+                            <div class="stats-card-icon">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 fade-in">
+                <div class="stats-card stats-card-success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6>Total Orders</h6>
+                                <h3 class="mb-0" id="totalOrders">Loading...</h3>
+                                <small id="totalOrdersChange"></small>
+                            </div>
+                            <div class="stats-card-icon">
+                                <i class="bi bi-cart-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 fade-in">
+                <div class="stats-card stats-card-warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6>Avg Order Value</h6>
+                                <h3 class="mb-0" id="avgOrderValue">Loading...</h3>
+                                <small id="avgOrderValueChange"></small>
+                            </div>
+                            <div class="stats-card-icon">
+                                <i class="bi bi-graph-up-arrow"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4 fade-in">
+                <div class="stats-card stats-card-info">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6>Active Products</h6>
+                                <h3 class="mb-0" id="activeProducts">Loading...</h3>
+                                <small id="activeProductsChange"></small>
+                            </div>
+                            <div class="stats-card-icon">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-lg-8 mb-4 fade-in">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0"><i class="bi bi-graph-up me-2"></i>Monthly Sales Trend</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="salesTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4 fade-in">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0"><i class="bi bi-pie-chart me-2"></i>Payment Methods</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="paymentChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Regional Performance -->
+        <div class="row mb-4">
+            <div class="col-lg-6 mb-4 fade-in">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0"><i class="bi bi-geo-alt me-2"></i>Regional Performance</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="regionalPerformanceTable">
+                                <thead>
+                                    <tr>
+                                        <th>Region</th>
+                                        <th>Revenue</th>
+                                        <th>Orders</th>
+                                        <th>Growth</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td colspan="4">Loading...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4 fade-in">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0"><i class="bi bi-bar-chart me-2"></i>Customer Types</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="customerTypeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card fade-in">
+            <div class="card-header">
+                <h6 class="card-title mb-0"><i class="bi bi-trophy me-2"></i>Top Performing Products</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="topProductsTable">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Units Sold</th>
+                                <th>Revenue</th>
+                                <th>Profit Margin</th>
+                                <th>Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="5">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="js/auth-check.js"></script>
+    <script>
+        // Dark Mode Toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const html = document.documentElement;
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        html.setAttribute('data-theme', currentTheme);
+        darkModeToggle.addEventListener('click', () => {
+            const theme = html.getAttribute('data-theme');
+            const newTheme = theme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        // Mobile Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.createElement('button');
+        sidebarToggle.className = 'btn btn-sm btn-primary position-fixed top-0 start-0 m-3 d-lg-none';
+        sidebarToggle.innerHTML = '<i class="bi bi-list"></i>';
+        document.body.appendChild(sidebarToggle);
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+        
+        // Register the datalabels plugin
+        Chart.register(ChartDataLabels);
+        const centerTextPlugin = {
+  id: 'centerText',
+  beforeDraw(chart) {
+    if (chart.config.type !== 'doughnut') return;
+
+    const ctx = chart.ctx;
+    const cfg = chart.options.elements?.center || {};
+    const dataArr = chart.data.datasets?.[0]?.data || [];
+
+    // ensure numeric total
+    const total = dataArr.reduce((acc, v) => acc + (Number(v) || 0), 0);
+    const formatted = total.toLocaleString();
+
+    const line1 = cfg.textTop || 'Total';
+    const line2 = (cfg.currencySymbol ?? '₨') + formatted;
+
+    const centerX = (chart.chartArea.left + chart.chartArea.right) / 2;
+    const centerY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    ctx.fillStyle = cfg.colorTop || '#6b7280';
+    ctx.font = `${cfg.fontWeightTop || '600'} ${cfg.fontSizeTop || 12}px ${cfg.fontFamily || 'Inter'}`;
+    ctx.fillText(line1, centerX, centerY - (cfg.lineHeight || 12));
+
+    ctx.fillStyle = cfg.color || (cfg.colorTop || '#4f46e5');
+    ctx.font = `${cfg.fontWeight || '700'} ${cfg.fontSize || 18}px ${cfg.fontFamily || 'Inter'}`;
+    ctx.fillText(line2, centerX, centerY + (cfg.lineHeight || 6));
+
+    ctx.restore();
+  }
+};
+        
+        let salesTrendChart, paymentChart, customerTypeChart;
+        
+        function initCharts() {
+            const salesTrendCtx = document.getElementById('salesTrendChart').getContext('2d');
+            salesTrendChart = new Chart(salesTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Sales (Rs.)',
+                        data: [],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#4f46e5',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: {
+                                callback: function(value) { return 'Rs. ' + (value / 1000) + 'K'; },
+                                font: { family: 'Inter' }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter' } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { family: 'Inter' },
+                            bodyFont: { family: 'Inter' },
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Sales: Rs. ' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        },
+                        datalabels: { display: false }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+    
+        // Init empty Payment Chart
+        const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+        paymentChart = new Chart(paymentCtx, {
+            type: 'doughnut',
+            data: { 
+                labels: [], 
+                datasets: [{ 
+                    data: [], 
+                    backgroundColor: [
+                        '#4f46e5', 
+                        '#7c3aed', 
+                        '#10b981', 
+                        '#f59e0b', 
+                        '#3b82f6'
+                    ], 
+                    borderColor: '#ffffff',
+                    borderWidth: 2, 
+                    hoverOffset: 10 
+                }] 
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: { 
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            font: {
+                                family: 'Inter',
+                                size: 12
+                            }
+                        }
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#fff',
+                        font: { 
+                            weight: 'bold', 
+                            size: 14,
+                            family: 'Inter'
+                        },
+                        formatter(value, context) {
+                            const dataArr = context.dataset.data.map(v => Number(v));
+                            const total = dataArr.reduce((a, b) => a + b, 0);
+                            return total ? Math.round((value / total) * 100) + '%' : '0%';
+                        }
+                    }
+                },
+                elements: { 
+                    center: { 
+                        text: '₨ 0', 
+                        color: '#4f46e5', 
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        fontFamily: 'Inter'
+                    } 
+                },
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            },
+            plugins: [centerTextPlugin, ChartDataLabels]
+        });
+        
+            // Customer Type Chart
+            const customerTypeCtx = document.getElementById('customerTypeChart').getContext('2d');
+            customerTypeChart = new Chart(customerTypeCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Revenue (Rs.)',
+                        data: [],
+                        backgroundColor: ['#4f46e5', '#10b981'],
+                        borderColor: ['#4f46e5', '#10b981'],
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        barThickness: 60
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: {
+                                callback: function(value) { return 'Rs. ' + (value / 1000) + 'K'; },
+                                font: { family: 'Inter' }
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter', weight: 'bold', size: 14 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleFont: { family: 'Inter' },
+                            bodyFont: { family: 'Inter' },
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return 'Revenue: Rs. ' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        },
+                        datalabels: {
+                            display: true,
+                            color: '#fff',
+                            font: { weight: 'bold', size: 14, family: 'Inter' },
+                            anchor: 'end',
+                            align: 'top',
+                            formatter: function(value) {
+                                return 'Rs. ' + (value / 1000) + 'K';
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
+            });
+        }
+        
+        // Load reports data from backend and update UI
+        async function loadReportsData() {
+            try {
+                // Set loading states
+                document.getElementById('totalRevenue').textContent = 'Loading...';
+                document.getElementById('totalOrders').textContent = 'Loading...';
+                document.getElementById('avgOrderValue').textContent = 'Loading...';
+                document.getElementById('activeProducts').textContent = 'Loading...';
+                document.getElementById('totalRevenueChange').textContent = '';
+                document.getElementById('totalOrdersChange').textContent = '';
+                document.getElementById('avgOrderValueChange').textContent = '';
+                document.getElementById('activeProductsChange').textContent = '';
+                document.querySelector('#regionalPerformanceTable tbody').innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
+                document.querySelector('#topProductsTable tbody').innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+                
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const region = document.getElementById('region').value;
+                
+                let url = '/api/reports/api?';
+                const params = new URLSearchParams();
+                
+                if (startDate) params.append('start_date', startDate);
+                if (endDate) params.append('end_date', endDate);
+                if (region) params.append('region', region);
+                
+                url += params.toString();
+                
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch data');
+                
+                const data = await response.json();
+                
+                // Update summary cards
+                document.getElementById('totalRevenue').textContent = data.totalRevenue !== undefined ? `Rs ${(data.totalRevenue || 0).toLocaleString()}` : 'N/A';
+                document.getElementById('totalOrders').textContent = data.totalOrders !== undefined ? (data.totalOrders || 0).toLocaleString() : 'N/A';
+                document.getElementById('avgOrderValue').textContent = data.avgOrderValue !== undefined ? `Rs. ${(data.avgOrderValue || 0).toLocaleString()}` : 'N/A';
+                document.getElementById('activeProducts').textContent = data.activeProducts !== undefined ? (data.activeProducts || 0).toLocaleString() : 'N/A';
+                document.getElementById('totalRevenueChange').textContent = data.totalRevenueChange || '';
+                document.getElementById('totalOrdersChange').textContent = data.totalOrdersChange || '';
+                document.getElementById('avgOrderValueChange').textContent = data.avgOrderValueChange || '';
+                document.getElementById('activeProductsChange').textContent = data.activeProductsChange || '';
+                
+                // Update sales trend chart
+                if (data.salesTrend && data.salesTrend.length > 0) {
+                    const months = data.salesTrend.map(item => {
+                        const date = new Date(item.month + '-01');
+                        return date.toLocaleDateString('en-US', { month: 'short' });
+                    });
+                    const revenues = data.salesTrend.map(item => item.revenue);
+                    salesTrendChart.data.labels = months;
+                    salesTrendChart.data.datasets[0].data = revenues;
+                    salesTrendChart.update();
+                } else {
+                    salesTrendChart.data.labels = [];
+                    salesTrendChart.data.datasets[0].data = [];
+                    salesTrendChart.update();
+                }
+                
+                // Update payment methods chart
+                if (data.paymentMethods && data.paymentMethods.length > 0) {
+                    paymentChart.data.labels = data.paymentMethods.map(p => p.type);
+                    paymentChart.data.datasets[0].data = data.paymentMethods.map(p => p.amount);
+                    paymentChart.update();
+                } else {
+                    paymentChart.data.labels = [];
+                    paymentChart.data.datasets[0].data = [];
+                    paymentChart.update();
+                }
+                
+                // Update customer types chart
+                if (data.customerTypes && data.customerTypes.length > 0) {
+                    customerTypeChart.data.labels = data.customerTypes.map(c => c.type);
+                    customerTypeChart.data.datasets[0].data = data.customerTypes.map(c => c.revenue);
+                    customerTypeChart.update();
+                } else {
+                    customerTypeChart.data.labels = [];
+                    customerTypeChart.data.datasets[0].data = [];
+                    customerTypeChart.update();
+                }
+                
+                // Update regional performance table
+                const regionalTbody = document.querySelector('#regionalPerformanceTable tbody');
+                if (data.regionalPerformance && data.regionalPerformance.length > 0) {
+                    regionalTbody.innerHTML = '';
+                    data.regionalPerformance.forEach(region => {
+                        regionalTbody.innerHTML += `
+                            <tr>
+                                <td><i class="bi bi-geo-alt-fill text-primary me-2"></i>${region.name}</td>
+                                <td>Rs. ${(region.revenue || 0).toLocaleString()}</td>
+                                <td>${(region.orders || 0).toLocaleString()}</td>
+                                <td><span class="badge bg-success">${region.growth || ''}</span></td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    regionalTbody.innerHTML = '<tr><td colspan="4">No data available</td></tr>';
+                }
+                
+                // Update top products table
+                const productsTbody = document.querySelector('#topProductsTable tbody');
+                if (data.topProducts && data.topProducts.length > 0) {
+                    productsTbody.innerHTML = '';
+                    data.topProducts.forEach(product => {
+                        let trendIcon = '';
+                        if (product.trend === 'up') {
+                            trendIcon = '<i class="bi bi-arrow-up-circle-fill text-success"></i>';
+                        } else if (product.trend === 'down') {
+                            trendIcon = '<i class="bi bi-arrow-down-circle-fill text-danger"></i>';
+                        } else {
+                            trendIcon = '<i class="bi bi-dash-circle-fill text-warning"></i>';
+                        }
+                        productsTbody.innerHTML += `
+                            <tr>
+                                <td>${product.name}</td>
+                                <td>${(product.unitsSold || 0).toLocaleString()}</td>
+                                <td>Rs. ${(product.revenue || 0).toLocaleString()}</td>
+                                <td>${product.profitMargin || ''}</td>
+                                <td>${trendIcon}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    productsTbody.innerHTML = '<tr><td colspan="5">No data available</td></tr>';
+                }
+            } catch (error) {
+                // Show error states
+                document.getElementById('totalRevenue').textContent = 'Error';
+                document.getElementById('totalOrders').textContent = 'Error';
+                document.getElementById('avgOrderValue').textContent = 'Error';
+                document.getElementById('activeProducts').textContent = 'Error';
+                document.querySelector('#regionalPerformanceTable tbody').innerHTML = '<tr><td colspan="4">Error loading data</td></tr>';
+                document.querySelector('#topProductsTable tbody').innerHTML = '<tr><td colspan="5">Error loading data</td></tr>';
+                salesTrendChart.data.labels = [];
+                salesTrendChart.data.datasets[0].data = [];
+                salesTrendChart.update();
+                paymentChart.data.labels = [];
+                paymentChart.data.datasets[0].data = [];
+                paymentChart.options.elements.center.text = '';
+                paymentChart.update();
+                customerTypeChart.data.labels = [];
+                customerTypeChart.data.datasets[0].data = [];
+                customerTypeChart.update();
+                console.error('Error loading reports data:', error);
+            }
+        }
+        
+        function generateReport() {
+            loadReportsData();
+        }
+        
+        // Export buttons (optional: connect to backend endpoints)
+        document.getElementById('exportPdfBtn').onclick = function() {
+            window.open('/api/reports/export/pdf?' + new URLSearchParams({
+                start_date: document.getElementById('startDate').value,
+                end_date: document.getElementById('endDate').value,
+                region: document.getElementById('region').value
+            }), '_blank');
+        };
+        
+        document.getElementById('exportExcelBtn').onclick = function() {
+            window.open('/api/reports/export/excel?' + new URLSearchParams({
+                start_date: document.getElementById('startDate').value,
+                end_date: document.getElementById('endDate').value,
+                region: document.getElementById('region').value
+            }), '_blank');
+        };
+        
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set default dates (optional)
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('startDate').value = yyyy + '-01-01';
+            document.getElementById('endDate').value = yyyy + '-' + mm + '-' + dd;
+            
+            initCharts();
+            loadReportsData();
+            
+            // Add fade-in animation to elements
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((el, index) => {
+                setTimeout(() => { el.style.opacity = '1'; }, index * 100);
+            });
+        });
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
