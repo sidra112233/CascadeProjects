@@ -2,9 +2,9 @@
   "name": "flour-crm",
   "version": "1.0.0",
   "description": "Full-stack CRM system for flour selling business in Pakistan",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node app.js",
     "dev": "nodemon server.js",
     "setup-db": "node scripts/setup-database.js",
     "setup-db-simple": "node scripts/setup-database-simple.js"
